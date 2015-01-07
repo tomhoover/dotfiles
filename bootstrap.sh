@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 
-if [ `uname` == Linux ] ; then
-	apt-get install git mr
+if [ `uname` = Linux ] ; then
+	sudo apt-get update && sudo apt-get install git mr
 	if [ ! -r ~/.mrconfig ] ; then
-		mr bootstrap https://github.com/tomhoover/mr-castle/blob/master/home/.mrconfig
+		cd $HOME && mr -t -i bootstrap https://raw.githubusercontent.com/tomhoover/mr-castle/master/home/.mrconfig
 	fi
 fi
 
