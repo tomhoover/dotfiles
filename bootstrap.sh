@@ -23,7 +23,17 @@ fi
 #homeshick link
 
 #add the following to crontab:
+# @weekly brew list > ~/.config/homebrew/brew.installed
+# @weekly brew-cask list > ~/.config/homebrew/cask.installed
+
+if [ `uname` = Darwin ] ; then
+	brew install $(cat ~/.config/homebrew/brew.installed)
+	brew-cask install $(cat ~/.config/homebrew/cask.installed)
+fi
+
+#add the following to crontab:
 # @weekly comm -23 <(apt-mark showmanual | sort -u) <(gzip -dc /var/log/installer/initial-status.gz | sed -n 's/^Package: //p' | sort -u) | grep -v ^linux-headers- > ~/.config/apt-mark/installed
+
 if [ `uname` = Linux ] ; then
 	sudo aptitude install $(cat ~/.config/apt-mark/installed)
 	# sudo apt-mark manual $(cat ~/.config/apt-mark/installed) 	# this line is probably not needed, but added for good measure
