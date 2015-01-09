@@ -6,21 +6,20 @@ if [ `uname` = Darwin ] ; then
 	brew update || exit
 	brew doctor || exit
 	brew upgrade || exit
-	brew install mr vcsh
+	brew install mr
 fi
 
 if [ `uname` = Linux ] ; then
-	sudo apt-get update && sudo apt-get install git mr vcsh
+	sudo apt-get update && sudo apt-get install git mr
 fi
 
 if [ ! -r ~/.mrconfig ] ; then
-	# cd $HOME && mr -t -i bootstrap https://raw.githubusercontent.com/tomhoover/mr-castle/master/home/.mrconfig
-	cd $HOME && vcsh clone git@github.com:tomhoover/vcsh_mr.git mr
-	mr up
+	cd $HOME && mr -t -i bootstrap https://raw.githubusercontent.com/tomhoover/mr-castle/master/home/.mrconfig
 fi
 
-#source "$HOME/.homesick/repos/homeshick/homeshick.sh"
-#homeshick link
+source "$HOME/.homesick/repos/homeshick/homeshick.sh"
+homeshick link
+mr up
 
 #add the following to crontab:
 # @weekly brew list > ~/.config/homebrew/brew.installed
