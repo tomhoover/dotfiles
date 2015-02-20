@@ -13,6 +13,8 @@ if [ `uname` = Linux ] ; then
 	sudo apt-get update && sudo apt-get install git mr
 fi
 
+mkdir -p ~/.vim/autoload && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+
 if [ ! -r ~/.mrconfig ] ; then
 	cd $HOME && mr -t -i bootstrap https://raw.githubusercontent.com/tomhoover/mr-castle/master/home/.mrconfig
 fi
