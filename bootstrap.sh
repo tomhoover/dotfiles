@@ -2,7 +2,8 @@
 
 if [ `uname` = Darwin ] ; then
 	echo "verify Xcode and git are installed"
-	[ `which brew` ] || ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)"
+	[ `which brew` ] || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
 	brew update || exit
 	brew doctor || exit
 	brew upgrade || exit
@@ -13,7 +14,7 @@ if [ `uname` = Linux ] ; then
 	sudo apt-get update && sudo apt-get install git mr
 fi
 
-mkdir -p ~/.vim/autoload && curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+curl http://j.mp/spf13-vim3 -L -o - | sh
 
 if [ ! -r ~/.mrconfig ] ; then
 	cd $HOME && mr -t -i bootstrap https://raw.githubusercontent.com/tomhoover/mr-castle/master/home/.mrconfig
