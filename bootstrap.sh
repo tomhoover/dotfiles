@@ -26,11 +26,11 @@ mr up
 
 #add the following to crontab:
 # @weekly brew list > ~/.config/homebrew/brew.installed
-# @weekly brew-cask list > ~/.config/homebrew/cask.installed
+# @weekly brew cask list > ~/.config/homebrew/cask.installed
 
 if [ `uname` = Darwin ] ; then
 	brew install $(cat ~/.config/homebrew/brew.installed)
-	brew-cask install $(cat ~/.config/homebrew/cask.installed)
+	brew cask install $(cat ~/.config/homebrew/cask.installed)
 fi
 
 #add the following to crontab:
