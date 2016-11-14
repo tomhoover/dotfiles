@@ -24,6 +24,11 @@ if [ "$(hostname -s)" = unraid ] ; then
         git clone https://github.com/joeyh/myrepos.git
         cd /usr/local/bin && ln -s ~/src/myrepos/mr
     fi
+    cd ~/src || exit
+    if [ ! -d "colordiff/.git" ] ; then
+        git clone https://github.com/daveewart/colordiff.git
+        cd /usr/local/bin && ln -s ~/src/colordiff/colordiff.pl colordiff
+    fi
 elif [ "$(uname)" = Linux ] ; then
     sudo apt-get update && sudo apt-get install git mr vcsh
 fi
