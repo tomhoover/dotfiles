@@ -54,8 +54,10 @@ fi
 # @weekly brew cask list > ~/.config/homebrew/cask.installed
 
 if [ "$(uname)" = Darwin ] ; then
-    brew install "$(cat ~/.config/homebrew/brew.installed)"
-    brew cask install "$(cat ~/.config/homebrew/cask.installed)"
+    # shellcheck disable=SC2046
+    brew cask install $(cat ~/.config/homebrew/cask.installed)
+    # shellcheck disable=SC2046
+    brew install $(cat ~/.config/homebrew/brew.installed)
 fi
 
 #add the following to crontab:
@@ -67,4 +69,5 @@ if [ ! "$(hostname -s)" = unraid ] && [ "$(uname)" = Linux ] ; then
 fi
 
 echo ""
+echo "chsh -s $(which zsh)"
 echo "logout and login to re-read configuration"
