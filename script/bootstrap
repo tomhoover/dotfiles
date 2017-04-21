@@ -1,29 +1,21 @@
 #!/bin/sh
 
 if [ "$(uname)" = Darwin ] ; then
-#    #echo "verify Xcode and git are installed"
-#    [ "$(xcode-select -p)"  ] || xcode-select --install
-#    [ "$(which brew)" ] || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-#
-#    brew update || exit
-    brew doctor || exit
-#    brew upgrade || exit
+    BIN="/usr/local/bin"
+    brew doctor || true
     brew install mr vcsh
-    echo ""
-    echo "enter password for manuel:"
-    /usr/local/bin/vcsh clone manuel.local:git/private-vcsh.git private
-
-    # cleanup Git configuration.
-    git config --global --unset user.name
-    git config --global --unset user.email
-    git config --global --unset github.user
-
-    exit
+    if [ ! -d "$HOME/.config/vcsh/repo.d/private.git" ] ; then
+        mv ~/.gitconfig ~/.gitconfig.bak
+        echo ""
+        echo "enter password for manuel:"
+        "$BIN/vcsh" clone "manuel.local:git/private-vcsh.git" "private"
+    fi
 fi
 
 if [ "$(hostname -s)" = unraid ] ; then
+    BIN="/usr/local/bin"
     if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
-        mv ~/.bash_profile ~.bash_profile.bak
+        mv ~/.bash_profile ~/.bash_profile.bak
     fi
     if [ "$(whoami)" = root ] ; then
         cd /usr/bin && ln -sf 'vim' 'vi'
@@ -35,7 +27,7 @@ if [ "$(hostname -s)" = unraid ] ; then
         fi
         cd /usr/local/src || exit
         if [ ! -d "myrepos/.git" ] ; then
-            git clone https://github.com/joeyh/myrepos.git
+            git clone https://git.joeyh.name/git/myrepos.git/
             cd /usr/local/bin && ln -sf /usr/local/src/myrepos/mr
         fi
         cd /usr/local/src || exit
@@ -45,7 +37,8 @@ if [ "$(hostname -s)" = unraid ] ; then
         fi
     fi
 elif [ "$(uname)" = Linux ] ; then
-    sudo apt-get update && sudo apt-get install git mr vcsh
+    BIN="/usr/bin"
+    sudo apt-get update && sudo apt-get install git mr vcsh etckeeper
 fi
 
 REPOS="dotfiles
@@ -53,14 +46,17 @@ git
 mr"
 while read -r REPO; do
     if [ ! -d "$HOME/.config/vcsh/repo.d/$REPO.git" ] ; then
-        /usr/local/bin/vcsh clone "https://github.com/tomhoover/$REPO-vcsh.git" "$REPO"
+        "$BIN/vcsh" clone "https://github.com/tomhoover/$REPO-vcsh.git" "$REPO"
     fi
 done <<EOF
 $REPOS
 EOF
 
-if [ ! "$(hostname -s)" = unraid ] && [ "$(uname)" = Linux ] ; then
-    sudo aptitude install "$(cat ~/.config/apt/installed)"
+if [ "$(uname)" = Linux ] && [ ! "$(hostname -s)" = unraid ] ; then
+    if [ ! -d "$HOME/.config/vcsh/repo.d/apt.git" ] ; then
+        "$BIN/vcsh" clone "https://github.com/tomhoover/apt-vcsh.git" "apt"
+    fi
+    # sudo aptitude install "$(cat ~/.config/apt/installed)"
     # sudo apt-mark manual $(cat ~/.config/apt/installed) 	# this line is probably not needed, but added for good measure
 fi
 
@@ -74,7 +70,7 @@ else
 fi
 
 echo ""
-cd && /usr/local/bin/mr up
+cd && "$BIN/mr" -m up
 echo ""
 echo "chsh -s $(which zsh)"
 echo ""
