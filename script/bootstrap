@@ -71,6 +71,7 @@ fi
 
 echo ""
 cd && "$BIN/mr" -m up
+cd && [ -f .config/crontab/`hostname -s`.`whoami`.crontab ] && crontab .config/crontab/`hostname -s`.`whoami`.crontab || true
 echo ""
 echo "chsh -s $(which zsh)"
 echo ""
