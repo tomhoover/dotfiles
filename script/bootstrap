@@ -18,6 +18,7 @@ if [ "$(hostname -s)" = unraid ] ; then
         mv ~/.bash_profile ~/.bash_profile.bak
     fi
     if [ "$(whoami)" = root ] ; then
+        cd /etc/bash_completion.d && wget -N https://raw.githubusercontent.com/git/git/master/contrib/completion/git-completion.bash
         cd /usr/bin && ln -sf 'vim' 'vi'
         mkdir -p /usr/local/src
         cd /usr/local/src || exit
