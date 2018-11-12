@@ -36,6 +36,10 @@ if [ "$(hostname -s)" = unraid ] ; then
             git clone https://github.com/daveewart/colordiff.git
             cd /usr/local/bin && ln -sf /usr/local/src/colordiff/colordiff.pl colordiff
         fi
+        if [ ! -d "/opt/.git" ] ; then
+            cd / && git clone https://github.com/tomhoover/docker-compose.git opt
+            chmod 755 /opt
+        fi
     fi
 elif [ "$(uname)" = Linux ] ; then
     BIN="/usr/bin"
