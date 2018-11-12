@@ -62,7 +62,8 @@ if [ "$(uname)" = Linux ] && [ ! "$(hostname -s)" = unraid ] ; then
 fi
 
 echo ""
-cd && "$BIN/mr" -m up
+cd / && "$BIN/mr" -m up
+cd / && "$BIN/mr" -m up
 cd && [ -f .config/crontab/`hostname -s`.`whoami`.crontab ] && crontab .config/crontab/`hostname -s`.`whoami`.crontab || true
 echo ""
 echo "chsh -s $(which zsh)"
