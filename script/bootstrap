@@ -7,8 +7,8 @@ if [ "$(uname)" = Darwin ] ; then
     if [ ! -d "$HOME/.config/vcsh/repo.d/private.git" ] ; then
         mv ~/.gitconfig ~/.gitconfig.bak
         echo ""
-        echo "enter password for manuel:"
-        "$BIN/vcsh" clone "manuel.local:git/private-vcsh.git" "private"
+        echo "enter password for git@git.local:"
+        "$BIN/vcsh" clone "git@git.local:private-vcsh.git" "private"
     fi
 fi
 
