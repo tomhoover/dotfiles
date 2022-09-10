@@ -1,14 +1,16 @@
 #!/bin/sh
 
 if [ "$(uname)" = Darwin ] ; then
-    BIN="/usr/local/bin"
-    brew doctor || true
-    brew install mr vcsh
+    # BIN="/usr/local/bin"
+    [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"
+    [ -r /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
+    "$BIN/brew" doctor || true
+    "$BIN/brew" install mr vcsh
     if [ ! -d "$HOME/.config/vcsh/repo.d/private.git" ] ; then
         mv ~/.gitconfig ~/.gitconfig.bak
         echo ""
-        echo "enter password for git@git.local:"
-        "$BIN/vcsh" clone "git@git.local:private-vcsh.git" "private"
+        echo "enter password for git@gitolite:"
+        "$BIN/vcsh" clone "git@gitolite:private-vcsh.git" "private"
     fi
 fi
 
