@@ -12,9 +12,17 @@ if [ "$(uname)" = Darwin ] ; then
         echo "enter password for git@gitolite:"
         "$BIN/vcsh" clone "git@gitolite:private-vcsh.git" "private"
     fi
-fi
-
-if [ "$(hostname -s)" = unraid ] ; then
+elif [ "$(hostname -s)" = arch ] ; then
+    BIN="/usr/bin"
+    if [ ! -d "$HOME/.config/vcsh/repo.d/private.git" ] ; then
+        eval $(keychain --eval --quiet id_rsa_arch)
+        "$BIN/vcsh" clone "git@gitolite:private-vcsh.git" "private"
+    fi
+    if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
+        mv ~/.bash_profile ~/.bash_profile.bak
+        mv ~/.bashrc ~/.bashrc.bak
+    fi
+elif [ "$(hostname -s)" = unraid ] ; then
     BIN="/usr/local/bin"
     if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
         mv ~/.bash_profile ~/.bash_profile.bak
@@ -72,7 +80,7 @@ done <<EOF
 $REPOS
 EOF
 
-if [ "$(uname)" = Linux ] && [ ! "$(hostname -s)" = unraid ] ; then
+if [ "$(uname)" = Linux ] && [ ! "$(hostname -s)" = arch ] ; then
     if [ ! -d "$HOME/.config/vcsh/repo.d/apt.git" ] ; then
         "$BIN/vcsh" clone "https://github.com/tomhoover/apt-vcsh.git" "apt"
     fi
