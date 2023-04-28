@@ -68,8 +68,8 @@ sudo systemctl enable --now tailscaled
 
 mkdir -p ~/.cache/AUR
 mkdir -p ~/.config/customizepkg
-grep AURDEST             ~/.bashrc > /dev/null || echo "export AURDEST=~/.cache/AUR" >> ~/.bashrc
-grep CUSTOMIZEPKG_CONFIG ~/.bashrc > /dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >> ~/.bashrc
+grep AURDEST             ~/.exports > /dev/null || grep AURDEST             ~/.bashrc > /dev/null || echo "export AURDEST=~/.cache/AUR" >> ~/.bashrc
+grep CUSTOMIZEPKG_CONFIG ~/.exports > /dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc > /dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >> ~/.bashrc
 
 command -v paru > /dev/null || ( cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si )
 
