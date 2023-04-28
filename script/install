@@ -9,7 +9,7 @@ cd "$(dirname $0)"/..
 
 # find the installers and run them iteratively
 find . -name install.sh | sort | while read installer ; do
-    program=$(echo $installer | sed -e 's/^\.\///' -e 's/^_//' -e 's/\/.*$//')
+    program=$(echo $installer | sed -e 's/^\.\///' -e 's/^0-//' -e 's/\/.*$//')
     if command -v ${program} >/dev/null 2>&1 ; then continue; fi
     echo "Installing ${program}..."
     if [ $program = direnv ]; then
