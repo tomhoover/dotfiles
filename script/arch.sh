@@ -6,7 +6,7 @@ cd "${0%/*}" || exit 2
 
 sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
 sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-sudo pacman -S --noconfirm --needed etckeeper git
+sudo pacman -S --noconfirm --needed etckeeper git > /dev/null 2>&1
 if [ ! -d /etc/.git ] ; then
     pushd /etc || exit 3
     sudo etckeeper init
@@ -16,7 +16,7 @@ if [ ! -d /etc/.git ] ; then
     popd
 fi
 if ! sudo snapper list > /dev/null ; then
-    sudo pacman -S --noconfirm --needed snap-pac snapper
+    sudo pacman -S --noconfirm --needed snap-pac snapper > /dev/null 2>&1
     sudo sed -i 's/^#\[root\]$/[root]/' /etc/snap-pac.ini
     sudo sed -i 's/^#important_packages/important_packages/' /etc/snap-pac.ini
     sudo sed -i 's/^#important_commands/important_commands/' /etc/snap-pac.ini
@@ -33,7 +33,7 @@ if ! sudo snapper list > /dev/null ; then
     sudo snapper --config home create-config /home
     sudo sed -i 's/^ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' /etc/snapper/configs/home
     sudo snapper --config home create --description 'Initial @home snapshot'
-    sudo pacman -S --noconfirm --needed grub-btrfs inotify-tools rsync
+    sudo pacman -S --noconfirm --needed grub-btrfs inotify-tools rsync > /dev/null 2>&1
     sudo systemctl enable --now grub-btrfsd.service
     sudo systemctl enable --now snapper-cleanup.timer
     sudo systemctl enable --now snapper-timeline.timer
@@ -60,9 +60,9 @@ if ! sudo snapper list > /dev/null ; then
     fi
 fi
 
-sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted
+sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted > /dev/null 2>&1
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
-sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain mc mosh myrepos openssh tailscale tmux vcsh vim z zsh
+sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain mc mosh myrepos openssh tailscale tmux vcsh vim z zsh > /dev/null 2>&1
 sudo systemctl enable --now sshd.service
 sudo systemctl enable --now tailscaled
 
@@ -71,7 +71,7 @@ mkdir -p ~/.config/customizepkg
 grep AURDEST             ~/.bashrc > /dev/null || echo "export AURDEST=~/.cache/AUR" >> ~/.bashrc
 grep CUSTOMIZEPKG_CONFIG ~/.bashrc > /dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >> ~/.bashrc
 
-command -v paru || ( cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si )
+command -v paru > /dev/null || ( cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si )
 
 export AURDEST=~/.cache/AUR
 paru customizepkg-git
