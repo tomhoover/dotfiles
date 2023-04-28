@@ -15,6 +15,6 @@ find . -name install.sh | sort | while read installer ; do
     if [ $program = direnv ]; then
         sh -c "bin_path=~/.local/bin ${installer}"
     else
-        sh -c "${installer}"
+        sh -c "${installer}" || exit 99
     fi
 done
