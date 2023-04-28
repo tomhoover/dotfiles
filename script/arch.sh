@@ -74,7 +74,10 @@ grep CUSTOMIZEPKG_CONFIG ~/.exports > /dev/null || grep CUSTOMIZEPKG_CONFIG ~/.b
 command -v paru > /dev/null || ( cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si )
 
 export AURDEST=~/.cache/AUR
-paru customizepkg-git
+# paru customizepkg-git
+if [ ! -d "$HOME/.cache/AUR/customizepkg-git" ] ; then
+    paru customizepkg-git
+fi
 
 export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg
 if [ ! -e ~/.config/paru/paru.conf ] ; then
@@ -87,14 +90,27 @@ if [ ! -e ~/.config/paru/paru.conf ] ; then
     } >> ~/.config/paru/paru.conf
 fi
 
-# paru aura-bin
-paru console-solarized-git
-paru snapper-rollback
-paru ttf-ms-fonts
-# paru ttf-ms-win10 ttf-ms-win11 ttf-defenestration
-paru update-grub
-paru vi-vim-symlink
-# paru yay-bin
+# # paru aura-bin
+# paru console-solarized-git
+# paru snapper-rollback
+# paru ttf-ms-fonts
+# # paru ttf-ms-win10 ttf-ms-win11 ttf-defenestration
+# paru update-grub
+# paru vi-vim-symlink
+# # paru yay-bin
+
+AUR_PKG="console-solarized-git
+snapper-rollback
+ttf-ms-fonts
+update-grub
+vi-vim-symlink"
+while read -r AUR_PKG; do
+    if [ ! -d "$HOME/.cache/AUR/$AUR_PKG" ] ; then
+        paru $AUR_PKG
+    fi
+done <<EOF
+$AUR_PKG
+EOF
 
 USER=$(whoami)
 if [ ! -e ~/.ssh/id_rsa_"$(hostname -s)".pub ] ; then
