@@ -54,10 +54,10 @@ if ! sudo snapper list > /dev/null ; then
             echo "Depends = rsync"
             echo "Description = Backing up /boot..."
             echo "When = PostTransaction"
-            echo "Exec = /usr/bin/rsync -a --delete /boot /.bootbackup"
+            echo "Exec = /usr/bin/rsync -a --delete /boot/ /.bootbackup/"
         } | sudo tee /etc/pacman.d/hooks/95-bootbackup.hook
         sudo mkdir -p /.bootbackup
-        sudo rsync -a --delete /boot/* /.bootbackup/
+        sudo rsync -a --delete /boot/ /.bootbackup/
     fi
 fi
 
