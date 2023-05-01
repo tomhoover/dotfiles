@@ -19,7 +19,8 @@ if ! sudo snapper list > /dev/null ; then
     sudo pacman -S --noconfirm --needed snap-pac snapper > /dev/null 2>&1
     sudo sed -i 's/^#\[root\]$/[root]/' /etc/snap-pac.ini
     sudo sed -i 's/^#important_packages/important_packages/' /etc/snap-pac.ini
-    sudo sed -i 's/^#important_commands/important_commands/' /etc/snap-pac.ini
+    # sudo sed -i 's/^#important_commands/important_commands/' /etc/snap-pac.ini
+    sudo sed -i 's/^important_commands.*/important_commands = ["pacman -Syu", "pacman --sync -y -u --"]/' /etc/snap-pac.ini
     sudo umount /.snapshots
     sudo rmdir /.snapshots
     sudo snapper --config root create-config /
