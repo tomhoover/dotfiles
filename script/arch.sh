@@ -63,9 +63,10 @@ fi
 
 sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted > /dev/null 2>&1
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
-sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain mc mosh myrepos openssh tailscale tmux vcsh vim z zsh > /dev/null 2>&1
+sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain lsof mc mosh myrepos openssh pipx pyenv syncthing tailscale tmux vcsh vim z zsh > /dev/null 2>&1
 sudo systemctl enable --now sshd.service
 sudo systemctl enable --now tailscaled
+systemctl --user enable --now syncthing.service
 
 mkdir -p ~/.cache/AUR
 mkdir -p ~/.config/customizepkg
@@ -100,8 +101,21 @@ fi
 # paru vi-vim-symlink
 # # paru yay-bin
 
-AUR_PKG="console-solarized-git
+AUR_PKG="aurutils
+autofs
+brave-bin
+console-solarized-git
+dropbox
+duplicacy
+gnome-icon-theme
+k3sup-bin
+liquidprompt
+pyenv-virtualenv
+qpdfview
+simplescreenrecorder
 snapper-rollback
+stack-static
+ttf-iosevka
 ttf-ms-fonts
 update-grub
 vi-vim-symlink"
