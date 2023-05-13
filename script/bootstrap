@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ ! "$(whoami)" = root ] && [ ! -e ~/.ssh/id_rsa_"$(hostname -s)".pub ] ; then
+    echo "" && ssh-keygen -t rsa -b 4096 -C "$(whoami)@$(hostname -s)" -f "${HOME}"/.ssh/id_rsa_"$(hostname -s)"
+    echo ""
+    echo "Copy id_rsa_$(hostname -s).pub to gitea, gitolite-admin, gitolite1-admin & gitolite2-admin. Restart bootstrap once completed..."
+    echo ""
+    exit 1
+fi
+
 if [ "$(uname)" = Darwin ] ; then
     # BIN="/usr/local/bin"
     [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"

@@ -127,8 +127,4 @@ done <<EOF
 $AUR_PKG
 EOF
 
-USER=$(whoami)
-if [ ! -e ~/.ssh/id_rsa_"$(hostname -s)".pub ] ; then
-    echo "" && ssh-keygen -t rsa -b 4096 -C "${USER}@$(hostname -s)" -f "${HOME}"/.ssh/id_rsa_"$(hostname -s)"
-fi
 echo "" && ip a | grep 'inet ' && echo "" && echo "ssh from bethel to complete setup"
