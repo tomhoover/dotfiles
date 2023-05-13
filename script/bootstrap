@@ -40,7 +40,7 @@ elif [ "$(hostname -s)" = unraid ] ; then
             git clone https://git.joeyh.name/git/myrepos.git/
             cd /usr/local/bin && ln -sf /usr/local/src/myrepos/mr
         fi
-        cd /usr/local/src || exit 5
+        cd /usr/local/src || exit 4
         if [ ! -d "colordiff/.git" ] ; then
             git clone https://github.com/daveewart/colordiff.git
             cd /usr/local/bin && ln -sf /usr/local/src/colordiff/colordiff.pl colordiff
@@ -54,6 +54,14 @@ elif [ "$(uname)" = Linux ] ; then
     fi
     if [ "$(whoami)" = root ] ; then
         apt-get update && apt-get --yes install etckeeper keychain myrepos sudo vcsh vim zsh
+        if [ ! -d /etc/.git ] ; then
+            pushd /etc || exit 5
+            sudo etckeeper init
+            sudo git config user.email "root@$(hostname)"
+            sudo git config user.name "root"
+            sudo etckeeper commit 'Initial commit'
+            popd
+        fi
     else
         command -v git >/dev/null 2>&1 && \
           command -v mr >/dev/null 2>&1 && \
