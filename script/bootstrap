@@ -9,25 +9,14 @@ if [ ! "$(whoami)" = root ] && [ ! -e ~/.ssh/id_rsa_"$(hostname -s)".pub ] ; the
 fi
 
 if [ "$(uname)" = Darwin ] ; then
-    # BIN="/usr/local/bin"
     [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"
     [ -r /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
     "$BIN/brew" doctor || true
     "$BIN/brew" install mr vcsh
-    if [ ! -d "$HOME/.config/vcsh/repo.d/private.git" ] ; then
-        mv ~/.gitconfig ~/.gitconfig.bak
-        echo ""
-        echo "enter password for git@gitolite:"
-        "$BIN/vcsh" clone "git@gitolite:private-vcsh.git" "private"
-    fi
-# elif [ "$(hostname -s)" = arch ] ; then
+# arch
 elif [ "$(uname)" = Linux ] && [ -f /etc/arch-release ] ; then
     ./arch.sh
     BIN="/usr/bin"
-    if [ ! -d "$HOME/.config/vcsh/repo.d/private.git" ] ; then
-#        eval $(keychain --eval --quiet id_rsa_$(hostname -s))
-        "$BIN/vcsh" clone "git@gitolite:private-vcsh.git" "private"
-    fi
     if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
         mv ~/.bash_profile ~/.bash_profile.bak
         mv ~/.bashrc ~/.bashrc.bak
@@ -41,17 +30,17 @@ elif [ "$(hostname -s)" = unraid ] ; then
         cd /etc/bash_completion.d && wget -N https://raw.githubusercontent.com/git/git/v2.14.1/contrib/completion/git-completion.bash
         cd /usr/bin && ln -sf 'vim' 'vi'
         mkdir -p /usr/local/src
-        cd /usr/local/src || exit
+        cd /usr/local/src || exit 2
         if [ ! -d "vcsh/.git" ] ; then
             git clone https://github.com/RichiH/vcsh.git
             cd /usr/local/bin && ln -sf /usr/local/src/vcsh/vcsh
         fi
-        cd /usr/local/src || exit
+        cd /usr/local/src || exit 3
         if [ ! -d "myrepos/.git" ] ; then
             git clone https://git.joeyh.name/git/myrepos.git/
             cd /usr/local/bin && ln -sf /usr/local/src/myrepos/mr
         fi
-        cd /usr/local/src || exit
+        cd /usr/local/src || exit 5
         if [ ! -d "colordiff/.git" ] ; then
             git clone https://github.com/daveewart/colordiff.git
             cd /usr/local/bin && ln -sf /usr/local/src/colordiff/colordiff.pl colordiff
@@ -60,22 +49,26 @@ elif [ "$(hostname -s)" = unraid ] ; then
 elif [ "$(uname)" = Linux ] ; then
     BIN="/usr/bin"
     if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
-        mv ~/.bashrc ~/.bashrc.bak
         mv ~/.profile ~/.profile.bak
-    fi
-    if [ ! -d "$HOME/.config/vcsh/repo.d/git.git" ] ; then
-        mv ~/.gitconfig ~/.gitconfig.bak
+        mv ~/.bashrc ~/.bashrc.bak
     fi
     if [ "$(whoami)" = root ] ; then
-        apt-get update && apt-get install etckeeper myrepos sudo vcsh vim zsh
+        apt-get update && apt-get --yes install etckeeper keychain myrepos sudo vcsh vim zsh
     else
         command -v git >/dev/null 2>&1 && \
-            command -v mr >/dev/null 2>&1 && \
-            command -v sudo >/dev/null 2>&1 && \
-            command -v vcsh >/dev/null 2>&1 && \
-            command -v vim >/dev/null 2>&1 && \
-            command -v zsh >/dev/null 2>&1 || \
-            { echo "" ; echo "run bootstrap.sh as root first" ; echo "" ; exit 1 ; }
+          command -v mr >/dev/null 2>&1 && \
+          command -v sudo >/dev/null 2>&1 && \
+          command -v vcsh >/dev/null 2>&1 && \
+          command -v vim >/dev/null 2>&1 && \
+          command -v zsh >/dev/null 2>&1 || \
+          { echo "" ; echo "run bootstrap.sh as root first" ; echo "" ; exit 6 ; }
+    fi
+    if [ ! -f /etc/arch-release ] ; then
+        if [ ! -d "$HOME/.config/vcsh/repo.d/apt.git" ] ; then
+            "$BIN/vcsh" clone "https://github.com/tomhoover/apt-vcsh.git" "apt"
+        fi
+        # sudo aptitude install "$(cat ~/.config/apt/installed)"
+        # sudo apt-mark manual $(cat ~/.config/apt/installed) 	# this line is probably not needed, but added for good measure
     fi
 fi
 
@@ -84,25 +77,23 @@ git
 mr"
 while read -r REPO; do
     if [ ! -d "$HOME/.config/vcsh/repo.d/$REPO.git" ] ; then
-        "$BIN/vcsh" clone "https://github.com/tomhoover/$REPO-vcsh.git" "$REPO"
+        "$BIN/vcsh" clone "https://github.com/tomhoover/${REPO}-vcsh.git" "${REPO}"
+        "$BIN/vcsh ${REPO}" remote add gitea         "gitea:tom/${REPO}-vcsh.git"
+        "$BIN/vcsh ${REPO}" remote add gitolite1 "gitolite1:tom/${REPO}-vcsh.git"
+        "$BIN/vcsh ${REPO}" remote add gitolite2 "gitolite2:tom/${REPO}-vcsh.git"
     fi
 done <<EOF
 $REPOS
 EOF
-
-# if [ "$(uname)" = Linux ] && [ ! "$(hostname -s)" = arch ] ; then
-if [ "$(uname)" = Linux ] && [ ! -f /etc/arch-release ] ; then
-    if [ ! -d "$HOME/.config/vcsh/repo.d/apt.git" ] ; then
-        "$BIN/vcsh" clone "https://github.com/tomhoover/apt-vcsh.git" "apt"
-    fi
-    # sudo aptitude install "$(cat ~/.config/apt/installed)"
-    # sudo apt-mark manual $(cat ~/.config/apt/installed) 	# this line is probably not needed, but added for good measure
-fi
 
 echo ""
 cd && "$BIN/mr" -m -j 1 up
 cd && [ -f .config/crontab/`hostname -s`.`whoami`.crontab ] && crontab .config/crontab/`hostname -s`.`whoami`.crontab || true
 echo ""
 echo "chsh -s $(which zsh)"
+echo ""
+echo "To install 'private-vcsh' repo:"
+# echo "  mv ~/.gitconfig ~/.gitconfig.bak"
+echo "  vcsh clone 'gitea:tom/private-vcsh.git' 'private' && vcsh private remote add gitolite1 gitolite1:private-vcsh.git && vcsh private remote add gitolite2 gitolite2:private-vcsh.git"
 echo ""
 echo "logout and login to re-read configuration"
