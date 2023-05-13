@@ -74,6 +74,9 @@ elif [ "$(uname)" = Linux ] ; then
     if [ ! -f /etc/arch-release ] ; then
         if [ ! -d "$HOME/.config/vcsh/repo.d/apt.git" ] ; then
             "$BIN/vcsh" clone "https://github.com/tomhoover/apt-vcsh.git" "apt"
+            "$BIN/vcsh" apt remote add gitea gitea:tom/apt-vcsh.git
+            "$BIN/vcsh" apt remote add gitolite1 gitolite1:tom/apt-vcsh.git
+            "$BIN/vcsh" apt remote add gitolite2 gitolite2:tom/apt-vcsh.git
         fi
         # sudo aptitude install "$(cat ~/.config/apt/installed)"
         # sudo apt-mark manual $(cat ~/.config/apt/installed) 	# this line is probably not needed, but added for good measure
