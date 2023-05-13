@@ -1,3 +1,3 @@
 bootstrap a new system:
 
-`git clone https://github.com/tomhoover/dotfiles ~/.dotfiles && ~/.dotfiles/script/bootstrap`
+`curl https://raw.githubusercontent.com/tomhoover/dotfiles/master/script/bootstrap | bash`
