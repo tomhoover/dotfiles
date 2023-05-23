@@ -63,7 +63,7 @@ fi
 
 sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted > /dev/null 2>&1
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
-sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain lsof mc mosh myrepos openssh pipx pyenv syncthing tailscale tmux vcsh vim z zsh > /dev/null 2>&1
+sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain lsof mc mosh myrepos openssh pipx syncthing tailscale tmux vcsh vim z zsh > /dev/null 2>&1
 sudo systemctl enable --now sshd.service
 sudo systemctl enable --now tailscaled
 systemctl --user enable --now syncthing.service
@@ -110,7 +110,6 @@ duplicacy
 gnome-icon-theme
 k3sup-bin
 liquidprompt
-pyenv-virtualenv
 qpdfview
 simplescreenrecorder
 snapper-rollback
