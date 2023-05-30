@@ -10,10 +10,10 @@ sudo pacman -S --noconfirm --needed etckeeper git > /dev/null 2>&1
 if [ ! -d /etc/.git ] ; then
     pushd /etc || exit 3
     sudo etckeeper init
-    sudo git config user.email "root@$(hostname)"
+    sudo git config user.email "root@$(uname -n)"
     sudo git config user.name "root"
     sudo etckeeper commit 'Initial commit'
-    popd
+    popd || exit 4
 fi
 if ! sudo snapper list > /dev/null ; then
     sudo pacman -S --noconfirm --needed snap-pac snapper > /dev/null 2>&1
@@ -120,7 +120,7 @@ update-grub
 vi-vim-symlink"
 while read -r AUR_PKG; do
     if [ ! -d "$HOME/.cache/AUR/$AUR_PKG" ] ; then
-        paru $AUR_PKG
+        paru "$AUR_PKG"
     fi
 done <<EOF
 $AUR_PKG

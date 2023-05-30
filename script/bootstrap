@@ -1,11 +1,22 @@
-#!/bin/sh
+#!/bin/env sh
 
-if [ ! "$(whoami)" = root ] && [ ! -e ~/.ssh/id_rsa_"$(hostname -s)".pub ] ; then
-    echo "" && ssh-keygen -t rsa -b 4096 -C "$(whoami)@$(hostname -s)" -f "${HOME}"/.ssh/id_rsa_"$(hostname -s)"
+MYHOST=$(uname -n | sed 's/\..*//')
+
+if [ ! "$(whoami)" = root ] && [ ! -e ~/.ssh/id_rsa_"${MYHOST}".pub ] ; then
+    echo "" && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
     echo ""
-    echo "Copy id_rsa_$(hostname -s).pub to gitea, gitolite-admin, gitolite1-admin & gitolite2-admin. Restart bootstrap once completed..."
+    echo "Copy id_rsa_${MYHOST}.pub to gitea, gitolite-admin, gitolite1-admin & gitolite2-admin. Restart bootstrap once completed..."
     echo ""
     exit 1
+fi
+
+if [ ! "$(whoami)" = root ] && [ ! -d "$HOME/.dotfiles" ]; then
+  git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
+else
+  (
+    cd ~/.dotfiles || exit 2
+    git pull --rebase --autostash
+  )
 fi
 
 if [ "$(uname)" = Darwin ] ; then
@@ -15,13 +26,13 @@ if [ "$(uname)" = Darwin ] ; then
     "$BIN/brew" install mr vcsh
 # arch
 elif [ "$(uname)" = Linux ] && [ -f /etc/arch-release ] ; then
-    ./arch.sh
+    ~/.dotfiles/script/arch.sh
     BIN="/usr/bin"
     if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
         mv ~/.bash_profile ~/.bash_profile.bak
         mv ~/.bashrc ~/.bashrc.bak
     fi
-elif [ "$(hostname -s)" = unraid ] ; then
+elif [ "${MYHOST}" = unraid ] ; then
     BIN="/usr/local/bin"
     if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
         mv ~/.bash_profile ~/.bash_profile.bak
@@ -30,17 +41,17 @@ elif [ "$(hostname -s)" = unraid ] ; then
         cd /etc/bash_completion.d && wget -N https://raw.githubusercontent.com/git/git/v2.14.1/contrib/completion/git-completion.bash
         cd /usr/bin && ln -sf 'vim' 'vi'
         mkdir -p /usr/local/src
-        cd /usr/local/src || exit 2
+        cd /usr/local/src || exit 3
         if [ ! -d "vcsh/.git" ] ; then
             git clone https://github.com/RichiH/vcsh.git
-            cd /usr/local/bin && ln -sf /usr/local/src/vcsh/vcsh
-        fi
-        cd /usr/local/src || exit 3
-        if [ ! -d "myrepos/.git" ] ; then
-            git clone https://git.joeyh.name/git/myrepos.git/
-            cd /usr/local/bin && ln -sf /usr/local/src/myrepos/mr
+            cd /usr/local/bin && ln -sf /usr/local/src/vcsh/vcsh .
         fi
         cd /usr/local/src || exit 4
+        if [ ! -d "myrepos/.git" ] ; then
+            git clone https://git.joeyh.name/git/myrepos.git/
+            cd /usr/local/bin && ln -sf /usr/local/src/myrepos/mr .
+        fi
+        cd /usr/local/src || exit 5
         if [ ! -d "colordiff/.git" ] ; then
             git clone https://github.com/daveewart/colordiff.git
             cd /usr/local/bin && ln -sf /usr/local/src/colordiff/colordiff.pl colordiff
@@ -55,12 +66,13 @@ elif [ "$(uname)" = Linux ] ; then
     if [ "$(whoami)" = root ] ; then
         apt-get update && apt-get --yes install colordiff etckeeper keychain myrepos sudo vcsh vim zsh
         # if [ ! -d /etc/.git ] ; then
-            pushd /etc || exit 5
+            cd /etc || exit 6
             # sudo etckeeper init
-            sudo git config user.email "root@$(hostname)"
+            sudo git config user.email "root@$(uname -n)"
             sudo git config user.name "root"
             # sudo etckeeper commit 'Initial commit'
-            popd
+            # popd
+            { echo "" ; echo "Required commands have been installed. Restart bootstrap.sh as normal user..." ; echo "" ; exit 7 ; }
         # fi
     else
         command -v git >/dev/null 2>&1 && \
@@ -69,7 +81,7 @@ elif [ "$(uname)" = Linux ] ; then
           command -v vcsh >/dev/null 2>&1 && \
           command -v vim >/dev/null 2>&1 && \
           command -v zsh >/dev/null 2>&1 || \
-          { echo "" ; echo "run bootstrap.sh as root first" ; echo "" ; exit 6 ; }
+          { echo "" ; echo "Re-run bootstrap.sh as root to install required commands..." ; echo "" ; exit 8 ; }
     fi
     if [ ! -f /etc/arch-release ] ; then
         if [ ! -d "$HOME/.config/vcsh/repo.d/apt.git" ] ; then
@@ -99,7 +111,7 @@ EOF
 
 echo ""
 cd && "$BIN/mr" -m -j 1 up
-cd && [ -f .config/crontab/`hostname -s`.`whoami`.crontab ] && crontab .config/crontab/`hostname -s`.`whoami`.crontab || true
+cd && [ -f ".config/crontab/${MYHOST}.$(whoami).crontab" ] && crontab ".config/crontab/${MYHOST}.$(whoami).crontab" || true
 echo ""
 echo "#######################################################################################"
 echo ""
