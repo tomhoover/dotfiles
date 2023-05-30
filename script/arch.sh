@@ -6,7 +6,7 @@ cd "${0%/*}" || exit 2
 
 sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
 sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-sudo pacman -S --noconfirm --needed etckeeper git > /dev/null 2>&1
+sudo pacman -Syu --noconfirm --needed etckeeper git
 if [ ! -d /etc/.git ] ; then
     pushd /etc || exit 3
     sudo etckeeper init
@@ -15,55 +15,57 @@ if [ ! -d /etc/.git ] ; then
     sudo etckeeper commit 'Initial commit'
     popd || exit 4
 fi
-if ! sudo snapper list > /dev/null ; then
-    sudo pacman -S --noconfirm --needed snap-pac snapper > /dev/null 2>&1
-    sudo sed -i 's/^#\[root\]$/[root]/' /etc/snap-pac.ini
-    sudo sed -i 's/^#important_packages/important_packages/' /etc/snap-pac.ini
-    # sudo sed -i 's/^#important_commands/important_commands/' /etc/snap-pac.ini
-    sudo sed -i 's/^important_commands.*/important_commands = ["pacman -Syu", "pacman --sync -y -u --"]/' /etc/snap-pac.ini
-    sudo umount /.snapshots
-    sudo rmdir /.snapshots
-    sudo snapper --config root create-config /
-    sudo btrfs subvolume delete /.snapshots
-    sudo mkdir /.snapshots
-    sudo mount -a
-    sudo chmod 750 /.snapshots
-    sudo chown :wheel /.snapshots
-    sudo sed -i 's/^ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' /etc/snapper/configs/root
-    sudo snapper --config root create --description 'Initial @ snapshot'
-    sudo snapper --config home create-config /home
-    sudo sed -i 's/^ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' /etc/snapper/configs/home
-    sudo snapper --config home create --description 'Initial @home snapshot'
-    sudo pacman -S --noconfirm --needed grub-btrfs inotify-tools rsync > /dev/null 2>&1
-    sudo systemctl enable --now grub-btrfsd.service
-    sudo systemctl enable --now snapper-cleanup.timer
-    sudo systemctl enable --now snapper-timeline.timer
-    sudo systemctl enable --now systemd-boot-update
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
-    if [ ! -e /etc/pacman.d/hooks/95-bootbackup.hook ] ; then
-        sudo mkdir -p /etc/pacman.d/hooks
-        {
-            echo "[Trigger]"
-            echo "Operation = Upgrade"
-            echo "Operation = Install"
-            echo "Operation = Remove"
-            echo "Type = Path"
-            echo "Target = usr/lib/modules/*/vmlinuz"
-            echo ""
-            echo "[Action]"
-            echo "Depends = rsync"
-            echo "Description = Backing up /boot..."
-            echo "When = PostTransaction"
-            echo "Exec = /usr/bin/rsync -a --delete /boot/ /.bootbackup/"
-        } | sudo tee /etc/pacman.d/hooks/95-bootbackup.hook
-        sudo mkdir -p /.bootbackup
-        sudo rsync -a --delete /boot/ /.bootbackup/
+if $(mount | grep ' / ' | grep btrfs); then
+    if ! sudo snapper list > /dev/null ; then
+        sudo pacman -S --noconfirm --needed snap-pac snapper
+        sudo sed -i 's/^#\[root\]$/[root]/' /etc/snap-pac.ini
+        sudo sed -i 's/^#important_packages/important_packages/' /etc/snap-pac.ini
+        # sudo sed -i 's/^#important_commands/important_commands/' /etc/snap-pac.ini
+        sudo sed -i 's/^important_commands.*/important_commands = ["pacman -Syu", "pacman --sync -y -u --"]/' /etc/snap-pac.ini
+        sudo umount /.snapshots
+        sudo rmdir /.snapshots
+        sudo snapper --config root create-config /
+        sudo btrfs subvolume delete /.snapshots
+        sudo mkdir /.snapshots
+        sudo mount -a
+        sudo chmod 750 /.snapshots
+        sudo chown :wheel /.snapshots
+        sudo sed -i 's/^ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' /etc/snapper/configs/root
+        sudo snapper --config root create --description 'Initial @ snapshot'
+        sudo snapper --config home create-config /home
+        sudo sed -i 's/^ALLOW_GROUPS=.*/ALLOW_GROUPS="wheel"/' /etc/snapper/configs/home
+        sudo snapper --config home create --description 'Initial @home snapshot'
+        sudo pacman -S --noconfirm --needed grub-btrfs inotify-tools rsync
+        sudo systemctl enable --now grub-btrfsd.service
+        sudo systemctl enable --now snapper-cleanup.timer
+        sudo systemctl enable --now snapper-timeline.timer
+        sudo systemctl enable --now systemd-boot-update
+        sudo grub-mkconfig -o /boot/grub/grub.cfg
+        if [ ! -e /etc/pacman.d/hooks/95-bootbackup.hook ] ; then
+            sudo mkdir -p /etc/pacman.d/hooks
+            {
+                echo "[Trigger]"
+                echo "Operation = Upgrade"
+                echo "Operation = Install"
+                echo "Operation = Remove"
+                echo "Type = Path"
+                echo "Target = usr/lib/modules/*/vmlinuz"
+                echo ""
+                echo "[Action]"
+                echo "Depends = rsync"
+                echo "Description = Backing up /boot..."
+                echo "When = PostTransaction"
+                echo "Exec = /usr/bin/rsync -a --delete /boot/ /.bootbackup/"
+            } | sudo tee /etc/pacman.d/hooks/95-bootbackup.hook
+            sudo mkdir -p /.bootbackup
+            sudo rsync -a --delete /boot/ /.bootbackup/
+        fi
     fi
 fi
 
-sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted > /dev/null 2>&1
+sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
-sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain lsof mc mosh myrepos openssh pipx syncthing tailscale tmux vcsh vim z zsh > /dev/null 2>&1
+sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain lsof mc mosh myrepos openssh pipx syncthing tailscale tmux vcsh vim z zsh
 sudo systemctl enable --now sshd.service
 sudo systemctl enable --now tailscaled
 systemctl --user enable --now syncthing.service
