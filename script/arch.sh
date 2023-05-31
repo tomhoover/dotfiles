@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+install_AUR_pkg()
+{
+    if [ ! -d "$HOME/.cache/AUR/$1" ] ; then
+	echo ""
+        echo "`tput setaf 1`Installing $1...`tput sgr0`"
+        paru -S "$1"
+    fi
+}
+
 [ "$(id -u)" -eq 0 ] && { echo "Run $0 as yourself (not as root), exiting"; exit 1; }
 
 cd "${0%/*}" || exit 2
@@ -74,16 +83,15 @@ mkdir -p ~/.cache/AUR
 mkdir -p ~/.config/customizepkg
 grep AURDEST             ~/.exports > /dev/null || grep AURDEST             ~/.bashrc > /dev/null || echo "export AURDEST=~/.cache/AUR" >> ~/.bashrc
 grep CUSTOMIZEPKG_CONFIG ~/.exports > /dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc > /dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >> ~/.bashrc
+source ~/.bashrc
 
 command -v paru > /dev/null || ( cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si )
 
-export AURDEST=~/.cache/AUR
-# paru customizepkg-git
 if [ ! -d "$HOME/.cache/AUR/customizepkg-git" ] ; then
-    paru customizepkg-git
+    rm ~/.config/paru/paru.conf
+    paru -S customizepkg-git
 fi
 
-export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg
 if [ ! -e ~/.config/paru/paru.conf ] ; then
     mkdir -p ~/.config/paru
     {
@@ -94,38 +102,22 @@ if [ ! -e ~/.config/paru/paru.conf ] ; then
     } >> ~/.config/paru/paru.conf
 fi
 
-# # paru aura-bin
-# paru console-solarized-git
-# paru snapper-rollback
-# paru ttf-ms-fonts
-# # paru ttf-ms-win10 ttf-ms-win11 ttf-defenestration
-# paru update-grub
-# paru vi-vim-symlink
-# # paru yay-bin
-
-AUR_PKG="aurutils
-autofs
-brave-bin
-console-solarized-git
-dropbox
-duplicacy
-gnome-icon-theme
-k3sup-bin
-liquidprompt
-qpdfview
-simplescreenrecorder
-snapper-rollback
-stack-static
-ttf-iosevka
-ttf-ms-fonts
-update-grub
-vi-vim-symlink"
-while read -r AUR_PKG; do
-    if [ ! -d "$HOME/.cache/AUR/$AUR_PKG" ] ; then
-        paru "$AUR_PKG"
-    fi
-done <<EOF
-$AUR_PKG
-EOF
+install_AUR_pkg aurutils
+install_AUR_pkg autofs
+install_AUR_pkg brave-bin
+install_AUR_pkg console-solarized-git
+# install_AUR_pkg dropbox
+install_AUR_pkg duplicacy
+install_AUR_pkg gnome-icon-theme
+install_AUR_pkg k3sup-bin
+install_AUR_pkg liquidprompt
+install_AUR_pkg qpdfview
+install_AUR_pkg simplescreenrecorder
+install_AUR_pkg snapper-rollback
+install_AUR_pkg stack-static
+install_AUR_pkg ttf-iosevka
+install_AUR_pkg ttf-ms-fonts
+install_AUR_pkg update-grub
+install_AUR_pkg vi-vim-symlink
 
 echo "" && ip a | grep 'inet ' && echo "" && echo "ssh from bethel to complete setup"
