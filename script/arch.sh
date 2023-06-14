@@ -74,7 +74,7 @@ fi
 
 sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
-sudo pacman -S --noconfirm --needed acpi bat colordiff diff-so-fancy fzf keychain lsof mc mosh myrepos openssh python-pipx syncthing tailscale tmux vcsh vim z zsh
+sudo pacman -S --noconfirm --needed acpi bat colordiff curl diff-so-fancy fzf keychain lsof mc mosh myrepos openssh python-pipx syncthing tailscale tk tmux vcsh vim z zsh
 sudo systemctl enable --now sshd.service
 sudo systemctl enable --now tailscaled
 systemctl --user enable --now syncthing.service
