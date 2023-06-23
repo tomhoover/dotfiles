@@ -1,4 +1,4 @@
-#!/bin/env sh
+#!/usr/bin/env sh
 
 MYHOST=$(uname -n | sed 's/\..*//')     # alternative to $(hostname -s), as arch does not install 'hostname' by default
 
@@ -109,6 +109,14 @@ echo ""
 cd && "$BIN/mr" -m -j 1 up
 # shellcheck disable=SC2015
 cd && [ -f ".config/crontab/${MYHOST}.$(whoami).crontab" ] && crontab ".config/crontab/${MYHOST}.$(whoami).crontab" || true
+
+echo ""
+if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.asdf" ]; then
+    git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.12.0
+else
+    ~/.dotfiles/asdf-plugins/install.sh
+fi
+
 echo ""
 echo "#######################################################################################"
 echo ""
