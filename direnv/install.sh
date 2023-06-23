@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+exit
+
 #
 # A good old bash | curl script for direnv.
 #
