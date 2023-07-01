@@ -20,7 +20,7 @@ asdf plugin update --all
 
 echo ""
 
-if ! asdf plugin list | grep -q direnv; then
+if ! asdf plugin list | grep -q '^direnv$'; then
     asdf plugin add direnv https://github.com/asdf-community/asdf-direnv.git
     asdf direnv setup --no-touch-rc-file --shell bash --version latest
     asdf direnv setup --no-touch-rc-file --shell zsh --version latest
@@ -31,27 +31,32 @@ else
 fi
 install_latest direnv
 
-if ! asdf plugin list | grep -q bats; then
+if ! asdf plugin list | grep -q '^bats$'; then
     asdf plugin add bats https://github.com/timgluz/asdf-bats.git
 fi
 install_latest bats
 
-if ! asdf plugin list | grep -q shfmt; then
+if ! asdf plugin list | grep -q '^shfmt$'; then
     asdf plugin add shfmt https://github.com/luizm/asdf-shfmt.git
 fi
 install_latest shfmt
 
-if ! asdf plugin list | grep -q python; then
+if ! asdf plugin list | grep -q '^python$'; then
     asdf plugin add python https://github.com/asdf-community/asdf-python.git
 fi
 install_latest python
+
+if ! asdf plugin list | grep -q '^terraform$'; then
+    asdf plugin add terraform https://github.com/asdf-community/asdf-hashicorp.git
+fi
+install_latest terraform
 
 # the following is required until shellcheck releases an M1/M2 binary (https://github.com/koalaman/shellcheck/issues/2714)
 if [ "$(uname)" = Darwin ]; then
     brew tap tomhoover/shellcheck
     brew install shellcheck@0.8.0
 else
-    if ! asdf plugin list | grep -q shellcheck; then
+    if ! asdf plugin list | grep -q '^shellcheck$'; then
         asdf plugin add shellcheck https://github.com/luizm/asdf-shellcheck.git
         asdf install shellcheck 0.8.0
         asdf global shellcheck 0.8.0
