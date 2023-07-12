@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+RED=$(tput setaf 1)
+# GREEN=$(tput setaf 2)
+# YELLOW=$(tput setaf 3)
+BLUE=$(tput setaf 4)
+# MAGENTA=$(tput setaf 5)
+# CYAN=$(tput setaf 6)
+RESET=$(tput sgr0)
+
 install_latest() {
     cd || return
     current=$(asdf current "$1" | awk '{ print $2 }')
@@ -9,7 +17,7 @@ install_latest() {
         echo "$1 current version is: $current"
         echo "$1 latest version is: $latest"
         asdf install "$1" latest
-        echo "### If desired, run: asdf global $1 latest"
+        echo "### ${RED}If desired, run: ${BLUE}asdf global $1 latest${RESET}"
         echo ""
     fi
 }
@@ -50,6 +58,16 @@ if ! asdf plugin list | grep -q '^terraform$'; then
     asdf plugin add terraform https://github.com/asdf-community/asdf-hashicorp.git
 fi
 install_latest terraform
+
+if ! asdf plugin list | grep -q '^tflint$'; then
+    asdf plugin add tflint https://github.com/skyzyx/asdf-tflint.git
+fi
+install_latest tflint
+
+if ! asdf plugin list | grep -q '^tfsec$'; then
+    asdf plugin add tfsec https://github.com/woneill/asdf-tfsec.git
+fi
+install_latest tfsec
 
 # the following is required until shellcheck releases an M1/M2 binary (https://github.com/koalaman/shellcheck/issues/2714)
 if [ "$(uname)" = Darwin ]; then
