@@ -8,9 +8,9 @@ command -v ansible    >/dev/null 2>&1 || pipx install --include-deps ansible
     # pipx inject ansible $module
     #   injected package $module into venv ansible
     #   done! ✨ 🌟 ✨
-
-# pipx inject ansible requests
-# pipx inject ansible passlib
+jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json | grep requests || pipx inject ansible requests
+jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json | grep passlib  || pipx inject ansible passlib
+jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json | grep netaddr  || pipx inject ansible netaddr
 
 command -v black      >/dev/null 2>&1 || pipx install black
 command -v flake8     >/dev/null 2>&1 || pipx install flake8
