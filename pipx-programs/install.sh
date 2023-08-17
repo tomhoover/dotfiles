@@ -20,3 +20,8 @@ command -v ipython    >/dev/null 2>&1 || pipx install ipython
 command -v pre-commit >/dev/null 2>&1 || pipx install pre-commit
 command -v pylint     >/dev/null 2>&1 || pipx install pylint
 command -v tmuxp      >/dev/null 2>&1 || pipx install tmuxp
+
+#### pipx inject ansible molecule
+command -v molecule   >/dev/null 2>&1 || pipx install molecule
+#### pipx inject molecule molecule-docker
+jq -r '.injected_packages | keys' ~/.local/pipx/venvs/molecule/pipx_metadata.json | grep molecule-plugins || { pipx inject molecule molecule-plugins; pipx inject molecule 'molecule-plugins[docker]'; }
