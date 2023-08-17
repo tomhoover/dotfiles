@@ -44,6 +44,11 @@ if ! asdf plugin list | grep -q '^bats$'; then
 fi
 install_latest bats
 
+if ! asdf plugin list | grep -q '^nodejs$'; then
+    asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+fi
+install_latest nodejs
+
 if ! asdf plugin list | grep -q '^shfmt$'; then
     asdf plugin add shfmt https://github.com/luizm/asdf-shfmt.git
 fi
