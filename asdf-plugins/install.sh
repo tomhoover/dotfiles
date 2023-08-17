@@ -49,6 +49,11 @@ if ! asdf plugin list | grep -q '^shfmt$'; then
 fi
 install_latest shfmt
 
+if ! asdf plugin list | grep -q '^pnpm$'; then
+    asdf plugin add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
+fi
+install_latest pnpm
+
 if ! asdf plugin list | grep -q '^python$'; then
     asdf plugin add python https://github.com/asdf-community/asdf-python.git
 fi
