@@ -39,6 +39,11 @@ else
 fi
 install_latest direnv
 
+# if ! asdf plugin list | grep -q '^bat$'; then
+#     asdf plugin add bat https://gitlab.com/wt0f/asdf-bat.git
+# fi
+# install_latest bat
+
 if ! asdf plugin list | grep -q '^bats$'; then
     asdf plugin add bats https://github.com/timgluz/asdf-bats.git
 fi
@@ -78,6 +83,18 @@ if ! asdf plugin list | grep -q '^tfsec$'; then
     asdf plugin add tfsec https://github.com/woneill/asdf-tfsec.git
 fi
 install_latest tfsec
+
+# the following is required until bat releases an M1/M2 binary (https://github.com/sharkdp/bat/issues/1551)
+if [ "$(uname)" = Darwin ]; then
+    brew install bat
+else
+    if ! asdf plugin list | grep -q '^bat$'; then
+        asdf plugin add bat https://gitlab.com/wt0f/asdf-bat.git
+        asdf install bat latest
+        echo "### ${RED}If desired, run: ${BLUE}asdf global bat latest${RESET}"
+    fi
+    install_latest bat
+fi
 
 # the following is required until shellcheck releases an M1/M2 binary (https://github.com/koalaman/shellcheck/issues/2714)
 if [ "$(uname)" = Darwin ]; then
