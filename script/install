@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2015
 
 # Run all dotfiles installers.
 # https://github.com/MartinHeinz/dotfiles/blob/master/script/install
@@ -13,16 +14,16 @@ command -v apt >/dev/null 2>&1 && \
       sudo apt --yes install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
       libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev )
 
-cd "$(dirname $0)"/..
+cd "$(dirname "$0")"/..
 
 # find the installers and run them iteratively
-find . -name install.sh | sort | while read installer ; do
-    program=$(echo $installer | sed -e 's/^\.\///' -e 's/^0-//' -e 's/\/.*$//')
-    if command -v ${program} >/dev/null 2>&1 ; then continue; fi
+find . -name install.sh | sort | while read -r installer ; do
+    program=$(echo "$installer" | sed -e 's/^\.\///' -e 's/^0-//' -e 's/\/.*$//')
+    if command -v "${program}" >/dev/null 2>&1 ; then continue; fi
     echo "Installing ${program}..."
-    if [ $program = 0-pyenv ]; then
+    if [ "$program" = 0-pyenv ]; then
         command -v pyenv >/dev/null 2>&1 || sh -c "${installer}"
-    elif [ $program = direnv ]; then
+    elif [ "$program" = direnv ]; then
         sh -c "bin_path=~/.local/bin ${installer}"
     else
         sh -c "${installer}" || exit 99
