@@ -26,7 +26,7 @@ if [ "$(uname)" = Darwin ] ; then
     "$BIN/brew" install mr vcsh
 # arch
 elif [ "$(uname)" = Linux ] && [ -f /etc/arch-release ] ; then
-    ~/.dotfiles/script/arch.sh
+    ~/.dotfiles/script/arch
     BIN="/usr/bin"
     if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
         mv ~/.bash_profile ~/.bash_profile.bak
