@@ -59,6 +59,11 @@ if ! asdf plugin list | grep -q '^shfmt$'; then
 fi
 install_latest shfmt
 
+if ! asdf plugin list | grep -q '^pipx$'; then
+    asdf plugin add pipx https://github.com/joe733/asdf-pipx.git
+fi
+install_latest pipx
+
 if ! asdf plugin list | grep -q '^pnpm$'; then
     asdf plugin add pnpm https://github.com/jonathanmorley/asdf-pnpm.git
 fi
