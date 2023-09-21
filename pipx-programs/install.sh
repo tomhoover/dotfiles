@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-command -v pipx       >/dev/null 2>&1 && pipx reinstall-all
+command -v pipx       >/dev/null 2>&1 && asdf global pipx latest && pipx reinstall-all
 
 # https://github.com/pypa/pipx/issues/20
 command -v ansible    >/dev/null 2>&1 || pipx install --include-deps ansible
