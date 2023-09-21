@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-# TODO: commented out the following due to the following error on arch:
-# Can not find pip. You may encounter issues uninstalling packages. Remove /home/tom/.local/pipx/shared and run 'pipx reinstall-all' to fix them.
-# command -v pipx       >/dev/null 2>&1 && pipx reinstall-all
+command -v pipx       >/dev/null 2>&1 && pipx reinstall-all
 
 # https://github.com/pypa/pipx/issues/20
 command -v ansible    >/dev/null 2>&1 || pipx install --include-deps ansible

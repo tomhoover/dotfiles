@@ -74,7 +74,7 @@ fi
 
 sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
-sudo pacman -S --noconfirm --needed acpi bat colordiff curl diff-so-fancy fzf keychain lsof mc mosh myrepos openssh python-pipx syncthing tailscale tk tmux vcsh vim z zsh
+sudo pacman -S --noconfirm --needed acpi colordiff curl diff-so-fancy fzf keychain lsof mc mosh myrepos openssh syncthing tailscale tk tmux vcsh vim z zsh
 sudo systemctl enable --now sshd.service
 sudo systemctl enable --now tailscaled
 systemctl --user enable --now syncthing.service
@@ -83,6 +83,8 @@ mkdir -p ~/.cache/AUR
 mkdir -p ~/.config/customizepkg
 grep AURDEST             ~/.exports > /dev/null || grep AURDEST             ~/.bashrc > /dev/null || echo "export AURDEST=~/.cache/AUR" >> ~/.bashrc
 grep CUSTOMIZEPKG_CONFIG ~/.exports > /dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc > /dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >> ~/.bashrc
+
+# shellcheck source=/dev/null
 source ~/.bashrc
 
 command -v paru > /dev/null || ( cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si )
