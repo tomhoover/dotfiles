@@ -12,14 +12,16 @@ jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json
 jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json | grep passlib  >/dev/null || pipx inject ansible passlib
 jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json | grep netaddr  >/dev/null || pipx inject ansible netaddr
 
-command -v black      >/dev/null 2>&1 || pipx install black
-command -v flake8     >/dev/null 2>&1 || pipx install flake8
-command -v ipython    >/dev/null 2>&1 || pipx install ipython
-# command -v mypy     >/dev/null 2>&1 || pipx install mypy
-# command -v pipenv   >/dev/null 2>&1 || pipx install pipenv
-command -v pre-commit >/dev/null 2>&1 || pipx install pre-commit
-command -v pylint     >/dev/null 2>&1 || pipx install pylint
-command -v tmuxp      >/dev/null 2>&1 || pipx install tmuxp
+command -v black        >/dev/null 2>&1 || pipx install black
+command -v cookiecutter >/dev/null 2>&1 || pipx install cookiecutter
+command -v flake8       >/dev/null 2>&1 || pipx install flake8
+command -v isort        >/dev/null 2>&1 || pipx install isort
+command -v ipython      >/dev/null 2>&1 || pipx install ipython
+command -v pre-commit   >/dev/null 2>&1 || pipx install pre-commit
+command -v pylint       >/dev/null 2>&1 || pipx install pylint
+command -v tmuxp        >/dev/null 2>&1 || pipx install tmuxp
+# command -v mypy         >/dev/null 2>&1 || pipx install mypy
+# command -v pipenv       >/dev/null 2>&1 || pipx install pipenv
 
 #### pipx inject ansible molecule
 command -v molecule   >/dev/null 2>&1 || pipx install molecule
