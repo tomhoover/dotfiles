@@ -31,3 +31,13 @@ find . -name install.sh | sort | while read -r installer ; do
         sh -c "${installer}" || exit 99
     fi
 done
+
+# disable exit on error
+set +e
+
+echo
+# for item in pyenv asdf pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp mypy pipenv molecule ; do
+for item in pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp molecule ; do
+    echo "Installed versions of ${item}:"
+    which -a "${item}"
+done
