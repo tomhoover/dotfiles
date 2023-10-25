@@ -35,9 +35,9 @@ done
 # disable exit on error
 set +e
 
-echo
 # for item in pyenv asdf rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp mypy pipenv molecule ; do
 for item in rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp molecule ; do
+    echo
     echo "Installed versions of ${item}:"
     which -a "${item}"
 done
