@@ -36,8 +36,8 @@ done
 set +e
 
 echo
-# for item in pyenv asdf pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp mypy pipenv molecule ; do
-for item in pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp molecule ; do
+# for item in pyenv asdf rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp mypy pipenv molecule ; do
+for item in rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp molecule ; do
     echo "Installed versions of ${item}:"
     which -a "${item}"
 done
