@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+rtx install --install-missing
+
+exit
+
 RED=$(tput setaf 1)
 # GREEN=$(tput setaf 2)
 # YELLOW=$(tput setaf 3)
@@ -54,11 +58,6 @@ if ! asdf plugin list | grep -q '^nodejs$'; then
 fi
 install_latest nodejs
 
-if ! asdf plugin list | grep -q '^shfmt$'; then
-    asdf plugin add shfmt https://github.com/luizm/asdf-shfmt.git
-fi
-install_latest shfmt
-
 if ! asdf plugin list | grep -q '^pipx$'; then
     asdf plugin add pipx https://github.com/joe733/asdf-pipx.git
 fi
@@ -73,6 +72,11 @@ if ! asdf plugin list | grep -q '^python$'; then
     asdf plugin add python https://github.com/asdf-community/asdf-python.git
 fi
 install_latest python
+
+if ! asdf plugin list | grep -q '^shfmt$'; then
+    asdf plugin add shfmt https://github.com/luizm/asdf-shfmt.git
+fi
+install_latest shfmt
 
 if ! asdf plugin list | grep -q '^terraform$'; then
     asdf plugin add terraform https://github.com/asdf-community/asdf-hashicorp.git

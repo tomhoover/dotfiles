@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-
-exit
-
 #
 # A good old bash | curl script for direnv.
 #
@@ -42,6 +39,9 @@ set -euo pipefail
       ;;
     i686 | i386)
       machine=386
+      ;;
+    armv7l)
+      machine=arm
       ;;
     aarch64 | arm64)
       machine=arm64
@@ -84,7 +84,7 @@ set -euo pipefail
     curl -fL "https://api.github.com/repos/direnv/direnv/releases/$release" \
     | grep browser_download_url \
     | cut -d '"' -f 4 \
-    | grep "direnv.$kernel.$machine"
+    | grep "direnv.$kernel.$machine\$"
   )
   echo "download_url=$download_url"
 

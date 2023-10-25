@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-command -v pipx       >/dev/null 2>&1 && asdf global pipx latest && pipx reinstall-all
+# command -v pipx         >/dev/null 2>&1 && asdf global pipx latest && pipx reinstall-all
+
+if [ "$(rtx global pipx)" != "$(rtx ls-remote pipx | tail -1)" ]; then
+    # rtx use -g pipx@latest && pipx reinstall-all
+    rtx global pipx@"$(rtx ls-remote pipx | tail -1)" && rtx install && pipx reinstall-all
+fi
 
 # https://github.com/pypa/pipx/issues/20
 command -v ansible    >/dev/null 2>&1 || pipx install --include-deps ansible
