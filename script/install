@@ -41,3 +41,18 @@ for item in rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit 
     echo "Installed versions of ${item}:"
     which -a "${item}"
 done
+
+command -v ~/.pyenv/bin/pyenv >/dev/null 2>&1 && echo && echo "Consider removing pyenv."
+command -v ~/.asdf/bin/asdf   >/dev/null 2>&1 && echo && echo "Consider removing asdf."
+
+if ls -d ~/.pyenv* >/dev/null 2>&1 ; then
+    echo
+    echo "Consider removing the following .pyenv* directory(s):"
+    ls -d ~/.pyenv*
+fi
+
+if ls -d ~/.asdf* >/dev/null 2>&1 ; then
+    echo
+    echo "Consider removing the following .asdf* directory(s):"
+    ls -d ~/.asdf*
+fi
