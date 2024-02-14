@@ -2,9 +2,9 @@
 
 # command -v pipx         >/dev/null 2>&1 && asdf global pipx latest && pipx reinstall-all
 
-if [ "$(rtx global pipx)" != "$(rtx ls-remote pipx | tail -1)" ]; then
-    # rtx use -g pipx@latest && pipx reinstall-all
-    rtx global pipx@"$(rtx ls-remote pipx | tail -1)" && rtx install && pipx reinstall-all
+if [ "$(mise global pipx)" != "$(mise ls-remote pipx | tail -1)" ]; then
+    # mise use -g pipx@latest && pipx reinstall-all
+    mise global pipx@"$(mise ls-remote pipx | tail -1)" && mise install && pipx reinstall-all
 fi
 
 # https://github.com/pypa/pipx/issues/20

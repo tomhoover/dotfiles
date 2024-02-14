@@ -14,9 +14,6 @@ command -v apt >/dev/null 2>&1 && \
       sudo apt --yes install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
       libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev )
 
-# ensure rtx is available on the PATH
-ln -sf ~/.local/share/rtx/bin/rtx ~/.local/bin/rtx
-
 cd "$(dirname "$0")"/..
 
 # find the installers and run them iteratively
@@ -36,23 +33,31 @@ done
 set +e
 
 # for item in pyenv asdf rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp mypy pipenv molecule ; do
-for item in rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp molecule ; do
+for item in mise pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp molecule ; do
     echo
     echo "Installed versions of ${item}:"
     which -a "${item}"
 done
 
-command -v ~/.pyenv/bin/pyenv >/dev/null 2>&1 && echo && echo "Consider removing pyenv."
-command -v ~/.asdf/bin/asdf   >/dev/null 2>&1 && echo && echo "Consider removing asdf."
+command -v ~/.pyenv/bin/pyenv         >/dev/null 2>&1 && echo && echo "Consider removing pyenv."
+command -v ~/.asdf/bin/asdf           >/dev/null 2>&1 && echo && echo "Consider removing asdf."
+command -v ~/.local/bin/rtx           >/dev/null 2>&1 && echo && echo "Consider removing rtx link in .local/bin."
+command -v ~/.local/share/rtx/bin/rtx >/dev/null 2>&1 && echo && echo "Consider removing rtx."
 
 if ls -d ~/.pyenv* >/dev/null 2>&1 ; then
     echo
-    echo "Consider removing the following .pyenv* directory(s):"
+    echo "Consider removing the following ~/.pyenv* directory(s):"
     ls -d ~/.pyenv*
 fi
 
 if ls -d ~/.asdf* >/dev/null 2>&1 ; then
     echo
-    echo "Consider removing the following .asdf* directory(s):"
+    echo "Consider removing the following ~/.asdf* directory(s):"
     ls -d ~/.asdf*
+fi
+
+if ls -d ~/.local/share/rtx* >/dev/null 2>&1 ; then
+    echo
+    echo "Consider removing the following ~/.local/share/rtx* directory(s):"
+    ls -d ~/.local/share/rtx*
 fi

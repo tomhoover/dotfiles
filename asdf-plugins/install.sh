@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-rtx install --install-missing
+mise install
 
 exit
 
