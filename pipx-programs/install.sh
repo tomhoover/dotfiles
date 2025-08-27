@@ -31,6 +31,7 @@ command -v ipython      >/dev/null 2>&1 || pipx install ipython
 command -v pre-commit   >/dev/null 2>&1 || pipx install pre-commit
 command -v pylint       >/dev/null 2>&1 || pipx install pylint
 command -v tmuxp        >/dev/null 2>&1 || pipx install tmuxp
+command -v uv           >/dev/null 2>&1 || pipx install uv
 # command -v mypy         >/dev/null 2>&1 || pipx install mypy
 # command -v pipenv       >/dev/null 2>&1 || pipx install pipenv
 
