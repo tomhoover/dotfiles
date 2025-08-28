@@ -2,9 +2,8 @@
 
 # command -v pipx         >/dev/null 2>&1 && asdf global pipx latest && pipx reinstall-all
 
-if [ "$(mise global pipx)" != "$(mise ls-remote pipx | tail -1)" ]; then
-    # mise use -g pipx@latest && pipx reinstall-all
-    mise global pipx@"$(mise ls-remote pipx | tail -1)" && mise install && pipx reinstall-all
+if [ "$(awk '/pipx/ {print substr($3,2,length($3)-2)}' "$HOME/.config/mise/config.toml")" != "$(mise ls-remote pipx | tail -1)" ]; then
+    mise use -g pipx@latest && pipx reinstall-all
 fi
 
 # https://github.com/pypa/pipx/issues/20
