@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+uv tool install --with requests --with passlib --with netaddr --with-executables-from ansible-core,ansible-lint ansible
+
+exit
+
 # command -v pipx         >/dev/null 2>&1 && asdf global pipx latest && pipx reinstall-all
 
 if [ "$(awk '/pipx/ {print substr($3,2,length($3)-2)}' "$HOME/.config/mise/config.toml")" != "$(mise ls-remote pipx | tail -1)" ]; then
@@ -19,18 +23,20 @@ jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json
 # gron ~/.local/pipx/venvs/ansible/pipx_metadata.json | grep 'json.injected_packages.netaddr' >/dev/null || pipx inject ansible netaddr
 jq -r '.injected_packages | keys' ~/.local/pipx/venvs/ansible/pipx_metadata.json | grep netaddr  >/dev/null || pipx inject ansible netaddr
 
-# https://github.com/mkb79/audible-cli
-command -v audible      >/dev/null 2>&1 || pipx install audible-cli
+# command -v uv           >/dev/null 2>&1 || pipx install uv            # install via 'mise use -g uv'
+# command -v black        >/dev/null 2>&1 || pipx install black         # install via 'mise use -g black'
+# command -v cookiecutter >/dev/null 2>&1 || pipx install cookiecutter  # install via 'mise use -g cookiecutter'
+# command -v pre-commit   >/dev/null 2>&1 || pipx install pre-commit    # install via 'mise use -g pre-commit'
 
-command -v black        >/dev/null 2>&1 || pipx install black
-command -v cookiecutter >/dev/null 2>&1 || pipx install cookiecutter
-command -v flake8       >/dev/null 2>&1 || pipx install flake8
-command -v isort        >/dev/null 2>&1 || pipx install isort
-command -v ipython      >/dev/null 2>&1 || pipx install ipython
-command -v pre-commit   >/dev/null 2>&1 || pipx install pre-commit
-command -v pylint       >/dev/null 2>&1 || pipx install pylint
-command -v tmuxp        >/dev/null 2>&1 || pipx install tmuxp
-command -v uv           >/dev/null 2>&1 || pipx install uv
+# https://github.com/mkb79/audible-cli
+# command -v audible      >/dev/null 2>&1 || pipx install audible-cli   # not found in mise tool registry, install via 'mise use -g pipx:audible-cli'
+#
+# command -v flake8       >/dev/null 2>&1 || pipx install flake8        # not found in mise tool registry, install via 'mise use -g pipx:flake8'
+# command -v ipython      >/dev/null 2>&1 || pipx install ipython       # not found in mise tool registry, install via 'mise use -g pipx:ipython'
+# command -v isort        >/dev/null 2>&1 || pipx install isort         # not found in mise tool registry, install via 'mise use -g pipx:isort'
+# command -v pylint       >/dev/null 2>&1 || pipx install pylint        # not found in mise tool registry, install via 'mise use -g pipx:pylint'
+# command -v tmuxp        >/dev/null 2>&1 || pipx install tmuxp         # not found in mise tool registry, install via 'mise use -g pipx:tmuxp'
+
 # command -v mypy         >/dev/null 2>&1 || pipx install mypy
 # command -v pipenv       >/dev/null 2>&1 || pipx install pipenv
 
