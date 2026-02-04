@@ -67,18 +67,19 @@ clone_apt_vcsh()
   if isdebian; then
     github_vclone apt
     sudo aptitude install "$(cat ~/.config/apt/installed)"
-    sudo apt-mark manual "$(cat ~/.config/apt/installed)"     # this line is probably not needed, but added for good measure
+    sudo apt-mark manual "$(cat ~/.config/apt/installed)" # this line is probably not needed, but added for good measure
   fi
 }
 
 # shellcheck disable=SC2329
-backup_file() {
+backup_file()
+{
   echo "Backing up ${1}..."
   # shellcheck disable=SC2086
   mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
   # shellcheck disable=SC2086
   mv "${1}" "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
-  echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >> "$HOME/fixups.sh"
+  echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >>"$HOME/fixups.sh"
 }
 
 # # bash/zsh function exporting shortcut
@@ -93,7 +94,8 @@ export backup_file='backup_file() {
   echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >> "$HOME/fixups.sh"
 }'
 
-github_vclone() {
+github_vclone()
+{
   if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
     if "$BIN/vcsh" clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
       echo "${1} successfully cloned..."
@@ -109,7 +111,8 @@ github_vclone() {
 }
 
 # shellcheck disable=SC2329
-gitolite_vclone() {
+gitolite_vclone()
+{
   if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
     if "$BIN/vcsh" clone "gitolite:${1}-vcsh.git" "${1}"; then
       echo "${1} successfully cloned..."
@@ -122,7 +125,8 @@ gitolite_vclone() {
   fi
 }
 
-localhost_vclone() {
+localhost_vclone()
+{
   if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
     if "$BIN/vcsh" clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
       echo "${1} successfully cloned..."
@@ -135,8 +139,18 @@ localhost_vclone() {
   fi
 }
 
+clear_stdin()
+{
+  old_tty_settings="$(stty -g)"
+  stty -icanon min 0 time 0
+  cat - >/dev/null
+  stty "$old_tty_settings"
+  unset old_tty_settings
+}
+
 clone_private_repos()
 {
+  clear_stdin
   echo
   echo "$(tput setaf 5)Please copy desired private repos ($(tput setaf 6)gnupg ssh private-vcsh$(tput setaf 5)) from IRONKEY to ~/git/"
   echo "          $(tput setaf 4)press the $(tput setaf 2)ENTER$(tput setaf 4) key to continue (or $(tput setaf 1)CTRL-C$(tput setaf 4) to abort)$(tput sgr0)"
