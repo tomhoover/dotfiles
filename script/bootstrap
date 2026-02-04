@@ -147,26 +147,21 @@ clone_private_repos()
   echo "          $(tput setaf 4)press the $(tput setaf 2)ENTER$(tput setaf 4) key to continue (or $(tput setaf 1)CTRL-C$(tput setaf 4) to abort)$(tput sgr0)"
   read -r _
 
-REPOS="gnupg
-ssh"
-while read -r REPO; do
+REPOS="gnupg ssh"
+for REPO in $REPOS; do
 if [ -d "${HOME}/git/${REPO}.git" ] && [ ! -d "${HOME}/.${REPO}" ]; then
   cd && "$BIN/git" clone "${HOME}/git/${REPO}.git" ".${REPO}"
   cd "${HOME}/.${REPO}" && "$BIN/git" remote rename origin localhost && "$BIN/git" remote add origin "gitolite:${REPO}.git"
 fi
-done <<EOF
-$REPOS
-EOF
+done
 
 REPOS="private"
-while read -r REPO; do
+for REPO in $REPOS; do
 if [ -d "${HOME}/git/${REPO}-vcsh.git" ] && [ ! -d "$HOME/.config/vcsh/repo.d/${REPO}.git" ]; then
   localhost_vclone "${REPO}"
   "$BIN/vcsh" "${REPO}" remote rename origin localhost && "$BIN/vcsh" "${REPO}" remote add origin "gitolite:${REPO}-vcsh.git"
 fi
-done <<EOF
-$REPOS
-EOF
+done
 }
 
 install_optional_pkgs()
