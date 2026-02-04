@@ -1,135 +1,294 @@
 #!/usr/bin/env sh
 
-MYHOST=$(uname -n | sed 's/\..*//')     # alternative to $(hostname -s), as arch does not install 'hostname' by default
+[ "$(id -u)" -eq 0 ] && {
+  echo "Run $0 as yourself (not as root), exiting"
+  exit 1
+}
 
-if [ ! "$(id -u)" -eq 0 ] && [ ! -e ~/.ssh/id_rsa_"${MYHOST}".pub ] ; then
+MYHOST=$(uname -n | sed 's/\..*//') # alternative to $(hostname -s), as arch does not install 'hostname' by default
+
+iszsh()
+{
+  [ "${SHELL}" = "/bin/zsh" ]
+}
+
+isdarwin()
+{
+  [ "$(uname -s)" = "Darwin" ]
+}
+
+islinux()
+{
+  [ "$(uname -s)" = "Linux" ]
+}
+
+isarch()
+{
+  if islinux && [ -f /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    # shellcheck disable=SC2078
+    [ "${ID}" = "arch" ] && return 0
+  fi
+  return 1
+}
+
+isdebian()
+{
+  if islinux && [ -f /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    # shellcheck disable=SC2078
+    [ "${ID}" = "debian" ] && return 0
+  fi
+  return 1
+}
+
+# shellcheck disable=SC2329
+isomarchy()
+{
+  isarch && grep -q '\[omarchy\]' /etc/pacman.conf
+}
+
+create_ssh_key()
+{
+  if [ ! "$(id -u)" -eq 0 ] && [ ! -e ~/.ssh/id_rsa_"${MYHOST}".pub ]; then
     echo "" && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
-    echo ""
-    echo "Copy id_rsa_${MYHOST}.pub to gitea, gitolite-admin, gitolite1-admin & gitolite2-admin. Restart bootstrap once completed..."
-    echo ""
-    exit 1
-fi
+    echo
+    echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
+    echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
+  fi
+}
 
-if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.dotfiles" ]; then
-  git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
-else
-  (
-    cd ~/.dotfiles || exit 2
-    git pull --rebase --autostash
-  )
-fi
+#TODO
+# shellcheck disable=SC2329
+clone_apt_vcsh()
+{
+  if isdebian; then
+    github_vclone apt
+    sudo aptitude install "$(cat ~/.config/apt/installed)"
+    sudo apt-mark manual "$(cat ~/.config/apt/installed)"     # this line is probably not needed, but added for good measure
+  fi
+}
 
-if [ "$(uname)" = Darwin ] ; then
-    [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"
-    [ -r /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
-    "$BIN/brew" doctor || true
-    "$BIN/brew" install mr vcsh
-elif [ "$(uname)" = Linux ] && [ -f /etc/arch-release ] ; then
-    ~/.dotfiles/script/arch
-    BIN="/usr/bin"
-    if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
-        mv ~/.bash_profile ~/.bash_profile.bak
-        mv ~/.bashrc ~/.bashrc.bak
-    fi
-elif [ "$(uname)" = Linux ] && [ "${MYHOST}" = unraid ] ; then
-    BIN="/usr/local/bin"
-    if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
-        mv ~/.bash_profile ~/.bash_profile.bak
-    fi
-    if [ "$(id -u)" -eq 0 ] ; then
-        cd /etc/bash_completion.d && wget -N https://raw.githubusercontent.com/git/git/v2.14.1/contrib/completion/git-completion.bash
-        cd /usr/bin && ln -sf 'vim' 'vi'
-        mkdir -p /usr/local/src
-        cd /usr/local/src || exit 3
-        if [ ! -d "vcsh/.git" ] ; then
-            git clone https://github.com/RichiH/vcsh.git
-            cd /usr/local/bin && ln -sf /usr/local/src/vcsh/vcsh .
-        fi
-        cd /usr/local/src || exit 4
-        if [ ! -d "myrepos/.git" ] ; then
-            git clone https://git.joeyh.name/git/myrepos.git/
-            cd /usr/local/bin && ln -sf /usr/local/src/myrepos/mr .
-        fi
-        cd /usr/local/src || exit 5
-        if [ ! -d "colordiff/.git" ] ; then
-            git clone https://github.com/daveewart/colordiff.git
-            cd /usr/local/bin && ln -sf /usr/local/src/colordiff/colordiff.pl colordiff
-        fi
-    fi
-elif [ "$(uname)" = Linux ] ; then
-    BIN="/usr/bin"
-    if [ ! -d "$HOME/.config/vcsh/repo.d/dotfiles.git" ] ; then
-        mv ~/.profile ~/.profile.bak
-        mv ~/.bashrc ~/.bashrc.bak
-    fi
-    if [ "$(id -u)" -eq 0 ] ; then
-        apt-get update && apt-get --yes install colordiff curl etckeeper git keychain myrepos sudo vcsh vim zsh
-        # if [ ! -d /etc/.git ] ; then
-            cd /etc || exit 6
-            # sudo etckeeper init
-            sudo git config user.email "root@$(uname -n)"
-            sudo git config user.name "root"
-            # sudo etckeeper commit 'Initial commit'
-            # popd
-            { echo "" ; echo "Required commands have been installed. Restart bootstrap.sh as normal user..." ; echo "" ; exit 7 ; }
-        # fi
+# shellcheck disable=SC2329
+backup_file() {
+  echo "Backing up ${1}..."
+  # shellcheck disable=SC2086
+  mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
+  # shellcheck disable=SC2086
+  mv "${1}" "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
+  echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >> "$HOME/fixups.sh"
+}
+
+# # bash/zsh function exporting shortcut
+# export -f backup_file
+
+# Export the function (POSIX syntax -- preserve newlines and syntax!)
+# shellcheck disable=SC2016
+export backup_file='backup_file() {
+  echo "Backing up ${1}..."
+  mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
+  mv "${1}" "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
+  echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >> "$HOME/fixups.sh"
+}'
+
+github_vclone() {
+  if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
+    if "$BIN/vcsh" clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
+      echo "${1} successfully cloned..."
+    elif "$BIN/vcsh" "${1}" pull; then
+      echo "${1} successfully updated via pull..."
     else
-        # shellcheck disable=SC2015
-        command -v curl >/dev/null 2>&1 && \
-          command -v git >/dev/null 2>&1 && \
-          command -v mr >/dev/null 2>&1 && \
-          command -v sudo >/dev/null 2>&1 && \
-          command -v vcsh >/dev/null 2>&1 && \
-          command -v vim >/dev/null 2>&1 && \
-          command -v zsh >/dev/null 2>&1 || \
-          { echo "" ; echo "Re-run bootstrap.sh as root to install required commands..." ; echo "" ; exit 8 ; }
+      # "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+'   | xargs -I{} -n1 backup_file "{}"
+      # "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 bash -c 'backup_file "{}"'
+      "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 sh -c 'backup_file "{}"'
+      "$BIN/vcsh" "${1}" pull && echo "${1} successfully cloned after backup of conflicting files..."
     fi
-    if [ ! -f /etc/arch-release ] ; then
-        if [ ! -d "$HOME/.config/vcsh/repo.d/apt.git" ] ; then
-            "$BIN/vcsh" clone "https://github.com/tomhoover/apt-vcsh.git" "apt"
-        fi
-        # sudo aptitude install "$(cat ~/.config/apt/installed)"
-        # sudo apt-mark manual $(cat ~/.config/apt/installed) 	# this line is probably not needed, but added for good measure
-    fi
-fi
+  fi
+}
 
-REPOS="dotfiles
-git
-mr"
-while read -r REPO; do
-    if [ ! -d "$HOME/.config/vcsh/repo.d/$REPO.git" ] ; then
-        "$BIN/vcsh" clone "https://github.com/tomhoover/${REPO}-vcsh.git" "${REPO}"
+# shellcheck disable=SC2329
+gitolite_vclone() {
+  if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
+    if "$BIN/vcsh" clone "gitolite:${1}-vcsh.git" "${1}"; then
+      echo "${1} successfully cloned..."
+    elif "$BIN/vcsh" "${1}" pull; then
+      echo "${1} successfully updated via pull..."
+    else
+      "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 sh -c 'backup_file "{}"'
+      "$BIN/vcsh" "${1}" pull && echo "${1} successfully cloned after backup of conflicting files..."
     fi
+  fi
+}
+
+localhost_vclone() {
+  if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
+    if "$BIN/vcsh" clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
+      echo "${1} successfully cloned..."
+    elif "$BIN/vcsh" "${1}" pull; then
+      echo "${1} successfully updated via pull..."
+    else
+      "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 sh -c 'backup_file "{}"'
+      "$BIN/vcsh" "${1}" pull && echo "${1} successfully cloned after backup of conflicting files..."
+    fi
+  fi
+}
+
+clone_private_repos()
+{
+  echo
+  echo "$(tput setaf 5)Please copy desired private repos ($(tput setaf 6)gnupg ssh private-vcsh$(tput setaf 5)) from IRONKEY to ~/git/"
+  echo "          $(tput setaf 4)press the $(tput setaf 2)ENTER$(tput setaf 4) key to continue (or $(tput setaf 1)CTRL-C$(tput setaf 4) to abort)$(tput sgr0)"
+  read -r _
+
+REPOS="gnupg
+ssh"
+while read -r REPO; do
+if [ -d "${HOME}/git/${REPO}.git" ] && [ ! -d "${HOME}/.${REPO}" ]; then
+  cd && "$BIN/git" clone "${HOME}/git/${REPO}.git" ".${REPO}"
+  cd "${HOME}/.${REPO}" && "$BIN/git" remote rename origin localhost && "$BIN/git" remote add origin "gitolite:${REPO}.git"
+fi
 done <<EOF
 $REPOS
 EOF
 
-echo ""
-cd && "$BIN/mr" -m -j 1 up
-# shellcheck disable=SC2015
-cd && [ -f ".config/crontab/${MYHOST}.$(whoami).crontab" ] && crontab ".config/crontab/${MYHOST}.$(whoami).crontab" || true
+REPOS="private"
+while read -r REPO; do
+if [ -d "${HOME}/git/${REPO}-vcsh.git" ] && [ ! -d "$HOME/.config/vcsh/repo.d/${REPO}.git" ]; then
+  localhost_vclone "${REPO}"
+  "$BIN/vcsh" "${REPO}" remote rename origin localhost && "$BIN/vcsh" "${REPO}" remote add origin "gitolite:${REPO}-vcsh.git"
+fi
+done <<EOF
+$REPOS
+EOF
+}
 
-# echo ""
-# if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.asdf" ]; then
-#     git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.12.0
-# else
-#     ~/.dotfiles/asdf-plugins/install.sh
-# fi
+install_optional_pkgs()
+{
+  PKGS="colordiff curl keychain vim"
+  if isdarwin; then
+    # shellcheck disable=SC2086
+    "$BIN/brew" install ${PKGS}
+  elif isarch; then
+    sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
+    sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+    # shellcheck disable=SC2086
+    sudo pacman -Syu --noconfirm --needed sudo zsh ${PKGS}
+  elif isdebian; then
+    # shellcheck disable=SC2086
+    sudo apt-get update && sudo apt-get --yes install sudo zsh ${PKGS}
+  else
+    echo
+    echo "$(tput setaf 1)Unknown OS...$(tput sgr0)"
+    echo
+    exit 2
+  fi
+}
 
-if [ ! "$(id -u)" -eq 0 ]; then
-    ~/.dotfiles/script/install
+clone_dotfiles_repo()
+{
+  if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.dotfiles" ]; then
+    git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
+  else
+    (
+      cd ~/.dotfiles || exit 3
+      git pull --rebase --autostash
+    )
+  fi
+}
+
+setup_etckeeper()
+{
+  if [ ! -d /etc/.git ]; then
+    cd /etc || exit 4
+    sudo etckeeper init
+    sudo git config user.email "root@$(uname -n)"
+    sudo git config user.name "root"
+    sudo etckeeper commit 'Initial commit'
+  fi
+}
+
+install_required_pkgs()
+{
+  PKGS="git myrepos vcsh"
+  if isdarwin; then
+    "$BIN/brew" doctor || true
+    # shellcheck disable=SC2086
+    "$BIN/brew" install ${PKGS}
+  elif isarch; then
+    sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
+    sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+    # shellcheck disable=SC2086
+    sudo pacman -Syu --noconfirm --needed etckeeper ${PKGS}
+  elif isdebian; then
+    # shellcheck disable=SC2086
+    sudo apt-get update && sudo apt-get --yes install etckeeper ${PKGS}
+  else
+    echo
+    echo "$(tput setaf 1)Unknown OS...$(tput sgr0)"
+    echo
+    exit 5
+  fi
+
+  ! isdarwin && setup_etckeeper
+}
+
+check_installed_commands()
+{
+  # shellcheck disable=SC2015
+  command -v curl >/dev/null 2>&1 \
+    && command -v git >/dev/null 2>&1 \
+    && command -v mr >/dev/null 2>&1 \
+    && command -v sudo >/dev/null 2>&1 \
+    && command -v vcsh >/dev/null 2>&1 \
+    && command -v vim >/dev/null 2>&1 \
+    && command -v zsh >/dev/null 2>&1 \
+    || {
+      echo
+      echo "Edit bootstrap to install required commands..."
+      echo
+      exit 6
+    }
+}
+
+BIN="/usr/bin"
+if isdarwin; then
+  [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"
+  [ -r /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
 fi
 
-echo ""
-echo "#######################################################################################"
-echo ""
-echo "chsh -s $(which zsh)"
-echo ""
-echo "Execute above command to change shell. Then, logout and login to re-read configuration."
-echo ""
-echo "---------------------------------------------------------------------------------------"
-echo ""
-echo "Finally, to install 'private-vcsh' repo:"
-# echo "  vcsh clone 'gitea:tom/private-vcsh.git' 'private' && vcsh private remote add gitolite1 gitolite1:private-vcsh.git && vcsh private remote add gitolite2 gitolite2:private-vcsh.git"
-echo "  vcsh clone 'gitea:tom/private-vcsh.git' 'private' && cd ~/src && mr -m -j 1 up"
-echo ""
+# Always prompt for sudo password at least once
+sudo --reset-timestamp
+
+check_installed_commands
+install_required_pkgs
+install_optional_pkgs
+clone_dotfiles_repo
+github_vclone dotfiles
+clone_private_repos
+# isarch && ~/.dotfiles/script/arch
+# isdebian && clone_apt_vcsh
+
+echo
+cd && "$BIN/mr" -m -j 1 up
+
+# echo
+# if [ ! "$(id -u)" -eq 0 ]; then
+#   ~/.dotfiles/script/install
+# fi
+
+echo
+echo "$(tput setaf 2)##### bootstrap completed #####$(tput sgr0)"
+
+# run the following after .ssh repo is cloned
+create_ssh_key
+
+if ! iszsh; then
+  echo
+  echo "$(tput setaf 1)chsh -s $(which zsh)$(tput sgr0)"
+  echo
+  echo "Execute above command to change shell. Then, logout and login to re-read configuration."
+fi
+
+echo
