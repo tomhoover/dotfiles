@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # shellcheck disable=SC2015
 
 # Run all dotfiles installers.
@@ -6,58 +6,70 @@
 
 set -e
 
-# add python build dependencies for debian/ubuntu
-command -v apt >/dev/null 2>&1 && \
-    ( command -v gcc >/dev/null 2>&1 && \
-      command -v make >/dev/null 2>&1 && \
-      command -v curl >/dev/null 2>&1 || \
-      sudo apt --yes install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
-      libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev )
+# # add python build dependencies for debian/ubuntu (no longer needed with mise?)
+# command -v apt >/dev/null 2>&1 && \
+#     ( command -v gcc >/dev/null 2>&1 && \
+#       command -v make >/dev/null 2>&1 && \
+#       command -v curl >/dev/null 2>&1 || \
+#       sudo apt --yes install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+#       libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev )
 
 cd "$(dirname "$0")"/..
 
 # find the installers and run them iteratively
-find . -name install.sh | sort | while read -r installer ; do
-    program=$(echo "$installer" | sed -e 's/^\.\///' -e 's/^[0-9]-//' -e 's/\/.*$//')
-    if command -v "${program}" >/dev/null 2>&1 ; then continue; fi
-    echo
-    echo "Installing ${program}..."
-    if [ "$program" = direnv ]; then
-        sh -c "bin_path=~/.local/bin ${installer}" || exit 90
-    else
-        sh -c "${installer}" || exit 99
-    fi
+find . -name install.sh | sort | while read -r installer; do
+  program=$(echo "$installer" | sed -e 's/^\.\///' -e 's/^[0-9]-//' -e 's/\/.*$//')
+  if command -v "${program}" >/dev/null 2>&1; then continue; fi
+  echo
+  echo "Installing ${program}..."
+  if [ "$program" = direnv ]; then
+    sh -c "bin_path=~/.local/bin ${installer}" || exit 90
+  else
+    sh -c "${installer}" || exit 99
+  fi
 done
+
+# install most tools with mise
+mise install
+
+# install ansible with uv
+uv tool install --with requests --with passlib --with netaddr --with-executables-from ansible-core,ansible-lint ansible
 
 # disable exit on error
-set +e
+# set +e
 
-# for item in pyenv asdf rtx pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp mypy pipenv molecule ; do
-for item in mise pipx ansible black cookiecutter flake8 isort ipython pre-commit pylint tmuxp molecule ; do
-    echo
-    echo "Installed versions of ${item}:"
-    which -a "${item}"
+echo
+echo "$(tput setaf 2)Installed versions:$(tput sgr0)"
+echo
+which -a mise
+echo
+which -a ansible
+echo
+# shellcheck disable=SC2088
+cd && for x in $(mise ls | grep '~/.config/mise/config.toml' | sed -e 's/ .*//' -e 's/^go:.*\///' -e 's/^pipx://' -e 's/^audible-cli$/audible/' | sort -u); do
+  which -a "${x}"
+  echo
 done
 
-command -v ~/.pyenv/bin/pyenv         >/dev/null 2>&1 && echo && echo "Consider removing pyenv."
-command -v ~/.asdf/bin/asdf           >/dev/null 2>&1 && echo && echo "Consider removing asdf."
-command -v ~/.local/bin/rtx           >/dev/null 2>&1 && echo && echo "Consider removing rtx link in .local/bin."
+command -v ~/.pyenv/bin/pyenv >/dev/null 2>&1 && echo && echo "Consider removing pyenv."
+command -v ~/.asdf/bin/asdf >/dev/null 2>&1 && echo && echo "Consider removing asdf."
+command -v ~/.local/bin/rtx >/dev/null 2>&1 && echo && echo "Consider removing rtx link in .local/bin."
 command -v ~/.local/share/rtx/bin/rtx >/dev/null 2>&1 && echo && echo "Consider removing rtx."
 
-if ls -d ~/.pyenv* >/dev/null 2>&1 ; then
-    echo
-    echo "Consider removing the following ~/.pyenv* directory(s):"
-    ls -d ~/.pyenv*
+if ls -d ~/.pyenv* >/dev/null 2>&1; then
+  echo
+  echo "Consider removing the following ~/.pyenv* directory(s):"
+  ls -d ~/.pyenv*
 fi
 
-if ls -d ~/.asdf* >/dev/null 2>&1 ; then
-    echo
-    echo "Consider removing the following ~/.asdf* directory(s):"
-    ls -d ~/.asdf*
+if ls -d ~/.asdf* >/dev/null 2>&1; then
+  echo
+  echo "Consider removing the following ~/.asdf* directory(s):"
+  ls -d ~/.asdf*
 fi
 
-if ls -d ~/.local/share/rtx* >/dev/null 2>&1 ; then
-    echo
-    echo "Consider removing the following ~/.local/share/rtx* directory(s):"
-    ls -d ~/.local/share/rtx*
+if ls -d ~/.local/share/rtx* >/dev/null 2>&1; then
+  echo
+  echo "Consider removing the following ~/.local/share/rtx* directory(s):"
+  ls -d ~/.local/share/rtx*
 fi

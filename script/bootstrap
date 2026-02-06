@@ -171,8 +171,6 @@ install_optional_pkgs()
     # shellcheck disable=SC2086
     "$BIN/brew" install ${PKGS}
   elif isarch; then
-    sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
-    sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
     # shellcheck disable=SC2086
     sudo pacman -Syu --noconfirm --needed sudo zsh ${PKGS}
   elif isdebian; then
@@ -273,10 +271,10 @@ clone_private_repos
 echo
 cd && "$BIN/mr" -m -j 1 up
 
-# echo
-# if [ ! "$(id -u)" -eq 0 ]; then
-#   ~/.dotfiles/script/install
-# fi
+echo
+if [ ! "$(id -u)" -eq 0 ]; then
+  ~/.dotfiles/script/install
+fi
 
 echo
 echo "$(tput setaf 2)##### bootstrap completed #####$(tput sgr0)"
