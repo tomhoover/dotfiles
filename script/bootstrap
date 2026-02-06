@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+# vim: set tw=120 fdm=marker commentstring=#%s:
+
 [ "$(id -u)" -eq 0 ] && {
   echo "Run $0 as yourself (not as root), exiting"
   exit 1
@@ -8,22 +10,22 @@
 MYHOST=$(uname -n | sed -e 's/\..*//') # alternative to $(hostname -s), as arch does not install 'hostname' by default
 
 iszsh()
-{
+{ #{{{
   [ "${SHELL}" = "/bin/zsh" ]
-}
+} #}}}
 
 isdarwin()
-{
+{ #{{{
   [ "$(uname -s)" = "Darwin" ]
-}
+} #}}}
 
 islinux()
-{
+{ #{{{
   [ "$(uname -s)" = "Linux" ]
-}
+} #}}}
 
 isarch()
-{
+{ #{{{
   if islinux && [ -f /etc/os-release ]; then
     # shellcheck disable=SC1091
     . /etc/os-release
@@ -31,10 +33,10 @@ isarch()
     [ "${ID}" = "arch" ] && return 0
   fi
   return 1
-}
+} #}}}
 
 isdebian()
-{
+{ #{{{
   if islinux && [ -f /etc/os-release ]; then
     # shellcheck disable=SC1091
     . /etc/os-release
@@ -42,45 +44,42 @@ isdebian()
     [ "${ID}" = "debian" ] && return 0
   fi
   return 1
-}
+} #}}}
 
-# shellcheck disable=SC2329
 isomarchy()
-{
+{ #{{{
   isarch && grep -q '\[omarchy\]' /etc/pacman.conf
-}
+} #}}}
 
 create_ssh_key()
-{
+{ #{{{
   if [ ! "$(id -u)" -eq 0 ] && [ ! -e ~/.ssh/id_rsa_"${MYHOST}".pub ]; then
     echo "" && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
     echo
     echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
     echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
   fi
-}
+} #}}}
 
-#TODO
-# shellcheck disable=SC2329
 clone_apt_vcsh()
-{
+{ #{{{
   if isdebian; then
     github_vclone apt
     sudo aptitude install "$(cat ~/.config/apt/installed)"
     sudo apt-mark manual "$(cat ~/.config/apt/installed)" # this line is probably not needed, but added for good measure
   fi
-}
+} #}}}
 
 # shellcheck disable=SC2329
 backup_file()
-{
+{ #{{{
   echo "Backing up ${1}..."
   # shellcheck disable=SC2086
   mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
   # shellcheck disable=SC2086
   mv "${1}" "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
   echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >>"$HOME/fixups.sh"
-}
+} #}}}
 
 # # bash/zsh function exporting shortcut
 # export -f backup_file
@@ -96,7 +95,7 @@ export backup_file='backup_file()
 }'
 
 github_vclone()
-{
+{ #{{{
   if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
     if "$BIN/vcsh" clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
       echo "${1} successfully cloned..."
@@ -109,11 +108,10 @@ github_vclone()
       "$BIN/vcsh" "${1}" pull && echo "${1} successfully cloned after backup of conflicting files..."
     fi
   fi
-}
+} #}}}
 
-# shellcheck disable=SC2329
 gitolite_vclone()
-{
+{ #{{{
   if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
     if "$BIN/vcsh" clone "gitolite:${1}-vcsh.git" "${1}"; then
       echo "${1} successfully cloned..."
@@ -124,10 +122,10 @@ gitolite_vclone()
       "$BIN/vcsh" "${1}" pull && echo "${1} successfully cloned after backup of conflicting files..."
     fi
   fi
-}
+} #}}}
 
 localhost_vclone()
-{
+{ #{{{
   if [ ! -d "$HOME/.config/vcsh/repo.d/${1}.git" ]; then
     if "$BIN/vcsh" clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
       echo "${1} successfully cloned..."
@@ -138,10 +136,10 @@ localhost_vclone()
       "$BIN/vcsh" "${1}" pull && echo "${1} successfully cloned after backup of conflicting files..."
     fi
   fi
-}
+} #}}}
 
 clone_private_repos()
-{
+{ #{{{
   echo
   echo "$(tput setaf 5)Please copy desired private repos ($(tput setaf 6)gnupg ssh private-vcsh$(tput setaf 5)) from IRONKEY to ~/git/"
   echo "          $(tput setaf 4)press the $(tput setaf 2)ENTER$(tput setaf 4) key to continue (or $(tput setaf 1)CTRL-C$(tput setaf 4) to abort)$(tput sgr0)"
@@ -162,17 +160,29 @@ clone_private_repos()
       "$BIN/vcsh" "${REPO}" remote rename origin localhost && "$BIN/vcsh" "${REPO}" remote add origin "gitolite:${REPO}-vcsh.git"
     fi
   done
-}
+} #}}}
+
+clone_dotfiles_repo()
+{ #{{{
+  if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.dotfiles" ]; then
+    git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
+  else
+    (
+      cd ~/.dotfiles || exit 3
+      git pull --rebase --autostash
+    )
+  fi
+} #}}}
 
 install_optional_pkgs()
-{
+{ #{{{
   PKGS="colordiff curl keychain vim"
   if isdarwin; then
     # shellcheck disable=SC2086
     "$BIN/brew" install ${PKGS}
   elif isarch; then
     # shellcheck disable=SC2086
-    sudo pacman -Syu --noconfirm --needed sudo zsh ${PKGS}
+    sudo pacman -S --noconfirm --needed sudo zsh ${PKGS}
   elif isdebian; then
     # shellcheck disable=SC2086
     sudo apt-get update && sudo apt-get --yes install sudo zsh ${PKGS}
@@ -182,22 +192,10 @@ install_optional_pkgs()
     echo
     exit 2
   fi
-}
-
-clone_dotfiles_repo()
-{
-  if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.dotfiles" ]; then
-    git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
-  else
-    (
-      cd ~/.dotfiles || exit 3
-      git pull --rebase --autostash
-    )
-  fi
-}
+} #}}}
 
 setup_etckeeper()
-{
+{ #{{{
   if [ ! -d /etc/.git ]; then
     cd /etc || exit 4
     sudo etckeeper init
@@ -205,10 +203,10 @@ setup_etckeeper()
     sudo git config user.name "root"
     sudo etckeeper commit 'Initial commit'
   fi
-}
+} #}}}
 
 install_required_pkgs()
-{
+{ #{{{
   PKGS="git myrepos vcsh"
   if isdarwin; then
     "$BIN/brew" doctor || true
@@ -230,10 +228,10 @@ install_required_pkgs()
   fi
 
   ! isdarwin && setup_etckeeper
-}
+} #}}}
 
 check_installed_commands()
-{
+{ #{{{
   # shellcheck disable=SC2015
   command -v curl >/dev/null 2>&1 \
     && command -v git >/dev/null 2>&1 \
@@ -248,7 +246,7 @@ check_installed_commands()
       echo
       exit 6
     }
-}
+} #}}}
 
 BIN="/usr/bin"
 if isdarwin; then
@@ -266,7 +264,7 @@ clone_dotfiles_repo
 github_vclone dotfiles
 clone_private_repos
 # isarch && ~/.dotfiles/script/arch
-# isdebian && clone_apt_vcsh
+isdebian && clone_apt_vcsh
 
 echo
 cd && "$BIN/mr" -m -j 1 up
