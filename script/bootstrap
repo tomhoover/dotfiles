@@ -176,7 +176,7 @@ clone_dotfiles_repo()
 
 install_optional_pkgs()
 { #{{{
-  PKGS="colordiff curl keychain vim"
+  PKGS="colordiff keychain vim"
   if isdarwin; then
     # shellcheck disable=SC2086
     "$BIN/brew" install ${PKGS}
@@ -191,17 +191,6 @@ install_optional_pkgs()
     echo "$(tput setaf 1)Unknown OS...$(tput sgr0)"
     echo
     exit 2
-  fi
-} #}}}
-
-setup_etckeeper()
-{ #{{{
-  if [ ! -d /etc/.git ]; then
-    cd /etc || exit 4
-    sudo etckeeper init
-    sudo git config user.email "root@$(uname -n)"
-    sudo git config user.name "root"
-    sudo etckeeper commit 'Initial commit'
   fi
 } #}}}
 
@@ -221,9 +210,20 @@ check_installed_commands()
     }
 } #}}}
 
+setup_etckeeper()
+{ #{{{
+  if [ ! -d /etc/.git ]; then
+    cd /etc || exit 4
+    sudo etckeeper init
+    sudo git config user.email "root@$(uname -n)"
+    sudo git config user.name "root"
+    sudo etckeeper commit 'Initial commit'
+  fi
+} #}}}
+
 install_required_pkgs()
 { #{{{
-  PKGS="git myrepos vcsh"
+  PKGS="curl git myrepos sudo vcsh"
   if isdarwin; then
     "$BIN/brew" doctor || true
     # shellcheck disable=SC2086
@@ -257,10 +257,10 @@ sudo --reset-timestamp
 
 install_required_pkgs
 check_installed_commands
-install_optional_pkgs
+clone_private_repos
 clone_dotfiles_repo
 github_vclone dotfiles
-clone_private_repos
+install_optional_pkgs
 # isarch && ~/.dotfiles/script/arch
 isdebian && clone_apt_vcsh
 
