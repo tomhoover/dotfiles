@@ -44,6 +44,8 @@ which -a mise
 echo
 which -a ansible
 echo
+which -a direnv
+echo
 # shellcheck disable=SC2088
 cd && for x in $(mise ls | grep '~/.config/mise/config.toml' | sed -e 's/ .*//' -e 's/^go:.*\///' -e 's/^pipx://' -e 's/^audible-cli$/audible/' | sort -u); do
   which -a "${x}"
