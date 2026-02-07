@@ -205,6 +205,24 @@ setup_etckeeper()
   fi
 } #}}}
 
+check_installed_commands()
+{ #{{{
+  # shellcheck disable=SC2015
+  command -v curl >/dev/null 2>&1 \
+    && command -v git >/dev/null 2>&1 \
+    && command -v mr >/dev/null 2>&1 \
+    && command -v sudo >/dev/null 2>&1 \
+    && command -v vcsh >/dev/null 2>&1 \
+    && command -v vim >/dev/null 2>&1 \
+    && command -v zsh >/dev/null 2>&1 \
+    || {
+      echo
+      echo "Edit bootstrap to install required commands..."
+      echo
+      exit 6
+    }
+} #}}}
+
 install_required_pkgs()
 { #{{{
   PKGS="git myrepos vcsh"
@@ -230,24 +248,6 @@ install_required_pkgs()
   ! isdarwin && setup_etckeeper
 } #}}}
 
-check_installed_commands()
-{ #{{{
-  # shellcheck disable=SC2015
-  command -v curl >/dev/null 2>&1 \
-    && command -v git >/dev/null 2>&1 \
-    && command -v mr >/dev/null 2>&1 \
-    && command -v sudo >/dev/null 2>&1 \
-    && command -v vcsh >/dev/null 2>&1 \
-    && command -v vim >/dev/null 2>&1 \
-    && command -v zsh >/dev/null 2>&1 \
-    || {
-      echo
-      echo "Edit bootstrap to install required commands..."
-      echo
-      exit 6
-    }
-} #}}}
-
 BIN="/usr/bin"
 if isdarwin; then
   [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"
@@ -257,8 +257,8 @@ fi
 # Always prompt for sudo password at least once
 sudo --reset-timestamp
 
-check_installed_commands
 install_required_pkgs
+check_installed_commands
 install_optional_pkgs
 clone_dotfiles_repo
 github_vclone dotfiles
