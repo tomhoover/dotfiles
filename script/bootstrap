@@ -255,10 +255,10 @@ fi
 # Always prompt for sudo password at least once
 sudo --reset-timestamp
 
+clone_dotfiles_repo
 install_required_pkgs
 check_installed_commands
 clone_private_repos
-clone_dotfiles_repo
 github_vclone dotfiles
 install_optional_pkgs
 # isarch && ~/.dotfiles/script/arch
