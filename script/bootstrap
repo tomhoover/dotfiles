@@ -213,8 +213,6 @@ check_installed_commands()
     && command -v mr >/dev/null 2>&1 \
     && command -v sudo >/dev/null 2>&1 \
     && command -v vcsh >/dev/null 2>&1 \
-    && command -v vim >/dev/null 2>&1 \
-    && command -v zsh >/dev/null 2>&1 \
     || {
       echo
       echo "Edit bootstrap to install required commands..."
