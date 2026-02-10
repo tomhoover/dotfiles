@@ -153,7 +153,7 @@ set_private_repos_tracking() { #{{{
 
 install_remaining_pkgs() { #{{{
   [[ -f ${HOME}/.SECRETS ]] && source ${HOME}/.SECRETS
-  PKGS="colordiff diff-so-fancy keychain mosh tailscale vim"
+  PKGS="colordiff diff-so-fancy keychain mosh tailscale tmux vim"
   if isdarwin; then
     # shellcheck disable=SC2086
     "$BIN/brew" install ${PKGS}
