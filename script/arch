@@ -47,17 +47,18 @@ install_paru_customizepkg()
 
 cd "${0%/*}" || exit 2
 
-sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
-sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-sudo pacman -Syu --noconfirm --needed etckeeper git
-if [ ! -d /etc/.git ]; then
-  pushd /etc || exit 3
-  sudo etckeeper init
-  sudo git config user.email "root@$(uname -n)"
-  sudo git config user.name "root"
-  sudo etckeeper commit 'Initial commit'
-  popd || exit 4
-fi
+# sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
+# sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
+# sudo pacman -Syu --noconfirm --needed etckeeper git
+# if [ ! -d /etc/.git ]; then
+#   pushd /etc || exit 3
+#   sudo etckeeper init
+#   sudo git config user.email "root@$(uname -n)"
+#   sudo git config user.name "root"
+#   sudo etckeeper commit 'Initial commit'
+#   popd || exit 4
+# fi
+
 # if $(mount | grep ' / ' | grep btrfs); then
 if mount | grep ' / ' | grep btrfs; then
   if ! sudo snapper list >/dev/null; then
@@ -109,17 +110,17 @@ fi
 
 sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
-sudo pacman -S --noconfirm --needed acpi bat colordiff curl diff-so-fancy fzf keychain lsof mc mosh myrepos openssh qtile syncthing tailscale tk tmux vcsh vim z zsh
-sudo pacman -S --noconfirm --needed alacritty kitty ttf-jetbrains-mono ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols
+sudo pacman -S --noconfirm --needed acpi lsof openssh qtile syncthing tk
+sudo pacman -S --noconfirm --needed kitty ttf-jetbrains-mono ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols
 sudo systemctl enable --now sshd.service
-sudo systemctl enable --now tailscaled
+# sudo systemctl enable --now tailscaled
 systemctl --user enable --now syncthing.service
 
 install_paru_customizepkg
 
 install_AUR_pkg aurutils
 install_AUR_pkg autofs
-install_AUR_pkg brave-bin
+# install_AUR_pkg brave-bin
 install_AUR_pkg console-solarized-git
 # install_AUR_pkg dropbox
 install_AUR_pkg duplicacy
@@ -133,6 +134,6 @@ install_AUR_pkg stack-static
 install_AUR_pkg ttf-iosevka
 install_AUR_pkg ttf-ms-fonts
 install_AUR_pkg update-grub
-install_AUR_pkg vi-vim-symlink
+# install_AUR_pkg vi-vim-symlink
 
 echo && ip a | grep 'inet ' && echo && echo "ssh from bethel to complete setup"

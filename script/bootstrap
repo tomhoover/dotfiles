@@ -16,10 +16,14 @@ REQUIRED_PKGS=( #{{{
 COMMON_PKGS=( #{{{
   colordiff
   diff-so-fancy
+  fzf
+  ghostty
   keychain
+  mc
   mosh
   tmux
   vim
+  zoxide
 ) #}}}
 
 ARCH_PKGS=( #{{{
