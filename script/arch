@@ -2,11 +2,41 @@
 
 # vim: set tw=120 fdm=marker commentstring=#%s:
 
-install_AUR_pkg() { #{{{
+install_AUR_pkg()
+{ #{{{
   if [ ! -d "$HOME/.cache/AUR/$1" ]; then
-    echo ""
+    echo
     echo "$(tput setaf 1)Installing $1...$(tput sgr0)"
     paru -S "$1"
+  fi
+} #}}}
+
+install_paru_customizepkg()
+{ #{{{
+
+  mkdir -p ~/.cache/AUR
+  mkdir -p ~/.config/customizepkg
+  grep AURDEST ~/.exports >/dev/null || grep AURDEST ~/.bashrc >/dev/null || echo "export AURDEST=~/.cache/AUR" >>~/.bashrc
+  grep CUSTOMIZEPKG_CONFIG ~/.exports >/dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc >/dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >>~/.bashrc
+
+  # shellcheck source=/dev/null
+  source ~/.bashrc
+
+  command -v paru >/dev/null || (cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si)
+
+  if [ ! -d "$HOME/.cache/AUR/customizepkg-git" ]; then
+    rm ~/.config/paru/paru.conf
+    paru -S customizepkg-git
+  fi
+
+  if [ ! -f ~/.config/paru/paru.conf ]; then
+    mkdir -p ~/.config/paru
+    {
+      echo "[options]"
+      echo "BottomUp"
+      echo "[bin]"
+      echo "PreBuildCommand = customizepkg --modify"
+    } >>~/.config/paru/paru.conf
   fi
 } #}}}
 
@@ -55,7 +85,7 @@ if mount | grep ' / ' | grep btrfs; then
     sudo systemctl enable --now snapper-timeline.timer
     sudo systemctl enable --now systemd-boot-update
     sudo grub-mkconfig -o /boot/grub/grub.cfg
-    if [ ! -e /etc/pacman.d/hooks/95-bootbackup.hook ]; then
+    if [ ! -f /etc/pacman.d/hooks/95-bootbackup.hook ]; then
       sudo mkdir -p /etc/pacman.d/hooks
       {
         echo "[Trigger]"
@@ -64,7 +94,7 @@ if mount | grep ' / ' | grep btrfs; then
         echo "Operation = Remove"
         echo "Type = Path"
         echo "Target = usr/lib/modules/*/vmlinuz"
-        echo ""
+        echo
         echo "[Action]"
         echo "Depends = rsync"
         echo "Description = Backing up /boot..."
@@ -85,30 +115,7 @@ sudo systemctl enable --now sshd.service
 sudo systemctl enable --now tailscaled
 systemctl --user enable --now syncthing.service
 
-mkdir -p ~/.cache/AUR
-mkdir -p ~/.config/customizepkg
-grep AURDEST ~/.exports >/dev/null || grep AURDEST ~/.bashrc >/dev/null || echo "export AURDEST=~/.cache/AUR" >>~/.bashrc
-grep CUSTOMIZEPKG_CONFIG ~/.exports >/dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc >/dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >>~/.bashrc
-
-# shellcheck source=/dev/null
-source ~/.bashrc
-
-command -v paru >/dev/null || (cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si)
-
-if [ ! -d "$HOME/.cache/AUR/customizepkg-git" ]; then
-  rm ~/.config/paru/paru.conf
-  paru -S customizepkg-git
-fi
-
-if [ ! -e ~/.config/paru/paru.conf ]; then
-  mkdir -p ~/.config/paru
-  {
-    echo "[options]"
-    echo "BottomUp"
-    echo "[bin]"
-    echo "PreBuildCommand = customizepkg --modify"
-  } >>~/.config/paru/paru.conf
-fi
+install_paru_customizepkg
 
 install_AUR_pkg aurutils
 install_AUR_pkg autofs
@@ -128,4 +135,4 @@ install_AUR_pkg ttf-ms-fonts
 install_AUR_pkg update-grub
 install_AUR_pkg vi-vim-symlink
 
-echo "" && ip a | grep 'inet ' && echo "" && echo "ssh from bethel to complete setup"
+echo && ip a | grep 'inet ' && echo && echo "ssh from bethel to complete setup"
