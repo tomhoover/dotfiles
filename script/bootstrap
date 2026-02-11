@@ -33,6 +33,7 @@ ARCH_PKGS=( #{{{
 
 AUR_PKGS=( #{{{
   brave-bin
+  paru
   vi-vim-symlink
 ) #}}}
 
