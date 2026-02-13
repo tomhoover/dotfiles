@@ -21,6 +21,7 @@ COMMON_PKGS=( #{{{
   keychain
   mc
   mosh
+  stow
   tmux
   vim
   zoxide
@@ -332,6 +333,7 @@ install_required_pkgs()
 { #{{{
   if isdarwin; then
     "$BIN/brew" doctor || true
+    echo
     # shellcheck disable=SC2086
     "$BIN/brew" install "${REQUIRED_PKGS[@]}"
   elif isarch; then
