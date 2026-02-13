@@ -1,7 +1,6 @@
 #!/usr/bin/env sh
 
-# Run all dotfiles installers.
-# https://github.com/MartinHeinz/dotfiles/blob/master/script/install
+# Install development tools
 
 set -e
 
@@ -19,12 +18,14 @@ mkdir -p "$HOME/.local/bin"
 chmod go= "$HOME/.local" && chmod 755 "$HOME/.local/bin"
 # export PATH=$HOME/.local/bin:$PATH
 
+echo
+echo "$(tput setaf 2)Installing development tools...$(tput sgr0)"
 # find the installers and run them iteratively
-find . -name install.sh | sort | while read -r installer; do
+find . -maxdepth 2 -name install.sh | sort | while read -r installer; do
   program=$(echo "$installer" | sed -e 's/^\.\///' -e 's/^[0-9]-//' -e 's/\/.*$//')
   if command -v "${program}" >/dev/null 2>&1; then continue; fi
   echo
-  echo "Installing ${program}..."
+  echo "$(tput setaf 2)Installing ${program}...$(tput sgr0)"
   if [ "$program" = direnv ]; then
     sh -c "bin_path=~/.local/bin ${installer}" || exit 90
   else

@@ -27,17 +27,23 @@ COMMON_PKGS=( #{{{
 ) #}}}
 
 ARCH_PKGS=( #{{{
+  base-devel
+  ex-vi-compat
+  interception-caps2esc
   tailscale
   zsh
 ) #}}}
 
 AUR_PKGS=( #{{{
   brave-bin
+  p4merge-bin
   paru
-  vi-vim-symlink
+  # vi-vim-symlink
 ) #}}}
 
 DARWIN_PKGS=( #{{{
+  brave-browser
+  tailscale-app
 ) #}}}
 
 DEBIAN_PKGS=( #{{{
@@ -204,7 +210,7 @@ install_AUR_pkg()
 { #{{{
   if [ ! -d "$HOME/.cache/AUR/$1" ]; then
     echo
-    echo "$(tput setaf 1)Installing $1...$(tput sgr0)"
+    echo "$(tput setaf 2)Installing $1...$(tput sgr0)"
     paru -S "$1"
   fi
 } #}}}
@@ -214,15 +220,12 @@ install_paru_customizepkg()
 
   mkdir -p ~/.cache/AUR
   mkdir -p ~/.config/customizepkg
-  # grep AURDEST ~/.exports >/dev/null || grep AURDEST ~/.bashrc >/dev/null || echo "export AURDEST=~/.cache/AUR" >>~/.bashrc
-  # grep CUSTOMIZEPKG_CONFIG ~/.exports >/dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc >/dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >>~/.bashrc
+  export AURDEST=~/.cache/AUR
+  export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg
 
-  # shellcheck source=/dev/null
-  source ~/.bashrc
+  command -v paru >/dev/null || (cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si)
 
-  command -v paru >/dev/null || (cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si)
-
-  if [ ! -d "$HOME/.cache/AUR/customizepkg-git" ]; then
+  if [ ! -d "${AURDEST}/customizepkg-git" ]; then
     rm ~/.config/paru/paru.conf
     paru -S customizepkg-git
   fi
@@ -245,6 +248,7 @@ install_remaining_pkgs()
   if isdarwin; then
     # shellcheck disable=SC2086
     "$BIN/brew" install "${COMMON_PKGS[@]}" "${DARWIN_PKGS[@]}"
+    [ "${MYHOST}" = "ariel" ] && "$BIN/brew" install p4v
   elif isarch; then
     # shellcheck disable=SC2086
     sudo pacman -S --noconfirm --needed "${COMMON_PKGS[@]}" "${ARCH_PKGS[@]}"
@@ -382,8 +386,9 @@ isdebian && clone_apt_vcsh
 echo
 cd && "$BIN/mr" -m -j 1 up
 
-echo
-if [ ! "$(id -u)" -eq 0 ]; then
+# install development tools
+if [ ! "$(id -u)" -eq 0 ] && [ "${MYHOST}" = "ariel" ]; then
+  echo
   ~/.dotfiles/script/install
 fi
 

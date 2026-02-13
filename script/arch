@@ -11,34 +11,34 @@ install_AUR_pkg()
   fi
 } #}}}
 
-install_paru_customizepkg()
-{ #{{{
+# install_paru_customizepkg()
+# { #{{{
 
-  mkdir -p ~/.cache/AUR
-  mkdir -p ~/.config/customizepkg
-  grep AURDEST ~/.exports >/dev/null || grep AURDEST ~/.bashrc >/dev/null || echo "export AURDEST=~/.cache/AUR" >>~/.bashrc
-  grep CUSTOMIZEPKG_CONFIG ~/.exports >/dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc >/dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >>~/.bashrc
+#   # mkdir -p ~/.cache/AUR
+#   # mkdir -p ~/.config/customizepkg
+#   # grep AURDEST ~/.exports >/dev/null || grep AURDEST ~/.bashrc >/dev/null || echo "export AURDEST=~/.cache/AUR" >>~/.bashrc
+#   # grep CUSTOMIZEPKG_CONFIG ~/.exports >/dev/null || grep CUSTOMIZEPKG_CONFIG ~/.bashrc >/dev/null || echo "export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg" >>~/.bashrc
 
-  # shellcheck source=/dev/null
-  source ~/.bashrc
+#   # # shellcheck source=/dev/null
+#   # source ~/.bashrc
 
-  command -v paru >/dev/null || (cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si)
+#   # command -v paru >/dev/null || (cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru-bin.git && cd paru-bin && makepkg -si)
 
-  if [ ! -d "$HOME/.cache/AUR/customizepkg-git" ]; then
-    rm ~/.config/paru/paru.conf
-    paru -S customizepkg-git
-  fi
+#   # if [ ! -d "$HOME/.cache/AUR/customizepkg-git" ]; then
+#   #   rm ~/.config/paru/paru.conf
+#   #   paru -S customizepkg-git
+#   # fi
 
-  if [ ! -f ~/.config/paru/paru.conf ]; then
-    mkdir -p ~/.config/paru
-    {
-      echo "[options]"
-      echo "BottomUp"
-      echo "[bin]"
-      echo "PreBuildCommand = customizepkg --modify"
-    } >>~/.config/paru/paru.conf
-  fi
-} #}}}
+#   # if [ ! -f ~/.config/paru/paru.conf ]; then
+#   #   mkdir -p ~/.config/paru
+#   #   {
+#   #     echo "[options]"
+#   #     echo "BottomUp"
+#   #     echo "[bin]"
+#   #     echo "PreBuildCommand = customizepkg --modify"
+#   #   } >>~/.config/paru/paru.conf
+#   # fi
+# } #}}}
 
 [ "$(id -u)" -eq 0 ] && {
   echo "Run $0 as yourself (not as root), exiting"
@@ -108,7 +108,7 @@ if mount | grep ' / ' | grep btrfs; then
   fi
 fi
 
-sudo pacman -S --noconfirm --needed base-devel btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted
+sudo pacman -S --noconfirm --needed btrfs-progs edk2-shell efibootmgr gptfdisk inetutils man-db man-pages parted
 sudo cp /usr/share/edk2-shell/x64/Shell.efi /boot/shellx64.efi
 sudo pacman -S --noconfirm --needed acpi lsof openssh qtile syncthing tk
 sudo pacman -S --noconfirm --needed kitty ttf-jetbrains-mono ttf-jetbrains-mono-nerd ttf-nerd-fonts-symbols
@@ -116,7 +116,7 @@ sudo systemctl enable --now sshd.service
 # sudo systemctl enable --now tailscaled
 systemctl --user enable --now syncthing.service
 
-install_paru_customizepkg
+# install_paru_customizepkg
 
 install_AUR_pkg aurutils
 install_AUR_pkg autofs
