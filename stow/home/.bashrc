@@ -10,7 +10,6 @@ export BASHRC_LOADED=1
 SHEL=bash
 shopt -s extglob
 for rc in ~/.rc.d/*.+(sh|bash); do
-    echo "$rc"
     # shellcheck disable=SC1090
     [ -r "$rc" ] && [ -f "$rc" ] && source "$rc"
 done
