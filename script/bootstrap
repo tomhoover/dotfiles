@@ -238,19 +238,22 @@ install_AUR_pkg()
 
 install_paru_customizepkg()
 { #{{{
-
   mkdir -p ~/.cache/AUR
   mkdir -p ~/.config/customizepkg
   export AURDEST=~/.cache/AUR
   export CUSTOMIZEPKG_CONFIG=~/.config/customizepkg
 
-  command -v paru >/dev/null || (cd ~/.cache/AUR && git clone https://aur.archlinux.org/paru.git && cd paru && makepkg -si)
-
+  if ! command -v paru >/dev/null; then
+    if [ ! -d "${AURDEST}/paru" ]; then
+      cd ~/.cache/AUR || exit 7
+      git clone https://aur.archlinux.org/paru.git
+    fi
+    cd "${AURDEST}/paru" && makepkg -si
+  fi
   if [ ! -d "${AURDEST}/customizepkg-git" ]; then
     rm ~/.config/paru/paru.conf
     paru -S customizepkg-git
   fi
-
   if [ ! -f ~/.config/paru/paru.conf ]; then
     mkdir -p ~/.config/paru
     {
