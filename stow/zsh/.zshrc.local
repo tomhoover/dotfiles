@@ -1,17 +1,22 @@
 # shellcheck shell=bash
-# shellcheck disable=SC1090
 
 echo "$PATH" >> /tmp/shell-init.txt
 echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" >> /tmp/shell-init.txt
 export ZSHRC_LOCAL_LOADED=1
 
-# SHEL=$(basename $SHELL)
 SHEL=zsh
-source ~/.config/dotfiles/init
+for rc in ~/.rc.d/*.(sh|zsh); do
+    echo "$rc"
+    # shellcheck disable=SC1090
+    [ -r "$rc" ] && [ -f "$rc" ] && source "$rc"
+done
+unset rc
 
 # MYHOST=$(uname -n | sed -e 's/\..*//')     # alternative to $(hostname -s), as arch does not install 'hostname' by default
 
+# shellcheck disable=SC1090
 [ -r ~/.config/dotfiles/"$(uname)".zshrc ] && source ~/.config/dotfiles/"$(uname)".zshrc
+# shellcheck disable=SC1090
 [ -r ~/.config/dotfiles/"${MYHOST}".zshrc ] && source ~/.config/dotfiles/"${MYHOST}".zshrc
 
 # ----------
@@ -41,6 +46,7 @@ if command -v starship &> /dev/null; then
     prompt off
     eval "$(starship init ${SHEL})"
 elif [ -f ~/.local/share/liquidprompt ]; then
+    # shellcheck disable=SC1090
     source ~/.local/share/liquidprompt
 else
     # Customize grml prompt: two lines, user in bold green
