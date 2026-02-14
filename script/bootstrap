@@ -7,9 +7,23 @@
 
 MYHOST=$(uname -n | sed -e 's/\..*//') # alternative to $(hostname -s), as arch does not install 'hostname' by default
 
+STOW_DOTFILES=( #{{{
+  .aliases
+  .bash_profile
+  .bashrc
+  .envs
+  .functions
+  .profile
+  .zprofile
+  .zshenv
+  .zshrc
+  .zshrc.local
+) #}}}
+
 REQUIRED_PKGS=( #{{{
   git
   myrepos
+  stow
   vcsh
 ) #}}}
 
@@ -21,7 +35,6 @@ COMMON_PKGS=( #{{{
   keychain
   mc
   mosh
-  stow
   tmux
   vim
   yazi
@@ -191,6 +204,11 @@ localhost_vclone()
   return 1
 } #}}}
 
+install_caps2esc()
+{ #{{{
+  echo "install_caps2esc"
+} #}}}
+
 set_private_repos_tracking()
 { #{{{
   REPOS=(gnupg ssh)
@@ -215,21 +233,6 @@ install_AUR_pkg()
     echo "$(tput setaf 2)Installing $1...$(tput sgr0)"
     paru -S "$1"
   fi
-} #}}}
-
-stow_dotfiles_pkgs()
-{ #{{{
-  cd ~/.dotfiles/stow || exit 7
-
-  isdarwin && $BIN/stow -R darwin
-  islinux && $BIN/stow -R linux
-  isarch && $BIN/stow -R arch
-  isdebian && $BIN/stow -R debian
-  isomarchy && $BIN/stow -R omarchy
-  iszsh && $BIN/stow -R zsh
-  $BIN/stow -R "${MYHOST}" -R direnv duplicacy ghostty git home kitty liquidprompt mise mr starship tmux vcsh vim
-  [ "${MYHOST}" = "ariel" ] && $BIN/stow -R ansible beets tmuxinator
-  [ "${MYHOST}" = "theophilus" ] && $BIN/stow -R i3 x11
 } #}}}
 
 install_paru_customizepkg()
@@ -318,6 +321,38 @@ clone_private_repos()
   done
 } #}}}
 
+stow_dotfiles_pkgs()
+{ #{{{
+  local file
+  for file in "${STOW_DOTFILES[@]}"; do
+    if [ -f ~/"$file" ]; then
+      if [ -L ~/"$file" ]; then continue; fi
+      backup_file "$file"
+    fi
+  done
+
+  isdarwin && $BIN/stow -d ~/.dotfiles/stow -t ~ -R darwin
+  islinux && $BIN/stow -d ~/.dotfiles/stow -t ~ -R linux
+  isarch && $BIN/stow -d ~/.dotfiles/stow -t ~ -R arch
+  isdebian && $BIN/stow -d ~/.dotfiles/stow -t ~ -R debian
+  isomarchy && $BIN/stow -d ~/.dotfiles/stow -t ~ -R omarchy
+  iszsh && $BIN/stow -d ~/.dotfiles/stow -t ~ -R zsh
+  [ "${MYHOST}" = "ariel" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator
+  [ "${MYHOST}" = "theophilus" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R i3 x11
+  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy ghostty git home kitty liquidprompt mise mr starship tmux vcsh vim
+} #}}}
+
+setup_etckeeper()
+{ #{{{
+  if [ ! -d /etc/.git ]; then
+    cd /etc || exit 4
+    sudo etckeeper init
+    sudo git config user.email "root@$(uname -n)"
+    sudo git config user.name "root"
+    sudo etckeeper commit 'Initial commit'
+  fi
+} #}}}
+
 check_installed_commands()
 { #{{{
   # shellcheck disable=SC2015
@@ -332,17 +367,6 @@ check_installed_commands()
       echo
       exit 6
     }
-} #}}}
-
-setup_etckeeper()
-{ #{{{
-  if [ ! -d /etc/.git ]; then
-    cd /etc || exit 4
-    sudo etckeeper init
-    sudo git config user.email "root@$(uname -n)"
-    sudo git config user.name "root"
-    sudo etckeeper commit 'Initial commit'
-  fi
 } #}}}
 
 install_required_pkgs()
@@ -366,8 +390,6 @@ install_required_pkgs()
     echo
     exit 5
   fi
-
-  ! isdarwin && setup_etckeeper
 } #}}}
 
 clone_dotfiles_repo()
@@ -393,12 +415,14 @@ sudo --reset-timestamp
 
 clone_dotfiles_repo
 install_required_pkgs
-# check_installed_commands
-clone_private_repos
-github_vclone dotfiles
-install_remaining_pkgs
+check_installed_commands
+! isdarwin && setup_etckeeper
 stow_dotfiles_pkgs
+clone_private_repos
+# github_vclone dotfiles
+install_remaining_pkgs
 set_private_repos_tracking
+isarch && install_caps2esc
 # isarch && ~/.dotfiles/script/arch
 isdebian && clone_apt_vcsh
 
