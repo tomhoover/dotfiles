@@ -36,6 +36,7 @@ COMMON_PKGS=( #{{{
   mc
   mosh
   tmux
+  tree
   vim
   yazi
   zoxide
@@ -432,7 +433,7 @@ cd && "$BIN/mr" -m -j 1 up
 # install development tools
 if [ ! "$(id -u)" -eq 0 ] && [ "${MYHOST}" = "ariel" ]; then
   echo
-  ~/.dotfiles/script/install
+  ~/.dotfiles/script/install-dev-tools
 fi
 
 echo
