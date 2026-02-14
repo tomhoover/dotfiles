@@ -1,0 +1,16 @@
+--- PKGBUILD.original	2023-05-19 04:27:53.603564164 -0500
++++ PKGBUILD	2023-05-19 13:25:56.480844075 -0500
+@@ -41,6 +41,13 @@
+ CPPFLAGS="$CPPFLAGS -O2"
+
+ build() {
++    rm linuxpba-arch
++    cp ../linuxpba-arch .
++    rm linuxpba.conf.etc
++    cp ../linuxpba.conf.etc .
++    patch -Np1 -i src.patch
++    patch -Np1 -i src2.patch
++
+     _release="Release_$CARCH"
+     cd "${srcdir}/"
+     gcc -Wall -o getpasswd getpasswd.c

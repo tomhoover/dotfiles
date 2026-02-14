@@ -1,0 +1,25 @@
+diff -u src.original/linuxpba-arch src/linuxpba-arch
+--- src.original/linuxpba-arch	2023-05-19 04:27:53.603564164 -0500
++++ src/linuxpba-arch	2023-05-19 13:31:05.690860431 -0500
+@@ -84,7 +84,7 @@
+     if [[ "$LOCKED" = "Y" ]]
+     then
+         echo -n "Unlocking $NAME $SERIAL ($DRIVE) ... "
+-        sedutil-cli --setLockingRange 0 RW "$SED_PASSWD" "$DRIVE" &>/dev/null
++        sedutil-cli --setLockingRange 8 RW "$SED_PASSWD" "$DRIVE" &>/dev/null
+         if [[ $? -ne 0 ]]
+         then
+             echo "FAIL"
+diff -u src.original/linuxpba.conf.etc src/linuxpba.conf.etc
+--- src.original/linuxpba.conf.etc	2023-05-19 04:27:53.603564164 -0500
++++ src/linuxpba.conf.etc	2023-05-19 13:31:23.860861398 -0500
+@@ -2,7 +2,7 @@
+ # or use custom the PBA agent that supports keyfile, yubikey and
+ # password input. This will result in the smallest initramfs image.
+ # All the settings below this one only have any effect if USE_SEDUTIL_PBA=0
+-USE_SEDUTIL_PBA=1
++USE_SEDUTIL_PBA=0
+
+ # The challenge to send to the yubikey. The response will unlock the
+ # keyring file. Use the challenge configured here as the challenge when
+Common subdirectories: src.original/sedutil-1.20.0 and src/sedutil-1.20.0

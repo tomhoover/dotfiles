@@ -1,0 +1,32 @@
+[settings]
+experimental = true
+idiomatic_version_file_enable_tools = ["python"]
+# python_compile = true
+
+[tools]
+# "go:github.com/containerscrew/tftools" = "latest"
+# "pipx:flake8" = "latest"
+# "pipx:isort" = "latest"
+# "pipx:pylint" = "latest"
+"pipx:audible-cli" = "latest"
+"pipx:ipython" = "latest"
+"pipx:tmuxp" = "latest"
+# bats = "latest"
+# black = "latest"
+# cookiecutter = "latest"
+# node = "latest"
+# pipx = "latest"
+# terraform = "latest"
+# tflint = "latest"
+# tfsec = "latest"
+bat = "latest"
+copier = "latest"
+hyperfine = "latest"
+pre-commit = "latest"
+prek = "latest"
+python = ["3.13", "3.12", "3.11", "3.10"]
+ruff = "latest"
+shellcheck = "latest"
+shfmt = "latest"
+usage = "latest"
+uv = "latest"

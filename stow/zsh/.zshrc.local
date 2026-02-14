@@ -1,0 +1,52 @@
+# shellcheck shell=bash
+# shellcheck disable=SC1090
+
+echo "$PATH" >> /tmp/shell-init.txt
+echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" >> /tmp/shell-init.txt
+export ZSHRC_LOCAL_LOADED=1
+
+# SHEL=$(basename $SHELL)
+SHEL=zsh
+source ~/.config/dotfiles/init
+
+# MYHOST=$(uname -n | sed -e 's/\..*//')     # alternative to $(hostname -s), as arch does not install 'hostname' by default
+
+[ -r ~/.config/dotfiles/"$(uname)".zshrc ] && source ~/.config/dotfiles/"$(uname)".zshrc
+[ -r ~/.config/dotfiles/"${MYHOST}".zshrc ] && source ~/.config/dotfiles/"${MYHOST}".zshrc
+
+# ----------
+
+# history
+HISTSIZE=100000
+SAVEHIST=1000000
+
+fpath=("$HOME"/.zsh/completion $fpath)
+# autoload -Uz compinit && compinit
+# https://stackoverflow.com/questions/67136714/how-to-properly-call-compinit-and-bashcompinit-in-zsh
+autoload -Uz compinit bashcompinit
+compinit
+bashcompinit
+
+# ----------
+
+# Use starship prompt if available, otherwise liquidprompt or customized grml prompt
+# shellcheck disable=SC1056,SC1072
+if command -v starship &> /dev/null; then
+    # prevent empty line when opening terminal (https://github.com/starship/starship/issues/560)
+    #   used in conjunction with 'add_newline = false' in ~/.config/starship.toml
+    # shellcheck disable=SC1009,SC1073,SC1083
+    precmd() { precmd() { echo } }
+    alias clear="precmd() { precmd() { echo } } && clear"
+
+    prompt off
+    eval "$(starship init ${SHEL})"
+elif [ -f ~/.local/share/liquidprompt ]; then
+    source ~/.local/share/liquidprompt
+else
+    # Customize grml prompt: two lines, user in bold green
+    zstyle ':prompt:grml:left:items:user' pre '%B%F{green}'
+    zstyle ':prompt:grml:left:setup' items rc change-root user at host path vcs newline percent
+fi
+
+echo "$PATH" >> /tmp/shell-init.txt
+echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_ENDED" >> /tmp/shell-init.txt

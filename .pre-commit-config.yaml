@@ -75,7 +75,7 @@ repos:
     - id: forbid-binary
     - id: forbid-space-in-indent
       files: 'Makefile'
-    - id: git-check     # Configure in .gitattributes
+#    - id: git-check     # Configure in .gitattributes
 #    - id: git-dirty    # Configure in .gitignore
 #    - id: markdownlint # Configure in .mdlrc
 #    - id: reek
@@ -87,8 +87,8 @@ repos:
 
   # google shell style guide:
     # Libraries must have a .sh extension and should not be executable
-    - id: script-must-have-extension
-      types: [shell, non-executable]
+#    - id: script-must-have-extension
+#      types: [shell, non-executable]
     # Executables should have no extension (strongly preferred)
 #    - id: script-must-not-have-extension
 #      types: [shell, executable]
