@@ -24,6 +24,7 @@ COMMON_PKGS=( #{{{
   stow
   tmux
   vim
+  yazi
   zoxide
 ) #}}}
 
@@ -51,11 +52,6 @@ DEBIAN_PKGS=( #{{{
   tailscale
   zsh
 ) #}}}
-
-iszsh()
-{ #{{{
-  [ "${SHELL}" = "/bin/zsh" ]
-} #}}}
 
 isdarwin()
 { #{{{
@@ -92,6 +88,11 @@ isdebian()
 isomarchy()
 { #{{{
   isarch && grep -q '\[omarchy\]' /etc/pacman.conf
+} #}}}
+
+iszsh()
+{ #{{{
+  [ "${SHELL}" = "/bin/zsh" ]
 } #}}}
 
 create_ssh_key()
@@ -214,6 +215,21 @@ install_AUR_pkg()
     echo "$(tput setaf 2)Installing $1...$(tput sgr0)"
     paru -S "$1"
   fi
+} #}}}
+
+stow_dotfiles_pkgs()
+{ #{{{
+  cd ~/.dotfiles/stow || exit 7
+
+  isdarwin && $BIN/stow -R darwin
+  islinux && $BIN/stow -R linux
+  isarch && $BIN/stow -R arch
+  isdebian && $BIN/stow -R debian
+  isomarchy && $BIN/stow -R omarchy
+  iszsh && $BIN/stow -R zsh
+  $BIN/stow -R "${MYHOST}" -R direnv duplicacy ghostty git home kitty liquidprompt mise mr starship tmux vcsh vim
+  [ "${MYHOST}" = "ariel" ] && $BIN/stow -R ansible beets tmuxinator
+  [ "${MYHOST}" = "theophilus" ] && $BIN/stow -R i3 x11
 } #}}}
 
 install_paru_customizepkg()
@@ -381,6 +397,7 @@ install_required_pkgs
 clone_private_repos
 github_vclone dotfiles
 install_remaining_pkgs
+stow_dotfiles_pkgs
 set_private_repos_tracking
 # isarch && ~/.dotfiles/script/arch
 isdebian && clone_apt_vcsh
