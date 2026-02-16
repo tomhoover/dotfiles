@@ -302,7 +302,7 @@ clone_private_repos()
   echo
   echo "$(tput setaf 5)Please copy desired private repos ($(tput setaf 6)gnupg ssh private-vcsh$(tput setaf 5)) from IRONKEY to ~/git/"
   echo "          $(tput setaf 4)press the $(tput setaf 2)ENTER$(tput setaf 4) key to continue (or $(tput setaf 1)CTRL-C$(tput setaf 4) to abort)$(tput sgr0)"
-  read -r _
+  read -r _ </dev/tty
 
   REPOS=(gnupg ssh)
   for REPO in "${REPOS[@]}"; do
