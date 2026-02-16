@@ -215,7 +215,7 @@ set_private_repos_tracking()
   REPOS=(gnupg ssh)
   for REPO in "${REPOS[@]}"; do
     if [ -d "${HOME}/.${REPO}" ]; then
-      cd "${HOME}/.${REPO}" && "$BIN/git" fetch origin && ($BIN/git branch -avv | grep master | grep -q '\[origin/master\]' || "$BIN/git" branch --set-upstream-to=origin/master)
+      cd "${HOME}/.${REPO}" && $BIN/git fetch origin && ($BIN/git branch -avv | grep master | grep -q '\[origin/master\]' || $BIN/git branch --set-upstream-to=origin/master)
     fi
   done
 
@@ -246,7 +246,7 @@ install_paru_customizepkg()
   if ! command -v paru >/dev/null; then
     if [ ! -d "${AURDEST}/paru" ]; then
       cd ~/.cache/AUR || exit 7
-      git clone https://aur.archlinux.org/paru.git
+      $BIN/git clone https://aur.archlinux.org/paru.git
     fi
     cd "${AURDEST}/paru" && makepkg -si
   fi
@@ -307,8 +307,8 @@ clone_private_repos()
   REPOS=(gnupg ssh)
   for REPO in "${REPOS[@]}"; do
     if [ -d "${HOME}/git/${REPO}.git" ] && [ ! -d "${HOME}/.${REPO}" ]; then
-      cd && "$BIN/git" clone "${HOME}/git/${REPO}.git" ".${REPO}" && chmod -R go= "${HOME}/.${REPO}"
-      cd "${HOME}/.${REPO}" && "$BIN/git" remote rename origin localhost && "$BIN/git" remote add origin "gitolite:${REPO}.git"
+      cd && $BIN/git clone "${HOME}/git/${REPO}.git" ".${REPO}" && chmod -R go= "${HOME}/.${REPO}"
+      cd "${HOME}/.${REPO}" && $BIN/git remote rename origin localhost && $BIN/git remote add origin "gitolite:${REPO}.git"
     fi
   done
 
@@ -351,8 +351,8 @@ setup_etckeeper()
   if [ ! -d /etc/.git ]; then
     cd /etc || exit 4
     sudo etckeeper init
-    sudo git config user.email "root@$(uname -n)"
-    sudo git config user.name "root"
+    sudo $BIN/git config user.email "root@$(uname -n)"
+    sudo $BIN/git config user.name "root"
     sudo etckeeper commit 'Initial commit'
   fi
 } #}}}
@@ -399,11 +399,11 @@ install_required_pkgs()
 clone_dotfiles_repo()
 { #{{{
   if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.dotfiles" ]; then
-    git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
+    $BIN/git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
   else
     (
       cd ~/.dotfiles || exit 3
-      git pull --rebase --autostash
+      $BIN/git pull --rebase --autostash
     )
   fi
 } #}}}
