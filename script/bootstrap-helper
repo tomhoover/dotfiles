@@ -29,4 +29,4 @@ if isdarwin; then
 fi
 
 clone_dotfiles_repo
-~/.dotfiles/script/bootstrap
+exec ~/.dotfiles/script/bootstrap
