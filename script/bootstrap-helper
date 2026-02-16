@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+[ "$(id -u)" -eq 0 ] && {
+  echo "Run $0 as yourself (not as root), exiting"
+  exit 1
+}
+
+isdarwin()
+{
+  [ "$(uname -s)" = "Darwin" ]
+}
+
+clone_dotfiles_repo()
+{
+  if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.dotfiles" ]; then
+    $BIN/git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
+  else
+    (
+      cd ~/.dotfiles || exit 3
+      $BIN/git pull --rebase --autostash
+    )
+  fi
+}
+
+BIN="/usr/bin"
+if isdarwin; then
+  [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"
+  [ -r /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
+fi
+
+clone_dotfiles_repo
+~/.dotfiles/script/bootstrap
