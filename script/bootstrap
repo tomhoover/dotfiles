@@ -335,6 +335,7 @@ stow_dotfiles_pkgs()
     fi
   done
 
+  tput setaf 1
   isdarwin && $BIN/stow -d ~/.dotfiles/stow -t ~ -R darwin
   islinux && $BIN/stow -d ~/.dotfiles/stow -t ~ -R linux
   isarch && $BIN/stow -d ~/.dotfiles/stow -t ~ -R arch
@@ -344,6 +345,7 @@ stow_dotfiles_pkgs()
   [ "${MYHOST}" = "ariel" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator
   [ "${MYHOST}" = "theophilus" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R i3 x11
   $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy ghostty git home kitty liquidprompt mise mr starship tmux vcsh vim
+  tput sgr0
 } #}}}
 
 setup_etckeeper()
