@@ -354,39 +354,40 @@ if empty(glob('~/.local/share/vim/autoload/plug.vim'))
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+" Plug 'aliou/bats.vim'
 " Plug 'bronson/vim-trailing-whitespace'
 " Plug 'dag/vim-fish'
+" Plug 'davidhalter/jedi-vim'
 " Plug 'easymotion/vim-easymotion'
 " Plug 'editorconfig/editorconfig-vim'
+" Plug 'hashivim/vim-terraform'
 " Plug 'itchyny/lightline.vim'
 " Plug 'itchyny/vim-gitbranch'
+" Plug 'juliosueiras/vim-terraform-completion'
 " Plug 'mattn/emmet-vim'
 " Plug 'morhetz/gruvbox'
+" Plug 'neomake/neomake'
 " Plug 'pangloss/vim-javascript'
 " Plug 'reedes/vim-colors-pencil'
 " Plug 'scrooloose/nerdtree'
 " Plug 'terryma/vim-multiple-cursors'
 " Plug 'tpope/vim-eunuch'
-" Plug 'w0rp/ale'
+" Plug 'vim-syntastic/syntastic'
+" Plug 'ycm-core/YouCompleteMe', { 'do': './install.py' }
 
 call plug#begin('~/.local/share/vim/plugged')
-Plug 'tpope/vim-sensible'
 Plug 'airblade/vim-gitgutter'
-" Plug 'tpope/vim-commentary'
-" Plug 'tpope/vim-repeat'
-" Plug 'tpope/vim-surround'
-" Plug 'aliou/bats.vim'
-" Plug 'christoomey/vim-tmux-navigator'
-" Plug 'davidhalter/jedi-vim'
-" Plug 'junegunn/fzf'
-" Plug 'junegunn/fzf.vim'
-" Plug 'neomake/neomake'
-" Plug 'tmhedberg/SimpylFold'
-" Plug 'suy/vim-context-commentstring'
-" Plug 'hashivim/vim-terraform'
-" Plug 'vim-syntastic/syntastic'
-" Plug 'juliosueiras/vim-terraform-completion'
-" Plug 'ycm-core/YouCompleteMe', { 'do': './install.py' }
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'suy/vim-context-commentstring'
+Plug 'tmhedberg/SimpylFold'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-surround'
+Plug 'w0rp/ale'
 call plug#end()
 
 " }}}
