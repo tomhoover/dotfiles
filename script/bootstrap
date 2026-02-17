@@ -142,7 +142,7 @@ backup_file()
 # # bash/zsh function exporting shortcut
 export -f backup_file
 
-# Export the function (POSIX syntax -- preserve newlines and syntax!)
+# Export the function (POSIX syntax -- preserve newlines and syntax!) #{{{
 # shellcheck disable=SC2016
 # export backup_file='backup_file()
 # {
@@ -151,6 +151,7 @@ export -f backup_file
 #   mv "$HOME/${1}" "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
 #   echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >>"$HOME/fixups.sh"
 # }'
+# }}}
 
 github_vclone()
 { #{{{
@@ -436,7 +437,7 @@ echo
 cd && "$BIN/mr" -m -j 1 up
 
 # install development tools
-if [ ! "$(id -u)" -eq 0 ] && [ "${MYHOST}" = "ariel" ]; then
+if [ ! "$(id -u)" -eq 0 ] && [[ "${MYHOST}" =~ (ariel|theophilus) ]]; then
   echo
   ~/.dotfiles/script/install-dev-tools
 fi
