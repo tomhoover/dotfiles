@@ -67,18 +67,15 @@ DEBIAN_PKGS=( #{{{
   zsh
 ) #}}}
 
-isdarwin()
-{ #{{{
+isdarwin() { #{{{
   [ "$(uname -s)" = "Darwin" ]
 } #}}}
 
-islinux()
-{ #{{{
+islinux() { #{{{
   [ "$(uname -s)" = "Linux" ]
 } #}}}
 
-isarch()
-{ #{{{
+isarch() { #{{{
   if islinux && [ -f /etc/os-release ]; then
     # shellcheck disable=SC1091
     source /etc/os-release
@@ -88,8 +85,7 @@ isarch()
   return 1
 } #}}}
 
-isdebian()
-{ #{{{
+isdebian() { #{{{
   if islinux && [ -f /etc/os-release ]; then
     # shellcheck disable=SC1091
     source /etc/os-release
@@ -99,18 +95,15 @@ isdebian()
   return 1
 } #}}}
 
-isomarchy()
-{ #{{{
+isomarchy() { #{{{
   isarch && grep -q '\[omarchy\]' /etc/pacman.conf
 } #}}}
 
-iszsh()
-{ #{{{
+iszsh() { #{{{
   [ "${SHELL}" = "/bin/zsh" ]
 } #}}}
 
-create_ssh_key()
-{ #{{{
+create_ssh_key() { #{{{
   if [ ! "$(id -u)" -eq 0 ] && [ ! -f ~/.ssh/id_rsa_"${MYHOST}".pub ]; then
     echo && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
     echo
@@ -119,8 +112,7 @@ create_ssh_key()
   fi
 } #}}}
 
-clone_apt_vcsh()
-{ #{{{
+clone_apt_vcsh() { #{{{
   if isdebian; then
     github_vclone apt
     sudo aptitude install "$(cat ~/.config/apt/installed)"
@@ -129,8 +121,7 @@ clone_apt_vcsh()
 } #}}}
 
 # shellcheck disable=SC2329
-backup_file()
-{ #{{{
+backup_file() { #{{{
   echo "$(tput setaf 2)Backing up ${1}...$(tput sgr0)"
   # shellcheck disable=SC2086
   mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
@@ -153,8 +144,7 @@ export -f backup_file
 # }'
 # }}}
 
-github_vclone()
-{ #{{{
+github_vclone() { #{{{
   if "$BIN/vcsh" clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
     echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
@@ -173,8 +163,7 @@ github_vclone()
   return 1
 } #}}}
 
-gitolite_vclone()
-{ #{{{
+gitolite_vclone() { #{{{
   if "$BIN/vcsh" clone "gitolite:${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
     echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
@@ -189,8 +178,7 @@ gitolite_vclone()
   fi
 } #}}}
 
-localhost_vclone()
-{ #{{{
+localhost_vclone() { #{{{
   if "$BIN/vcsh" clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
     echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
@@ -206,13 +194,11 @@ localhost_vclone()
   return 1
 } #}}}
 
-install_caps2esc()
-{ #{{{
+install_caps2esc() { #{{{
   echo "install_caps2esc"
 } #}}}
 
-set_private_repos_tracking()
-{ #{{{
+set_private_repos_tracking() { #{{{
   REPOS=(gnupg ssh)
   for REPO in "${REPOS[@]}"; do
     if [ -d "${HOME}/.${REPO}" ]; then
@@ -228,8 +214,7 @@ set_private_repos_tracking()
   done
 } #}}}
 
-install_AUR_pkg()
-{ #{{{
+install_AUR_pkg() { #{{{
   if [ ! -d "$HOME/.cache/AUR/$1" ]; then
     echo
     echo "$(tput setaf 2)Installing $1...$(tput sgr0)"
@@ -237,8 +222,7 @@ install_AUR_pkg()
   fi
 } #}}}
 
-install_paru_customizepkg()
-{ #{{{
+install_paru_customizepkg() { #{{{
   mkdir -p ~/.cache/AUR
   mkdir -p ~/.config/customizepkg
   export AURDEST=~/.cache/AUR
@@ -266,8 +250,7 @@ install_paru_customizepkg()
   fi
 } #}}}
 
-install_remaining_pkgs()
-{ #{{{
+install_remaining_pkgs() { #{{{
   # shellcheck disable=SC1091
   [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
   if isdarwin; then
@@ -298,8 +281,7 @@ install_remaining_pkgs()
   fi
 } #}}}
 
-clone_private_repos()
-{ #{{{
+clone_private_repos() { #{{{
   echo
   echo "$(tput setaf 5)Please copy desired private repos ($(tput setaf 6)gnupg ssh private-vcsh$(tput setaf 5)) from IRONKEY to ~/git/"
   echo "          $(tput setaf 4)press the $(tput setaf 2)ENTER$(tput setaf 4) key to continue (or $(tput setaf 1)CTRL-C$(tput setaf 4) to abort)$(tput sgr0)"
@@ -326,8 +308,7 @@ clone_private_repos()
   done
 } #}}}
 
-stow_dotfiles_pkgs()
-{ #{{{
+stow_dotfiles_pkgs() { #{{{
   local file
   for file in "${STOW_DOTFILES[@]}"; do
     if [ -f ~/"$file" ]; then
@@ -336,7 +317,6 @@ stow_dotfiles_pkgs()
     fi
   done
 
-  tput setaf 1
   isdarwin && $BIN/stow -d ~/.dotfiles/stow -t ~ -R darwin
   islinux && $BIN/stow -d ~/.dotfiles/stow -t ~ -R linux
   isarch && $BIN/stow -d ~/.dotfiles/stow -t ~ -R arch
@@ -346,11 +326,9 @@ stow_dotfiles_pkgs()
   [ "${MYHOST}" = "ariel" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator
   [ "${MYHOST}" = "theophilus" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R i3 x11
   $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy ghostty git home kitty liquidprompt mise mr starship tmux vcsh vim
-  tput sgr0
 } #}}}
 
-setup_etckeeper()
-{ #{{{
+setup_etckeeper() { #{{{
   if [ ! -d /etc/.git ]; then
     cd /etc || exit 4
     sudo etckeeper init
@@ -360,15 +338,14 @@ setup_etckeeper()
   fi
 } #}}}
 
-check_installed_commands()
-{ #{{{
+check_installed_commands() { #{{{
   # shellcheck disable=SC2015
-  command -v curl >/dev/null 2>&1 \
-    && command -v sudo >/dev/null 2>&1 \
-    && command -v git >/dev/null 2>&1 \
-    && command -v mr >/dev/null 2>&1 \
-    && command -v vcsh >/dev/null 2>&1 \
-    || {
+  command -v curl >/dev/null 2>&1 &&
+    command -v sudo >/dev/null 2>&1 &&
+    command -v git >/dev/null 2>&1 &&
+    command -v mr >/dev/null 2>&1 &&
+    command -v vcsh >/dev/null 2>&1 ||
+    {
       echo
       echo "Edit bootstrap to install required commands..."
       echo
@@ -376,8 +353,7 @@ check_installed_commands()
     }
 } #}}}
 
-install_required_pkgs()
-{ #{{{
+install_required_pkgs() { #{{{
   if isdarwin; then
     "$BIN/brew" doctor || true
     echo
@@ -399,8 +375,7 @@ install_required_pkgs()
   fi
 } #}}}
 
-clone_dotfiles_repo()
-{ #{{{
+clone_dotfiles_repo() { #{{{
   if [ ! "$(id -u)" -eq 0 ] && [ ! -d "$HOME/.dotfiles" ]; then
     $BIN/git clone https://github.com/tomhoover/dotfiles ~/.dotfiles
   else
@@ -416,6 +391,27 @@ if isdarwin; then
   [ -r /usr/local/bin/brew ] && BIN="/usr/local/bin"
   [ -r /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
 fi
+
+case "$1" in
+"") ;;
+clone_dotfiles_repo)
+  "$@"
+  exit
+  ;;
+stow_dotfiles_pkgs)
+  "$@"
+  exit
+  ;;
+update)
+  clone_dotfiles_repo
+  stow_dotfiles_pkgs
+  exit
+  ;;
+*)
+  log_error "Unkown function: $1()"
+  exit 7
+  ;;
+esac
 
 # Always prompt for sudo password at least once
 sudo --reset-timestamp

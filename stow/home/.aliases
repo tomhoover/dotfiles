@@ -118,8 +118,6 @@ alias reload="exec $SHELL -l"
 
 alias diff=colordiff
 
-alias vim_bundle_update='vim +BundleInstall! +BundleClean +q'
-
 # SSH-Agent forwarding breaks when screen is re-attached on a different host
 # http://www.deadman.org/sshscreen.html
 alias Attach='grabssh ; screen -d -R -h 5000'
@@ -177,9 +175,6 @@ alias dcu='docker compose up -d'
 if [ `uname` = Darwin ] ; then
     # https://hub.github.com/
     alias git=hub
-
-    # Get OS X Software Updates, and update installed Ruby gems, Homebrew, npm, and their installed packages
-    alias update='sudo softwareupdate -i -a; brew update; brew upgrade; brew cleanup; npm install npm -g; npm update -g; sudo gem update --system; sudo gem update'
 
     # Flush Directory Service cache
     alias flush="dscacheutil -flushcache && killall -HUP mDNSResponder"
