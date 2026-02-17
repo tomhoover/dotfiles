@@ -3,6 +3,15 @@ experimental = true
 idiomatic_version_file_enable_tools = ["python"]
 # python_compile = true
 
+[plugins]
+fnox-env = "https://github.com/jdx/mise-env-fnox"
+
+[env]
+# Use default profile
+_.fnox-env = { tools = true }
+# # Use production profile
+# _.fnox-env = { tools = true, profile = "production" }
+
 [tools]
 # "go:github.com/containerscrew/tftools" = "latest"
 # "pipx:flake8" = "latest"
@@ -21,6 +30,7 @@ idiomatic_version_file_enable_tools = ["python"]
 # tfsec = "latest"
 bat = "latest"
 copier = "latest"
+fnox = "latest"
 hyperfine = "latest"
 pre-commit = "latest"
 prek = "latest"
