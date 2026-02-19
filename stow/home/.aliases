@@ -206,23 +206,6 @@ if [ `uname` = Darwin ] ; then
     # Stuff I never really use but cannot delete either because of http://xkcd.com/530/
     alias stfu="osascript -e 'set volume output muted true'"
     alias pumpitup="osascript -e 'set volume 7'"
-
-    # homebrew automatically installs tailscale cli in /opt/homebrew/bin/tailscale,
-    #   so this alias is no longer needed
-    # tailscale
-    # alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
-
-    # If you're going to build Homebrew formulae from source that link against
-    # Python like Tkinter or NumPy (This is only generally the case if you are a
-    # developer of such a formula, or if you have an EOL version of MacOS for which
-    # prebuilt bottles are no longer provided and you are using such a formula).
-    #
-    # To avoid them accidentally linking against a Pyenv-provided Python, add the
-    # following line into your interactive shell's configuration:
-    # alias brew='env PATH="${PATH//$(pyenv root)\/shims:/}" brew'
-    # remove .asdf/shims, as well as .pyenv/shims
-    alias brew='env PATH="${PATH//:*\/shims:/:}" brew'
-    # alias brew='env PATH="${PATH//:*\\/shims:/:}" brew'
 fi
 
 alias mux='tmuxinator'
