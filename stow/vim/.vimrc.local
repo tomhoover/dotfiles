@@ -31,6 +31,7 @@
 " |||||   set nobackup                              " don't keep a backup file
 " |||||   set noerrorbells                          " don't ring the bell (beep or screen flash) for error messages
 " |||||   set nostartofline                         " keep cursor in the same column (if possible) when moving cursor
+set startofline                         " keep cursor in the same column (if possible) when moving cursor
 " |||||   set pastetoggle=<f11>                     " don't change text when copy/pasting
 " |||||   set shortmess=at                          " list of flags to make messages shorter
 " |||||   set showmatch                             " show matching brackets.
