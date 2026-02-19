@@ -310,7 +310,8 @@ let g:netrw_winsize = 20
 
 " https://www.vimfromscratch.com/articles/vim-for-python
 " To toggle a fold you can press za (:help fold-commands), and I have it mapped to Space for convenience.
-nnoremap <space> za
+" nnoremap <space> za
+" replace with thalesmello/tabfold <tab>
 
 " https://github.com/tmhedberg/SimpylFold
 " Preview docstring in fold text
@@ -383,6 +384,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'suy/vim-context-commentstring'
+Plug 'thalesmello/tabfold'
 Plug 'tmhedberg/SimpylFold'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
