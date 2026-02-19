@@ -103,6 +103,8 @@ iszsh() { #{{{
   [ "${SHELL}" = "/bin/zsh" ]
 } #}}}
 
+###
+
 create_ssh_key() { #{{{
   if [ ! "$(id -u)" -eq 0 ] && [ ! -f ~/.ssh/id_rsa_"${MYHOST}".pub ]; then
     echo && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
@@ -145,51 +147,51 @@ export -f backup_file
 # }}}
 
 github_vclone() { #{{{
-  if "$BIN/vcsh" clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
+  if $BIN/vcsh clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
     echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
     return 0
-  elif "$BIN/vcsh" "${1}" pull; then
+  elif $BIN/vcsh "${1}" pull; then
     echo "$(tput setaf 2)${1} successfully updated via pull...$(tput sgr0)"
     return 0
   else
     echo "$(tput setaf 1)conflicting files found...$(tput sgr0)"
-    # "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+'   | xargs -I{} -n1 backup_file "{}"
-    # "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 sh -c 'backup_file "{}"'
-    # "$BIN/vcsh" "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN/vcsh" "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN/vcsh" "${1}" checkout master 2>&1 && "$BIN/vcsh" "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
+    # $BIN/vcsh "${1}" pull 2>&1 | grep -E '^\s+'   | xargs -I{} -n1 backup_file "{}"
+    # $BIN/vcsh "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 sh -c 'backup_file "{}"'
+    # $BIN/vcsh "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 bash -c 'backup_file "{}"'
+    $BIN/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
+    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
   fi
   return 1
 } #}}}
 
 gitolite_vclone() { #{{{
-  if "$BIN/vcsh" clone "gitolite:${1}-vcsh.git" "${1}"; then
+  if $BIN/vcsh clone "gitolite:${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
     echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
     return 0
-  elif "$BIN/vcsh" "${1}" pull; then
+  elif $BIN/vcsh "${1}" pull; then
     echo "$(tput setaf 2)${1} successfully updated via pull...$(tput sgr0)"
     return 0
   else
     echo "$(tput setaf 1)conflicting files found...$(tput sgr0)"
-    "$BIN/vcsh" "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN/vcsh" "${1}" checkout master 2>&1 && "$BIN/vcsh" "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
+    $BIN/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
+    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
   fi
 } #}}}
 
 localhost_vclone() { #{{{
-  if "$BIN/vcsh" clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
+  if $BIN/vcsh clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
     echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
     return 0
-  elif "$BIN/vcsh" "${1}" pull; then
+  elif $BIN/vcsh "${1}" pull; then
     echo "$(tput setaf 2)${1} successfully updated via pull...$(tput sgr0)"
     return 0
   else
     echo "$(tput setaf 1)conflicting files found...$(tput sgr0)"
-    "$BIN/vcsh" "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN/vcsh" "${1}" checkout master 2>&1 && "$BIN/vcsh" "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
+    $BIN/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
+    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
   fi
   return 1
 } #}}}
@@ -255,8 +257,8 @@ install_remaining_pkgs() { #{{{
   [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
   if isdarwin; then
     # shellcheck disable=SC2086
-    "$BIN/brew" install "${COMMON_PKGS[@]}" "${DARWIN_PKGS[@]}"
-    [ "${MYHOST}" = "ariel" ] && "$BIN/brew" install p4v
+    $BIN/brew install "${COMMON_PKGS[@]}" "${DARWIN_PKGS[@]}"
+    [ "${MYHOST}" = "ariel" ] && $BIN/brew install p4v
   elif isarch; then
     # shellcheck disable=SC2086
     sudo pacman -S --noconfirm --needed "${COMMON_PKGS[@]}" "${ARCH_PKGS[@]}"
@@ -302,7 +304,7 @@ clone_private_repos() { #{{{
       if localhost_vclone "${REPO}"; then
         cd "$HOME/.config/vcsh/repo.d/${REPO}.git" || return 1
         grep -q '\[remote "localhost"\]' config || $BIN/vcsh "${REPO}" remote rename origin localhost
-        grep -q '\[remote "origin"\]' config || "$BIN/vcsh" "${REPO}" remote add origin "gitolite:${REPO}-vcsh.git"
+        grep -q '\[remote "origin"\]' config || $BIN/vcsh "${REPO}" remote add origin "gitolite:${REPO}-vcsh.git"
       fi
     fi
   done
@@ -355,10 +357,11 @@ check_installed_commands() { #{{{
 
 install_required_pkgs() { #{{{
   if isdarwin; then
-    "$BIN/brew" doctor || true
+    $BIN/brew doctor || true
     echo
     # shellcheck disable=SC2086
-    "$BIN/brew" install "${REQUIRED_PKGS[@]}"
+    $BIN/brew install bash bash-completion@2 zsh-completions "${REQUIRED_PKGS[@]}"
+    $BIN/brew completions link
   elif isarch; then
     sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
     sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
@@ -430,7 +433,7 @@ isarch && install_caps2esc
 isdebian && clone_apt_vcsh
 
 echo
-cd && "$BIN/mr" -m -j 1 up
+cd && $BIN/mr -m -j 1 up
 
 # install development tools
 if [ ! "$(id -u)" -eq 0 ] && [[ "${MYHOST}" =~ (ariel|theophilus) ]]; then
