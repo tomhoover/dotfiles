@@ -1,5 +1,3 @@
-" vim: set tw=100 fdm=marker commentstring="%s:
-
 set nocompatible
 
 " Plugins {{{
@@ -12,6 +10,8 @@ if empty(glob('~/.vim/autoload/plug.vim'))
     autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 
+call plug#begin('~/.vim/plugged')
+" Plug 'aliou/bats.vim'
 " Plug 'bronson/vim-trailing-whitespace'
 " Plug 'chriskempson/vim-tomorrow-theme'
 " Plug 'dag/vim-fish'
@@ -27,32 +27,28 @@ endif
 " Plug 'terryma/vim-multiple-cursors'
 " Plug 'tpope/vim-eunuch'
 " Plug 'tpope/vim-fugitive'
-" Plug 'vim-airline/vim-airline'
 " Plug 'vim-airline/vim-airline-themes'
-" Plug 'w0rp/ale'
-
-call plug#begin('~/.vim/plugged')
-Plug 'tpope/vim-sensible'
+" Plug 'vim-airline/vim-airline'
 Plug 'airblade/vim-gitgutter'
-Plug 'aliou/bats.vim'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'davidhalter/jedi-vim'
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'hashivim/vim-terraform'
+Plug 'juliosueiras/vim-terraform-completion'
 Plug 'junegunn/fzf.vim'
-Plug 'neomake/neomake'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'maxmellon/vim-jsx-pretty'
+Plug 'neomake/neomake'
+Plug 'suy/vim-context-commentstring'
 Plug 'tmhedberg/SimpylFold'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
-Plug 'suy/vim-context-commentstring'
-Plug 'hashivim/vim-terraform'
 Plug 'vim-syntastic/syntastic'
-Plug 'juliosueiras/vim-terraform-completion'
 Plug 'ycm-core/YouCompleteMe', { 'do': './install.py' }
 Plug 'yuezk/vim-js'
-Plug 'maxmellon/vim-jsx-pretty'
-Plug 'dracula/vim', { 'as': 'dracula' }
 call plug#end()
 
 " https://github.com/tmhedberg/SimpylFold
@@ -91,7 +87,8 @@ let g:SimpylFold_docstring_preview = 1
 
 " https://www.vimfromscratch.com/articles/vim-for-python
 " To toggle a fold you can press za (:help fold-commands), and I have it mapped to Space for convenience.
-nnoremap <space> za
+" nnoremap <space> za
+" replace with thalesmello/tabfold <tab>
 
 " }}}
 
@@ -198,25 +195,25 @@ set scrolloff=5
 " j – Remove comment character when joining lines with |J|.
 set formatoptions+=ncroqlj
 
-set viminfo+=n~/.vim/tmp/viminfo
-set backupdir=$HOME/.vim/tmp/backup
-set dir=$HOME/.vim/tmp/swap
-set viewdir=$HOME/.vim/tmp/view
-if !isdirectory(&backupdir) | call mkdir(&backupdir, 'p', 0700) | endif
-if !isdirectory(&dir)       | call mkdir(&dir, 'p', 0700)       | endif
-if !isdirectory(&viewdir)   | call mkdir(&viewdir, 'p', 0700)   | endif
-
-" Persist undo history between Vim sessions.  Store undo history to a file,
-" so that it can be recalled in future Vim sessions.
+" set viminfo+=n~/.vim/tmp/viminfo
+" set backupdir=$HOME/.vim/tmp/backup
+" set dir=$HOME/.vim/tmp/swap
+" set viewdir=$HOME/.vim/tmp/view
+" if !isdirectory(&backupdir) | call mkdir(&backupdir, 'p', 0700) | endif
+" if !isdirectory(&dir)       | call mkdir(&dir, 'p', 0700)       | endif
+" if !isdirectory(&viewdir)   | call mkdir(&viewdir, 'p', 0700)   | endif
 "
-" Also see "How can I use the undofile?": https://vi.stackexchange.com/q/6/51
-" and "Can I be notified when I'm undoing changes from the undofile?":
-" https://vi.stackexchange.com/q/2115/51.
-if has('persistent_undo')
-        " set undofile
-	set undodir=$HOME/.vim/tmp/undo
-	if !isdirectory(&undodir) | call mkdir(&undodir, 'p', 0700) | endif
-endif
+" " Persist undo history between Vim sessions.  Store undo history to a file,
+" " so that it can be recalled in future Vim sessions.
+" "
+" " Also see "How can I use the undofile?": https://vi.stackexchange.com/q/6/51
+" " and "Can I be notified when I'm undoing changes from the undofile?":
+" " https://vi.stackexchange.com/q/2115/51.
+" if has('persistent_undo')
+"         " set undofile
+" 	set undodir=$HOME/.vim/tmp/undo
+" 	if !isdirectory(&undodir) | call mkdir(&undodir, 'p', 0700) | endif
+" endif
 
 " Indent in visual and select mode automatically re-selects.  Selecting some
 " text in |visual-mode| and then changing the indentation with |v_>| and |v_<|
@@ -288,9 +285,9 @@ augroup numbertoggle
 augroup END
 
 " http://vim.wikia.com/wiki/Toggle_auto-indenting_for_code_paste
-" nnoremap <F2> :set invpaste paste?<CR>
-" set pastetoggle=<F2>
-" set showmode
+nnoremap <F2> :set invpaste paste?<CR>
+set pastetoggle=<F2>
+set showmode
 
 " http://vim.wikia.com/wiki/Modeline_magic
 set modeline
@@ -482,3 +479,5 @@ aug END
 "if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   "runtime! macros/matchit.vim
 "endif
+
+" vim: set tw=100 fdm=marker commentstring="%s:

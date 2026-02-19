@@ -1,3 +1,5 @@
+set nocompatible
+
 " override grml .vimrc {{{
 
 " ||||| " Don't use Ex mode, use Q for formatting.
@@ -151,9 +153,131 @@ set whichwrap&    " reset to default
 " ||||| "# END OF FILE #################################################################
 " }}}
 
-" my stuff
+" Plugins {{{
+
+set runtimepath+=~/.local/share/vim
+
+" https://github.com/huntie/dotfiles/blob/f8a129f8e306c853ab52234f605b1d872b0448b1/vim/.vimrc#L72-L77
+" Install and run vim-plug on first run
+if empty(glob('~/.local/share/vim/autoload/plug.vim'))
+    silent !curl -fLo ~/.local/share/vim/autoload/plug.vim --create-dirs
+    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin('~/.local/share/vim/plugged')
+" Plug 'aliou/bats.vim'
+" Plug 'bronson/vim-trailing-whitespace'
+" Plug 'chriskempson/vim-tomorrow-theme'
+" Plug 'dag/vim-fish'
+" Plug 'davidhalter/jedi-vim'
+" Plug 'easymotion/vim-easymotion'
+" Plug 'editorconfig/editorconfig-vim'
+" Plug 'itchyny/lightline.vim'
+" Plug 'itchyny/vim-gitbranch'
+" Plug 'mattn/emmet-vim'
+" Plug 'maxmellon/vim-jsx-pretty'
+" Plug 'morhetz/gruvbox'
+" Plug 'neomake/neomake'
+" Plug 'pangloss/vim-javascript'
+" Plug 'reedes/vim-colors-pencil'
+" Plug 'scrooloose/nerdtree'
+" Plug 'terryma/vim-multiple-cursors'
+" Plug 'tpope/vim-eunuch'
+" Plug 'tpope/vim-fugitive'
+" Plug 'vim-airline/vim-airline-themes'
+" Plug 'vim-airline/vim-airline'
+" Plug 'vim-syntastic/syntastic'
+" Plug 'ycm-core/YouCompleteMe', { 'do': './install.py' }
+" Plug 'yuezk/vim-js'
+Plug 'airblade/vim-gitgutter'
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'dense-analysis/ale'
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'hashivim/vim-terraform'
+Plug 'juliosueiras/vim-terraform-completion'
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'romainl/vim-qf'
+Plug 'suy/vim-context-commentstring'
+Plug 'thalesmello/tabfold'
+Plug 'tmhedberg/SimpylFold'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-unimpaired'
+call plug#end()
+
+" https://github.com/tmhedberg/SimpylFold
+" Preview docstring in fold text
+let g:SimpylFold_docstring_preview = 1
+
+let g:ale_open_list = 1
+
+" }}}
+
+" Settings {{{
+
+" " $HOME/.vim/init/general.vimrc
+" set nocompatible
+" filetype plugin on
+" syntax enable
+" set backspace=2             " Backspace behaves like other programs do
+" set hidden                  " Undo persists even when switching to different open buffers
+
+" " colors
+" colorscheme Tomorrow-Night
+
+" " searching
+" set incsearch               " search as characters are entered
+" set hlsearch                " highlight matches
+" set ignorecase              " be smart about case in search
+" set wildmenu                " visual autocomplete for command menu
+
+" " $HOME/.vim/init/leader.vimrc
+" let mapleader=","       " set the leader key to the comma key
+" nnoremap <leader>h :noh<CR> " toggle search highlighting
+" map <leader>vd :call ToggleThemeMode('dark')<CR>
+" map <leader>va :call ToggleThemeMode('')<CR>
+
+" }}}
+
+" Mappings {{{
+
+" https://www.vimfromscratch.com/articles/vim-for-python
+" To toggle a fold you can press za (:help fold-commands), and I have it mapped to Space for convenience.
+" nnoremap <space> za
+" replace with thalesmello/tabfold <tab>
+
+" }}}
+
+" Functions {{{
+
+" " $HOME/.vim/init/functions.vimrc
+" " Toggles the theme from light to dark
+" function! ToggleThemeMode(style)
+"     if a:style == "dark"
+"         set background=dark
+"         AirlineTheme tomorrow
+"         colorscheme Tomorrow-Night
+"     else
+"         set background=light
+"         colorscheme Tomorrow
+"         AirlineTheme tomorrow
+"     en
+" endfunction
+
+" https://shyr.io/blog/vim-plugin-lockfile
+command UpdatePlugins
+  \ PlugUpdate | PlugSnapshot! ~/.local/share/vim/plug.snapshot
+
+" }}}
+
 set background=dark
 " colorscheme solarized
+colorscheme dracula
 
 " Better tab completion in the commandline.  Make commandline-completion
 " (after you type :) behave more useful and roughly like most shells do.
@@ -161,8 +285,31 @@ set background=dark
 " See 'wildmode' on how to configure the completion mode to your liking.
 " 'wildignore' is also a useful setting to ignore binary files such as compiler
 " output, images, etc.
-"set wildmenu		   " this is already set in grml & sensible
+set wildmenu
 set wildmode=list:longest  " List all matches and complete to the longest match.
+
+" Show (partial) command in bottom-right.  Vim had many commands that
+" consist of two or more keystrokes. If this option is enabled Vim will show the
+" command you've typed thus-far in the bottom-right of the screen.
+"
+" It will also show the size of the selection in |visual-mode|.
+set showcmd
+
+" Wrap long lines.  When long lines are *not* wrapped Vim will hide any text
+" that's larger than the screen and scroll horizontally.
+"
+" Also see 'breakindent' for continuing wrapped lines on the same indent level
+" (requires Vim 7.4.338) and 'linebreak' to wrap only at the end of words.
+"
+" You can also use |gj| and |gk| to navigate "visual" lines more easily. Many
+" people line to override the default behaviour by remapping keys with something
+" like:
+"
+" nnoremap k gk nnoremap j gj nnoremap gk nnoremap gj inoremap gj inoremap gk
+set wrap
+
+" Wrap at n characters.  Automatically break lines at *n* characters.
+set textwidth=80
 
 " Highlight the last used search pattern.  Highlight the last used search
 " pattern.
@@ -181,11 +328,33 @@ set hlsearch
 set ignorecase
 set smartcase              " Disable 'ignorecase' if the term contains upper-case.
 
-" Size of a Tab character.  Number of spaces to display tab characters as.
 set expandtab
+
+" Size of a Tab character.  Number of spaces to display tab characters as.
 set tabstop=4
+
 set shiftwidth=0           " Use same value as 'tabstop'.
 set softtabstop=-1         " Use same value as 'shiftwidth'.
+
+" Minimum number of lines to keep above/below cursor.  Keep lines above and
+" below the screen when scrolling up or down. This is useful so you have some
+" context what you’re scrolling to.
+"
+" Also see 'sidescrolloff'.
+set scrolloff=5
+
+" Control automatic formatting.  The 'formatoptions' setting controls how
+" automatic formatting when inserting text, formatting with |gq|, as well as
+" some other commands.
+"
+" n – Recognize numbered lists when formatting (see 'formatlistpat').
+" c – Wrap comments with 'textwidth'.
+" r – Insert comment char after enter.
+" o – Insert comment char after |o|/|O|.
+" q – Format comments with |gq|.
+" l – Do not break lines when they were longer than 'textwidth' to start with.
+" j – Remove comment character when joining lines with |J|.
+set formatoptions+=ncroqlj
 
 set viminfo+=n~/.cache/vim/viminfo
 set backupdir=~/.cache/vim/backup
@@ -207,13 +376,79 @@ if has('persistent_undo')
   if !isdirectory(&undodir) | call mkdir(&undodir, 'p', 0700) | endif
 endif
 
+" Indent in visual and select mode automatically re-selects.  Selecting some
+" text in |visual-mode| and then changing the indentation with |v_>| and |v_<|
+" will make Vim lose the visual selection, which is annoying if you want to
+" change several levels of indentation.
+"
+" With this mapping it will re-select the last selection after using &lt; or
+" &gt;.
+vnoremap > >gv
+vnoremap < <gv
+
+" Go to the last cursor location when opening a file.  Go to the last cursor
+" location when a file is opened, unless this is a git commit (in which case
+" it's annoying).
+"
+" This uses the information stored in the 'viminfo' file.
+augroup jump
+	autocmd BufReadPost *
+		\  if line("'\"") > 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+			\| exe 'normal! g`"'
+		\| endif
+augroup end
+
+" Clean trailing whitespace.  This command removes all trailing whitespace
+" in a file, without causing any side-effects.
+"
+" Also see "What's the simplest way to strip trailing whitespace from all lines
+" in a file?": https://vi.stackexchange.com/a/454/51.
+fun! s:trim_whitespace()
+	let l:save = winsaveview()
+	keeppatterns %s/\s\+$//e
+	call winrestview(l:save)
+endfun
+command! TrimWhitespace call s:trim_whitespace()
+
+" https://gist.github.com/dragonken/c29123e597c6fdf022284cf36d245b64
+" Get the 2-space YAML as the default when hit carriage return after the colon
+" autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
+
+" https://stackoverflow.com/questions/45129838/use-only-hard-tab-only-in-certain-files
+" If you are asking how to configure whether you use hard tabs (tab characters) vs.
+" spaces for indentation, based on filetype, you can do that using autocmd hooks.
+"
+" For example, here is my base indent configuration for most files. It sets a tabstop
+" of 8 (for hard tab display), and most tabs / indentation shifts are 4, and they use spaces, not hard tabs.
+set tabstop=8 softtabstop=4 shiftwidth=4 expandtab
+" set tabstop=8 shiftwidth=4 expandtab
+"
+" However, in some syntaxes that is wrong. For instance, I want 2 spaces in Javascript and YAML.
+" And in Makefiles, space indent is a syntax error - there, I want hard tabs. You can set these things
+" using autocmd and the filetype in question.
+autocmd Filetype make       setlocal noexpandtab
+autocmd Filetype yaml       setlocal shiftwidth=2 softtabstop=2
+autocmd Filetype javascript setlocal shiftwidth=2 softtabstop=2
+autocmd Filetype javascriptreact setlocal shiftwidth=2 softtabstop=2
+" autocmd Filetype yaml       setlocal shiftwidth=2
+" autocmd Filetype javascript setlocal shiftwidth=2
+"
+" If you don't want to specify by file type you can also specify the filename (or a glob to match filenames).
+" autocmd BufNewFile,BufRead rsnapshot.conf setlocal noexpandtab
+
 " https://jeffkreeftmeijer.com/vim-number/
 set number relativenumber
+
 augroup numbertoggle
   autocmd!
   autocmd BufEnter,FocusGained,InsertLeave * set relativenumber
   autocmd BufLeave,FocusLost,InsertEnter   * set norelativenumber
 augroup END
+
+" http://vim.wikia.com/wiki/Toggle_auto-indenting_for_code_paste
+nnoremap <F2> :set invpaste paste?<CR>
+set pastetoggle=<F2>
+set showmode
 
 " http://vim.wikia.com/wiki/Modeline_magic
 set modeline
@@ -227,65 +462,6 @@ nnoremap <C-H> <C-W><C-H>
 " more natural split opening
 set splitbelow
 set splitright
-
-" Wrap long lines.  When long lines are *not* wrapped Vim will hide any text
-" that's larger than the screen and scroll horizontally.
-"
-" Also see 'breakindent' for continuing wrapped lines on the same indent level
-" (requires Vim 7.4.338) and 'linebreak' to wrap only at the end of words.
-"
-" You can also use |gj| and |gk| to navigate "visual" lines more easily. Many
-" people line to override the default behaviour by remapping keys with something
-" like:
-"
-" nnoremap k gk nnoremap j gj nnoremap gk nnoremap gj inoremap gj inoremap gk
-set wrap
-
-" Wrap at n characters.  Automatically break lines at *n* characters.
-set textwidth=80
-
-" Control automatic formatting.  The 'formatoptions' setting controls how
-" automatic formatting when inserting text, formatting with |gq|, as well as
-" some other commands.
-"
-" n – Recognize numbered lists when formatting (see 'formatlistpat').
-" c – Wrap comments with 'textwidth'.
-" r – Insert comment char after enter.
-" o – Insert comment char after |o|/|O|.
-" q – Format comments with |gq|.
-" l – Do not break lines when they were longer than 'textwidth' to start with.
-" j – Remove comment character when joining lines with |J|.
-set formatoptions+=ncroqlj
-
-" https://stackoverflow.com/questions/45129838/use-only-hard-tab-only-in-certain-files
-" If you are asking how to configure whether you use hard tabs (tab characters) vs.
-" spaces for indentation, based on filetype, you can do that using autocmd hooks.
-"
-" For example, here is my base indent configuration for most files. It sets a tabstop
-" of 8 (for hard tab display), and most tabs / indentation shifts are 4, and they use spaces, not hard tabs.
-"set tabstop=8 softtabstop=4 shiftwidth=4 expandtab
-set tabstop=8 shiftwidth=4 expandtab
-"
-" However, in some syntaxes that is wrong. For instance, I want 2 spaces in Javascript and YAML.
-" And in Makefiles, space indent is a syntax error - there, I want hard tabs. You can set these things
-" using autocmd and the filetype in question.
-autocmd Filetype make       setlocal noexpandtab
-"autocmd Filetype yaml       setlocal shiftwidth=2 softtabstop=2
-"autocmd Filetype javascript setlocal shiftwidth=2 softtabstop=2
-"autocmd Filetype yaml       setlocal shiftwidth=2
-autocmd Filetype javascript setlocal shiftwidth=2
-
-" https://gist.github.com/dragonken/c29123e597c6fdf022284cf36d245b64
-" Get the 2-space YAML as the default when hit carriage return after the colon
-autocmd FileType yaml setlocal ts=2 sts=2 sw=2 expandtab
-
-" If you don't want to specify by file type you can also specify the filename (or a glob to match filenames).
-" autocmd BufNewFile,BufRead rsnapshot.conf setlocal noexpandtab
-
-" http://vim.wikia.com/wiki/Toggle_auto-indenting_for_code_paste
-nnoremap <F2> :set invpaste paste?<CR>
-set pastetoggle=<F2>
-set showmode
 
 " netrw
 let g:netrw_banner = 0
@@ -308,14 +484,14 @@ let g:netrw_winsize = 20
 " ino { {}<left>
 " ino {<CR> {<CR>}<ESC>O
 
-" https://www.vimfromscratch.com/articles/vim-for-python
-" To toggle a fold you can press za (:help fold-commands), and I have it mapped to Space for convenience.
-" nnoremap <space> za
-" replace with thalesmello/tabfold <tab>
+" To use fzf in Vim, add the following line to your .vimrc:
+" set rtp+=/opt/homebrew/opt/fzf
 
-" https://github.com/tmhedberg/SimpylFold
-" Preview docstring in fold text
-let g:SimpylFold_docstring_preview = 1
+" " Highlight cursor line underneath the cursor horizontally.
+" set cursorline
+
+" " Highlight cursor line underneath the cursor vertically.
+" set cursorcolumn
 
 " enable folding on markdown headings
 let g:markdown_folding = 1
@@ -324,6 +500,21 @@ let g:markdown_folding = 1
 
 " https://github.com/neomake/neomake
 let g:neomake_open_list = 2
+
+function! MyOnBattery()
+  if has('macunix')
+    return match(system('pmset -g batt'), "Now drawing from 'Battery Power'") != -1
+  elseif has('unix')
+    return readfile('/sys/class/power_supply/AC/online') == ['0']
+  endif
+  return 0
+endfunction
+
+if MyOnBattery()
+  call neomake#configure#automake('w')
+else
+  call neomake#configure#automake('nw', 1000)
+endif
 
 " https://stevelosh.com/blog/2010/09/coming-home-to-vim/#using-the-leader
 let mapleader = ","
@@ -335,6 +526,46 @@ let mapleader = ","
 let g:hcl_align = 1
 let g:hcl_fold_sections = 1
 
+" BASICS {{{
+
+" }}}
+
+" COLORSCHEME {{{
+
+" }}}
+
+" COMMANDS {{{
+
+" }}}
+
+" FORMATTING {{{
+
+" }}}
+
+" FUNCTIONS {{{
+
+" }}}
+
+" MAPPINGS {{{
+
+" }}}
+
+" OPTIONS {{{
+
+" }}}
+
+" PLUGINS {{{
+
+" }}}
+
+" STATUS LINE {{{
+
+" }}}
+
+" ~miscellaneous {{{
+
+" }}}
+
 " https://github.com/hashivim/vim-terraform/blob/master/doc/terraform.txt
 let g:terraform_align = 1
 let g:terraform_fmt_on_save = 1
@@ -343,60 +574,62 @@ let g:terraform_fold_sections = 1
 let g:ycm_global_ycm_extra_conf='~/.vim/plugged/YouCompleteMe/.ycm_extra_conf.py'
 let g:ycm_confirm_extra_conf = 0
 let g:ycm_python_binary_path = 'python'
+" let g:ycm_enable_semantic_highlighting=1
+" nnoremap <silent> <localleader>h <Plug>(YCMToggleInlayHints)
 
-" Plugins {{{
-
-set runtimepath+=~/.local/share/vim
-
-" https://github.com/huntie/dotfiles/blob/f8a129f8e306c853ab52234f605b1d872b0448b1/vim/.vimrc#L72-L77
-" Install and run vim-plug on first run
-if empty(glob('~/.local/share/vim/autoload/plug.vim'))
-    silent !curl -fLo ~/.local/share/vim/autoload/plug.vim --create-dirs
-    \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+" https://gist.github.com/asethwright/9c436d2a8a5b0f48e499
+" Cursor to yellow on insert mode
+" Blue on command/other mode
+" Note the use of hex codes (ie 3971ED)
+if exists('$TMUX')
+    " let &t_EI = "\<Esc>Ptmux;\<Esc>\033]Pl3971ED\033\\"
+    let &t_EI = "\<Esc>Ptmux;\<Esc>\033]Pl71ed39\033\\"
+    let &t_SI = "\<Esc>Ptmux;\<Esc>\033]PlFBA922\033\\"
+    silent !echo -ne "\<Esc>Ptmux;\<Esc>\033]Pl3971ED\033\\"
+    autocmd VimLeave * silent !echo -ne "\<Esc>Ptmux;\<Esc>\033]Pl3971ED\033\\"
+else
+    " let &t_EI = "\033]Pl3971ED\033\\"
+    let &t_EI = "\033]Pl71ed39\033\\"
+    let &t_SI = "\033]PlFBA922\033\\"
+    silent !echo -ne "\033]Pl3971ED\033\\"
+    autocmd VimLeave * silent !echo -ne "\033]Pl3971ED\033\\"
 endif
 
-" Plug 'aliou/bats.vim'
-" Plug 'bronson/vim-trailing-whitespace'
-" Plug 'dag/vim-fish'
-" Plug 'davidhalter/jedi-vim'
-" Plug 'easymotion/vim-easymotion'
-" Plug 'editorconfig/editorconfig-vim'
-" Plug 'hashivim/vim-terraform'
-" Plug 'itchyny/lightline.vim'
-" Plug 'itchyny/vim-gitbranch'
-" Plug 'juliosueiras/vim-terraform-completion'
-" Plug 'mattn/emmet-vim'
-" Plug 'morhetz/gruvbox'
-" Plug 'neomake/neomake'
-" Plug 'pangloss/vim-javascript'
-" Plug 'reedes/vim-colors-pencil'
-" Plug 'scrooloose/nerdtree'
-" Plug 'terryma/vim-multiple-cursors'
-" Plug 'tpope/vim-eunuch'
-" Plug 'vim-syntastic/syntastic'
-" Plug 'ycm-core/YouCompleteMe', { 'do': './install.py' }
+" show invisible
+" https://www.reddit.com/r/vim/comments/4hoa6e/what_do_you_use_for_your_listchars/
+set list
+" set listchars=eol:¬,tab:>·,trail:~,extends:>,precedes:<,space:␣
+" set listchars=tab:»·,trail:~,extends:>,precedes:<
+" set listchars=tab:▸\,trail:·,nbsp:␣,extends:»,precedes:«,eol:↲
+" set listchars=tab:│·,trail:·,extends:→
+set showbreak=↪\
+" set listchars=tab:→\ ,nbsp:␣,trail:•,extends:⟩,precedes:⟨,eol:↲
+" set listchars=tab:→\ ,nbsp:␣,trail:•,extends:⟩,precedes:⟨
+set listchars=tab:→\ ,nbsp:␣,trail:·,extends:⟩,precedes:⟨
 
-call plug#begin('~/.local/share/vim/plugged')
-Plug 'airblade/vim-gitgutter'
-Plug 'christoomey/vim-tmux-navigator'
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-Plug 'ntpeters/vim-better-whitespace'
-Plug 'suy/vim-context-commentstring'
-Plug 'thalesmello/tabfold'
-Plug 'tmhedberg/SimpylFold'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-surround'
-Plug 'w0rp/ale'
-call plug#end()
+" set list listchars=tab:▸\ ,trail:·,precedes:←,extends:→,eol:↲,nbsp:␣
+" hi NonText ctermfg=16 guifg=#4a4a59
+" hi SpecialKey ctermfg=16 guifg=#4a4a59
 
-" }}}
+" Vim : Highlight the word TODO for every filetype
+" https://stackoverflow.com/questions/11709965/vim-highlight-the-word-todo-for-every-filetype
+augroup HighlightTODO
+    autocmd!
+    autocmd WinEnter,VimEnter * :silent! call matchadd('Todo', 'TODO\|FIXME', -1)
+augroup END
+
+" How to automatically close the quick fix window when leaving a file?
+" https://stackoverflow.com/questions/7476126/how-to-automatically-close-the-quick-fix-window-when-leaving-a-file
+aug QFClose
+  au!
+  au WinEnter * if winnr('$') == 1 && &buftype == "quickfix"|q|endif
+aug END
 
 """"" the following options are no longer needed, as they are included by default in the tpope/vim-sensible plugin """""
 
+"filetype plugin indent on
+"syntax on
+"set autoindent
 "set backspace=2
 "set smarttab
 "set nrformats-=octal
@@ -404,11 +637,8 @@ call plug#end()
 "set laststatus=2
 "set ruler
 "set display=lastline
-"filetype plugin indent on
-"syntax on
-"set autoindent
 "if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   "runtime! macros/matchit.vim
 "endif
 
-" vim: set fdm=marker:
+" vim: set tw=100 fdm=marker commentstring="%s:
