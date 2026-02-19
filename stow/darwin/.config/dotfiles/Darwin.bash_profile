@@ -1,5 +1,5 @@
-echo "$PATH" >> /tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_LOADED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_LOADED" | tee -a /tmp/shell-init.txt
 export DARWIN_BASH_PROFILE_LOADED=1
 
 # Case-insensitive globbing (used in pathname expansion)
@@ -18,6 +18,7 @@ for option in autocd globstar; do
     shopt -s "$option" 2> /dev/null;
 done;
 
+# TODO
 # Add tab completion for many Bash commands
 if which brew > /dev/null && [ -f "$(brew --prefix)/etc/bash_completion" ]; then
     source "$(brew --prefix)/etc/bash_completion";
@@ -25,6 +26,7 @@ elif [ -f /etc/bash_completion ]; then
     source /etc/bash_completion;
 fi;
 
+# TODO
 # homebrew bash completions
 if type brew &>/dev/null; then
   HOMEBREW_PREFIX="$(brew --prefix)"
@@ -54,4 +56,4 @@ complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes Syste
 # This won't be added again if you remove it.
 source ~/.orbstack/shell/init.bash 2>/dev/null || :
 
-echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_ENDED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_ENDED" | tee -a /tmp/shell-init.txt

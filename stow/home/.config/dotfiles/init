@@ -1,8 +1,7 @@
-# shellcheck shell=bash
-# shellcheck disable=SC1090,SC2086
+# shellcheck shell=bash disable=SC1090,SC2086
 
-echo "$PATH" >>/tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: :: INIT_LOADED" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: INIT_LOADED" | tee -a /tmp/shell-init.txt
 export INIT_LOADED=1
 
 for file in ~/.rc.d/*.(sh|${SHEL}); do
@@ -109,6 +108,6 @@ unset file
 # # keychain
 # [ -r "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
 
-echo "$(date '+%Y-%m-%d %H:%M') :: :: INIT_ENDED" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: INIT_ENDED" | tee -a /tmp/shell-init.txt
 
 # vim: set tw=120 fdm=marker commentstring=#%s:

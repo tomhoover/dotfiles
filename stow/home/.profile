@@ -1,7 +1,7 @@
-# shellcheck shell=sh
+# shellcheck shell=sh disable=SC2034
 
-echo "$PATH" >>/tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: PROFILE_LOADED" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: PROFILE_LOADED" | tee -a /tmp/shell-init.txt
 export PROFILE_LOADED=1
 
 MYHOST=$(uname -n | sed -e 's/\..*//') # alternative to $(hostname -s), as arch does not install 'hostname' by default

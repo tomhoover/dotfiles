@@ -1,5 +1,5 @@
-echo "$PATH" >> /tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZSHRC_LOADED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZSHRC_LOADED" | tee -a /tmp/shell-init.txt
 export DARWIN_ZSHRC_LOADED=1
 
 # ==> zsh-completions
@@ -51,4 +51,4 @@ fi
 # precedence than homebrew
 export PATH="$HOME/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 
-echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZSHRC_ENDED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZSHRC_ENDED" | tee -a /tmp/shell-init.txt

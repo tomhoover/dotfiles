@@ -1,22 +1,19 @@
-# shellcheck shell=bash
+# shellcheck shell=bash disable=SC1090
 
-echo "$PATH" >> /tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" | tee -a /tmp/shell-init.txt
 export ZSHRC_LOCAL_LOADED=1
 
 SHEL=zsh
-# shellcheck disable=SC1073,SC1036,SC1058,SC1072
+# shellcheck disable=SC1036,SC1058,SC1072,SC1073
 for rc in ~/.rc.d/*.(sh|zsh); do
-    # shellcheck disable=SC1090
     [ -r "$rc" ] && [ -f "$rc" ] && source "$rc"
 done
 unset rc
 
 # MYHOST=$(uname -n | sed -e 's/\..*//')     # alternative to $(hostname -s), as arch does not install 'hostname' by default
 
-# shellcheck disable=SC1090
 [ -r ~/.config/dotfiles/"$(uname)".zshrc ] && source ~/.config/dotfiles/"$(uname)".zshrc
-# shellcheck disable=SC1090
 [ -r ~/.config/dotfiles/"${MYHOST}".zshrc ] && source ~/.config/dotfiles/"${MYHOST}".zshrc
 
 # ----------
@@ -46,7 +43,6 @@ if command -v starship &> /dev/null; then
     prompt off
     eval "$(starship init ${SHEL})"
 elif [ -f ~/.local/share/liquidprompt ]; then
-    # shellcheck disable=SC1090
     source ~/.local/share/liquidprompt
 else
     # Customize grml prompt: two lines, user in bold green
@@ -54,5 +50,5 @@ else
     zstyle ':prompt:grml:left:setup' items rc change-root user at host path vcs newline percent
 fi
 
-echo "$PATH" >> /tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_ENDED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_ENDED" | tee -a /tmp/shell-init.txt

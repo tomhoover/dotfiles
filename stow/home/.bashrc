@@ -1,7 +1,7 @@
-# shellcheck shell=bash
+# shellcheck shell=bash disable=SC1090
 
-echo "$PATH" >>/tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: BASHRC_LOADED" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: BASHRC_LOADED" | tee -a /tmp/shell-init.txt
 export BASHRC_LOADED=1
 
 # exit if non-interactive shell
@@ -10,16 +10,13 @@ export BASHRC_LOADED=1
 SHEL=bash
 shopt -s extglob
 for rc in ~/.rc.d/*.+(sh|bash); do
-    # shellcheck disable=SC1090
     [ -r "$rc" ] && [ -f "$rc" ] && source "$rc"
 done
 unset rc
 
 MYHOST=$(uname -n | sed -e 's/\..*//') # alternative to $(hostname -s), as arch does not install 'hostname' by default
 
-# shellcheck disable=SC1090
 [ -r ~/.config/dotfiles/"$(uname)".bashrc ] && source ~/.config/dotfiles/"$(uname)".bashrc
-# shellcheck disable=SC1090
 [ -r ~/.config/dotfiles/"${MYHOST}".bashrc ] && source ~/.config/dotfiles/"${MYHOST}".bashrc
 
 # ----------
@@ -66,6 +63,5 @@ if command -v starship &>/dev/null; then
   # shellcheck disable=SC2086
   eval "$(starship init ${SHEL})"
 else
-  # shellcheck disable=SC1090
   [ -f ~/.local/share/liquidprompt ] && source ~/.local/share/liquidprompt
 fi

@@ -1,8 +1,7 @@
-# shellcheck shell=bash
-# shellcheck disable=SC1090
+# shellcheck shell=bash disable=SC1090
 
-echo "$PATH" >>/tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: :: ENVS_LOADED" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: ENVS_LOADED" | tee -a /tmp/shell-init.txt
 export ENVS_LOADED=1
 
 # Make vim the default editor.

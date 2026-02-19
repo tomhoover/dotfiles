@@ -1,5 +1,5 @@
-echo "$PATH" >> /tmp/shell-init.txt
-echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_LOADED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_LOADED" | tee -a /tmp/shell-init.txt
 export DARWIN_ZPROFILE_LOADED=1
 
 [ -r /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv zsh)"
@@ -9,4 +9,4 @@ export DARWIN_ZPROFILE_LOADED=1
 # This won't be added again if you remove it.
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
-echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_ENDED" >> /tmp/shell-init.txt
+[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_ENDED" | tee -a /tmp/shell-init.txt
