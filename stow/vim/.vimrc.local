@@ -166,6 +166,7 @@ if empty(glob('~/.local/share/vim/autoload/plug.vim'))
 endif
 
 call plug#begin('~/.local/share/vim/plugged')
+"  Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 " Plug 'aliou/bats.vim'
 " Plug 'bronson/vim-trailing-whitespace'
 " Plug 'chriskempson/vim-tomorrow-theme'
@@ -185,8 +186,8 @@ call plug#begin('~/.local/share/vim/plugged')
 " Plug 'terryma/vim-multiple-cursors'
 " Plug 'tpope/vim-eunuch'
 " Plug 'tpope/vim-fugitive'
-" Plug 'vim-airline/vim-airline-themes'
 " Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline-themes'
 " Plug 'vim-syntastic/syntastic'
 " Plug 'ycm-core/YouCompleteMe', { 'do': './install.py' }
 " Plug 'yuezk/vim-js'
@@ -196,8 +197,8 @@ Plug 'dense-analysis/ale'
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'hashivim/vim-terraform'
 Plug 'juliosueiras/vim-terraform-completion'
-Plug 'junegunn/fzf.vim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'romainl/vim-qf'
 Plug 'suy/vim-context-commentstring'
@@ -275,8 +276,9 @@ command UpdatePlugins
 
 " }}}
 
-set background=dark
+" set background=dark
 " colorscheme solarized
+set termguicolors
 colorscheme dracula
 
 " Better tab completion in the commandline.  Make commandline-completion
@@ -498,23 +500,23 @@ let g:markdown_folding = 1
 " set nofoldenable
 " set foldlevel=99
 
-" https://github.com/neomake/neomake
-let g:neomake_open_list = 2
+" " https://github.com/neomake/neomake
+" let g:neomake_open_list = 2
 
-function! MyOnBattery()
-  if has('macunix')
-    return match(system('pmset -g batt'), "Now drawing from 'Battery Power'") != -1
-  elseif has('unix')
-    return readfile('/sys/class/power_supply/AC/online') == ['0']
-  endif
-  return 0
-endfunction
+" function! MyOnBattery()
+"   if has('macunix')
+"     return match(system('pmset -g batt'), "Now drawing from 'Battery Power'") != -1
+"   elseif has('unix')
+"     return readfile('/sys/class/power_supply/AC/online') == ['0']
+"   endif
+"   return 0
+" endfunction
 
-if MyOnBattery()
-  call neomake#configure#automake('w')
-else
-  call neomake#configure#automake('nw', 1000)
-endif
+" if MyOnBattery()
+"   call neomake#configure#automake('w')
+" else
+"   call neomake#configure#automake('nw', 1000)
+" endif
 
 " https://stevelosh.com/blog/2010/09/coming-home-to-vim/#using-the-leader
 let mapleader = ","
