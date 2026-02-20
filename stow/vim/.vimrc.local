@@ -1,26 +1,11 @@
-set nocompatible
-
 " override grml .vimrc {{{
 
 " ||||| " Don't use Ex mode, use Q for formatting.
 " ||||| " Revert with ":unmap Q".
 " ||||| map Q gq
-" |||||
-" ||||| " In many terminal emulators the mouse works just fine.  By enabling it you
-" ||||| " can position the cursor, Visually select and scroll with the mouse.
-" ||||| "
-" ||||| " | We prefer to disable the mouse usage though and use what we're used
-" ||||| " | from older Vim versions.
-" ||||| " |
-" ||||| " | if has('mouse')
-" ||||| " |   set mouse=a
-" ||||| " | endif
-" ||||| if has('mouse')
-" |||||   set mouse=
-" ||||| endif
-" |||||
+
 " ||||| " | End of defaults.vim related stuff }
-" |||||
+
 " ||||| " Begin of custom Grml configuration {
 " ||||| " The Grml-Team believes that the options and configuration values which override
 " ||||| " the Vim defaults are useful and helpful for our users.
@@ -32,16 +17,21 @@ set nocompatible
 " |||||   set esckeys                               " recognize keys that start with <Esc> in insert mode
 " |||||   set nobackup                              " don't keep a backup file
 " |||||   set noerrorbells                          " don't ring the bell (beep or screen flash) for error messages
+
 " |||||   set nostartofline                         " keep cursor in the same column (if possible) when moving cursor
-set startofline                         " keep cursor in the same column (if possible) when moving cursor
+set startofline
+
 " |||||   set pastetoggle=<f11>                     " don't change text when copy/pasting
 " |||||   set shortmess=at                          " list of flags to make messages shorter
 " |||||   set showmatch                             " show matching brackets.
 " |||||   set textwidth=0                           " don't wrap lines by default
 " |||||   set visualbell                            " use a visual bell instead of beeping
+
 " |||||   set whichwrap=<,>,h,l                     " list of flags specifying which commands wrap to another line
-set whichwrap&    " reset to default
-" |||||
+" set whichwrap&                                    " reset to default
+" set whichwrap+=<,>,[,]                            " append left/right arrow keys to default
+set whichwrap=<,>,[,]                               " enable left/right arrow keys
+
 " ||||| " set linebreak                             " Don't wrap words by default
 " ||||| " set autowrite                             " Automatically save before commands like :next and :make
 " ||||| " set nodigraph                             " enter characters that normally cannot be entered by an ordinary keyboard
@@ -209,27 +199,42 @@ Plug 'tpope/vim-repeat'
 Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-unimpaired'
+Plug 'vimwiki/vimwiki'
 call plug#end()
 
-" https://github.com/tmhedberg/SimpylFold
+" dense-analysis/ale
+let g:ale_open_list = 1
+
+" hashivim/vim-terraform
+" https://github.com/hashivim/vim-terraform/blob/master/doc/terraform.txt
+let g:terraform_align = 1
+let g:terraform_fmt_on_save = 1
+let g:terraform_fold_sections = 1
+" https://github.com/hashivim/vim-terraform/blob/master/doc/hcl.txt
+let g:hcl_align = 1
+let g:hcl_fold_sections = 1
+
+
+" tmhedberg/SimpylFold
 " Preview docstring in fold text
 let g:SimpylFold_docstring_preview = 1
 
-let g:ale_open_list = 1
+" vimwiki/vimwiki
+let g:vimwiki_list = [{'path': '~/Vault/', 'syntax': 'markdown', 'ext': 'md'}]
+let g:vimwiki_global_ext = 0
+
+" " ycm-core/YouCompleteMe
+" let g:ycm_global_ycm_extra_conf='~/.vim/plugged/YouCompleteMe/.ycm_extra_conf.py'
+" let g:ycm_confirm_extra_conf = 0
+" let g:ycm_python_binary_path = 'python'
+" " let g:ycm_enable_semantic_highlighting=1
+" " nnoremap <silent> <localleader>h <Plug>(YCMToggleInlayHints)
 
 " }}}
 
 " Settings {{{
 
-" " $HOME/.vim/init/general.vimrc
-" set nocompatible
-" filetype plugin on
-" syntax enable
-" set backspace=2             " Backspace behaves like other programs do
 " set hidden                  " Undo persists even when switching to different open buffers
-
-" " colors
-" colorscheme Tomorrow-Night
 
 " " searching
 " set incsearch               " search as characters are entered
@@ -242,6 +247,23 @@ let g:ale_open_list = 1
 " nnoremap <leader>h :noh<CR> " toggle search highlighting
 " map <leader>vd :call ToggleThemeMode('dark')<CR>
 " map <leader>va :call ToggleThemeMode('')<CR>
+
+""""" the following options are no longer needed, as they are included by default in the tpope/vim-sensible plugin """""
+
+" set nocompatible
+"filetype plugin indent on
+"syntax on
+"set autoindent
+"set backspace=2
+"set smarttab
+"set nrformats-=octal
+"set incsearch
+"set laststatus=2
+"set ruler
+"set display=lastline
+"if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+  "runtime! macros/matchit.vim
+"endif
 
 " }}}
 
@@ -500,33 +522,12 @@ let g:markdown_folding = 1
 " set nofoldenable
 " set foldlevel=99
 
-" " https://github.com/neomake/neomake
-" let g:neomake_open_list = 2
-
-" function! MyOnBattery()
-"   if has('macunix')
-"     return match(system('pmset -g batt'), "Now drawing from 'Battery Power'") != -1
-"   elseif has('unix')
-"     return readfile('/sys/class/power_supply/AC/online') == ['0']
-"   endif
-"   return 0
-" endfunction
-
-" if MyOnBattery()
-"   call neomake#configure#automake('w')
-" else
-"   call neomake#configure#automake('nw', 1000)
-" endif
-
 " https://stevelosh.com/blog/2010/09/coming-home-to-vim/#using-the-leader
-let mapleader = ","
+" let mapleader = ","
+let mapleader=" "
 
 " use '#' instead of '/* */' style commenting in *.tf files
 " autocmd FileType tf setlocal commentstring=\#\ %s
-
-" https://github.com/hashivim/vim-terraform/blob/master/doc/hcl.txt
-let g:hcl_align = 1
-let g:hcl_fold_sections = 1
 
 " BASICS {{{
 
@@ -567,17 +568,6 @@ let g:hcl_fold_sections = 1
 " ~miscellaneous {{{
 
 " }}}
-
-" https://github.com/hashivim/vim-terraform/blob/master/doc/terraform.txt
-let g:terraform_align = 1
-let g:terraform_fmt_on_save = 1
-let g:terraform_fold_sections = 1
-
-let g:ycm_global_ycm_extra_conf='~/.vim/plugged/YouCompleteMe/.ycm_extra_conf.py'
-let g:ycm_confirm_extra_conf = 0
-let g:ycm_python_binary_path = 'python'
-" let g:ycm_enable_semantic_highlighting=1
-" nnoremap <silent> <localleader>h <Plug>(YCMToggleInlayHints)
 
 " https://gist.github.com/asethwright/9c436d2a8a5b0f48e499
 " Cursor to yellow on insert mode
@@ -626,21 +616,5 @@ aug QFClose
   au!
   au WinEnter * if winnr('$') == 1 && &buftype == "quickfix"|q|endif
 aug END
-
-""""" the following options are no longer needed, as they are included by default in the tpope/vim-sensible plugin """""
-
-"filetype plugin indent on
-"syntax on
-"set autoindent
-"set backspace=2
-"set smarttab
-"set nrformats-=octal
-"set incsearch
-"set laststatus=2
-"set ruler
-"set display=lastline
-"if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
-  "runtime! macros/matchit.vim
-"endif
 
 " vim: set tw=100 fdm=marker commentstring="%s:
