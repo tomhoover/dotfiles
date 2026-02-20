@@ -197,7 +197,20 @@ localhost_vclone() { #{{{
 } #}}}
 
 install_caps2esc() { #{{{
-  echo "install_caps2esc"
+  if [ -r /etc/interception/udevmon.yaml ]; then
+    sudo mv /etc/interception/udevmon.yaml /etc/interception/udevmon.yaml-disabled
+  fi
+  if [ ! -r /etc/interception/udevmon.d/caps2esc.yml ]; then
+    sudo mkdir -p /etc/interception/udevmon.d || exit 8
+    {
+      # shellcheck disable=SC2016
+      echo '- JOB: intercept -g $DEVNODE | caps2esc | uinput -d $DEVNODE'
+      echo '  DEVICE:'
+      echo '    EVENTS:'
+      echo '      EV_KEY: [KEY_CAPSLOCK, KEY_ESC]'
+    } | sudo tee /etc/interception/udevmon.d/caps2esc.yml
+  fi
+  sudo systemctl enable --now udevmon
 } #}}}
 
 set_private_repos_tracking() { #{{{
@@ -412,7 +425,7 @@ update)
   ;;
 *)
   log_error "Unkown function: $1()"
-  exit 7
+  exit 9
   ;;
 esac
 
