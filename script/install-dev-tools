@@ -12,6 +12,43 @@ set -e
 #       sudo apt --yes install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
 #       libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev )
 
+# Only use COLORS in interactive shells, not from crontab #{{{
+# shellcheck disable=SC2034
+if [ -t 1 ]; then
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    BLUE=$(tput setaf 4)
+    MAGENTA=$(tput setaf 5)
+    CYAN=$(tput setaf 6)
+    RESET=$(tput sgr0)
+else
+    RED=
+    GREEN=
+    YELLOW=
+    BLUE=
+    MAGENTA=
+    CYAN=
+    RESET=
+fi
+#}}}
+
+error() { #{{{
+  echo "${RED}✘ ERROR: $*${RESET}" >&2
+} #}}}
+
+warn() { #{{{
+  echo "${YELLOW}‼ WARNING: $*${RESET}"
+} #}}}
+
+info() { #{{{
+  echo "${CYAN} $*${RESET}"
+} #}}}
+
+success() { #{{{
+  echo "${GREEN}✔ $*${RESET}"
+} #}}}
+
 cd "$(dirname "$0")"/..
 
 mkdir -p "$HOME/.local/bin"
@@ -19,13 +56,14 @@ chmod go= "$HOME/.local" && chmod 755 "$HOME/.local/bin"
 # export PATH=$HOME/.local/bin:$PATH
 
 echo
-echo "$(tput setaf 2)Installing development tools...$(tput sgr0)"
+info "Installing development tools..."
+echo
 # find the installers and run them iteratively
 find . -maxdepth 2 -name install.sh | sort | while read -r installer; do
   program=$(echo "$installer" | sed -e 's/^\.\///' -e 's/^[0-9]-//' -e 's/\/.*$//')
   if command -v "${program}" >/dev/null 2>&1; then continue; fi
   echo
-  echo "$(tput setaf 2)Installing ${program}...$(tput sgr0)"
+  success "Installing ${program}..."
   if [ "$program" = direnv ]; then
     sh -c "bin_path=~/.local/bin ${installer}" || exit 90
   else
@@ -43,7 +81,7 @@ uv tool install --with requests --with passlib --with netaddr --with-executables
 # set +e
 
 echo
-echo "$(tput setaf 2)Installed versions:$(tput sgr0)"
+info "Installed versions:"
 echo
 which -a mise
 echo
@@ -57,25 +95,27 @@ cd && for x in $(mise ls | grep '~/.config/mise/config.toml' | sed -e 's/ .*//' 
   echo
 done
 
-command -v ~/.pyenv/bin/pyenv >/dev/null 2>&1 && echo && echo "Consider removing pyenv."
-command -v ~/.asdf/bin/asdf >/dev/null 2>&1 && echo && echo "Consider removing asdf."
-command -v ~/.local/bin/rtx >/dev/null 2>&1 && echo && echo "Consider removing rtx link in .local/bin."
-command -v ~/.local/share/rtx/bin/rtx >/dev/null 2>&1 && echo && echo "Consider removing rtx."
+command -v ~/.pyenv/bin/pyenv >/dev/null 2>&1 && echo && warn "Consider removing pyenv."
+command -v ~/.asdf/bin/asdf >/dev/null 2>&1 && echo && warn "Consider removing asdf."
+command -v ~/.local/bin/rtx >/dev/null 2>&1 && echo && warn "Consider removing rtx link in .local/bin."
+command -v ~/.local/share/rtx/bin/rtx >/dev/null 2>&1 && echo && warn "Consider removing rtx."
 
 if ls -d ~/.pyenv* >/dev/null 2>&1; then
   echo
-  echo "Consider removing the following ~/.pyenv* directory(s):"
+  warn "Consider removing the following ~/.pyenv* directory(s):"
   ls -d ~/.pyenv*
 fi
 
 if ls -d ~/.asdf* >/dev/null 2>&1; then
   echo
-  echo "Consider removing the following ~/.asdf* directory(s):"
+  warn "Consider removing the following ~/.asdf* directory(s):"
   ls -d ~/.asdf*
 fi
 
 if ls -d ~/.local/share/rtx* >/dev/null 2>&1; then
   echo
-  echo "Consider removing the following ~/.local/share/rtx* directory(s):"
+  warn "Consider removing the following ~/.local/share/rtx* directory(s):"
   ls -d ~/.local/share/rtx*
 fi
+
+# vim: set tw=120 fdm=marker commentstring=#%s:

@@ -67,6 +67,48 @@ DEBIAN_PKGS=( #{{{
   zsh
 ) #}}}
 
+FEDORA_PKGS=( #{{{
+  tailscale
+  zsh
+) #}}}
+
+# Only use COLORS in interactive shells, not from crontab #{{{
+# shellcheck disable=SC2034
+if [ -t 1 ]; then
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    BLUE=$(tput setaf 4)
+    MAGENTA=$(tput setaf 5)
+    CYAN=$(tput setaf 6)
+    RESET=$(tput sgr0)
+else
+    RED=
+    GREEN=
+    YELLOW=
+    BLUE=
+    MAGENTA=
+    CYAN=
+    RESET=
+fi
+#}}}
+
+error() { #{{{
+  echo "${RED}✘ ERROR: $*${RESET}" >&2
+} #}}}
+
+warn() { #{{{
+  echo "${YELLOW}‼ WARNING: $*${RESET}"
+} #}}}
+
+info() { #{{{
+  echo "${CYAN} $*${RESET}"
+} #}}}
+
+success() { #{{{
+  echo "${GREEN}✔ $*${RESET}"
+} #}}}
+
 isdarwin() { #{{{
   [ "$(uname -s)" = "Darwin" ]
 } #}}}
@@ -93,6 +135,16 @@ isdebian() { #{{{
     [ "${ID}" = "debian" ] && return 0
   fi
   return 1
+} #}}}
+
+isfedora() { #{{{
+    if islinux && [ -f /etc/os-release ]; then
+        # shellcheck disable=SC1091
+        . /etc/os-release
+        # shellcheck disable=SC2078
+        [ "${ID}" = "fedora" ] && return 0
+    fi
+    return 1
 } #}}}
 
 isomarchy() { #{{{
@@ -124,7 +176,7 @@ clone_apt_vcsh() { #{{{
 
 # shellcheck disable=SC2329
 backup_file() { #{{{
-  echo "$(tput setaf 2)Backing up ${1}...$(tput sgr0)"
+  success "Backing up ${1}..."
   # shellcheck disable=SC2086
   mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
   # shellcheck disable=SC2086
@@ -149,18 +201,18 @@ export -f backup_file
 github_vclone() { #{{{
   if $BIN/vcsh clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
-    echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
+    success "${1} successfully cloned..."
     return 0
   elif $BIN/vcsh "${1}" pull; then
-    echo "$(tput setaf 2)${1} successfully updated via pull...$(tput sgr0)"
+    success "${1} successfully updated via pull..."
     return 0
   else
-    echo "$(tput setaf 1)conflicting files found...$(tput sgr0)"
+    error "Conflicting files found..."
     # $BIN/vcsh "${1}" pull 2>&1 | grep -E '^\s+'   | xargs -I{} -n1 backup_file "{}"
     # $BIN/vcsh "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 sh -c 'backup_file "{}"'
     # $BIN/vcsh "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 bash -c 'backup_file "{}"'
     $BIN/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
+    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && success "${1} successfully cloned after backup of conflicting files..." && return 0
   fi
   return 1
 } #}}}
@@ -168,30 +220,30 @@ github_vclone() { #{{{
 gitolite_vclone() { #{{{
   if $BIN/vcsh clone "gitolite:${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
-    echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
+    success "${1} successfully cloned..."
     return 0
   elif $BIN/vcsh "${1}" pull; then
-    echo "$(tput setaf 2)${1} successfully updated via pull...$(tput sgr0)"
+    success "${1} successfully updated via pull..."
     return 0
   else
-    echo "$(tput setaf 1)conflicting files found...$(tput sgr0)"
+    error "Conflicting files found..."
     $BIN/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
+    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && success "${1} successfully cloned after backup of conflicting files..." && return 0
   fi
 } #}}}
 
 localhost_vclone() { #{{{
   if $BIN/vcsh clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
     $BIN/vcsh "${REPO}" config get core.bare && $BIN/vcsh "${REPO}" config set core.bare false
-    echo "$(tput setaf 2)${1} successfully cloned...$(tput sgr0)"
+    success "${1} successfully cloned..."
     return 0
   elif $BIN/vcsh "${1}" pull; then
-    echo "$(tput setaf 2)${1} successfully updated via pull...$(tput sgr0)"
+    success "${1} successfully updated via pull..."
     return 0
   else
-    echo "$(tput setaf 1)conflicting files found...$(tput sgr0)"
+    error "Conflicting files found..."
     $BIN/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && echo "$(tput setaf 2)${1} successfully cloned after backup of conflicting files...$(tput sgr0)" && return 0
+    $BIN/vcsh "${1}" checkout master 2>&1 && $BIN/vcsh "${1}" pull && success "${1} successfully cloned after backup of conflicting files..." && return 0
   fi
   return 1
 } #}}}
@@ -232,7 +284,7 @@ set_private_repos_tracking() { #{{{
 install_AUR_pkg() { #{{{
   if [ ! -d "$HOME/.cache/AUR/$1" ]; then
     echo
-    echo "$(tput setaf 2)Installing $1...$(tput sgr0)"
+    success "Installing $1..."
     paru -S "$1"
   fi
 } #}}}
@@ -269,11 +321,9 @@ install_remaining_pkgs() { #{{{
   # shellcheck disable=SC1091
   [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
   if isdarwin; then
-    # shellcheck disable=SC2086
     $BIN/brew install "${COMMON_PKGS[@]}" "${DARWIN_PKGS[@]}"
     [ "${MYHOST}" = "ariel" ] && $BIN/brew install p4v
   elif isarch; then
-    # shellcheck disable=SC2086
     sudo pacman -S --noconfirm --needed "${COMMON_PKGS[@]}" "${ARCH_PKGS[@]}"
     # sudo systemctl enable --now sshd.service
     sudo systemctl enable --now tailscaled
@@ -286,11 +336,12 @@ install_remaining_pkgs() { #{{{
     done
 
   elif isdebian; then
-    # shellcheck disable=SC2086
     sudo apt-get update && sudo apt-get --yes install "${COMMON_PKGS[@]}" "${DEBIAN_PKGS[@]}"
+  elif isfedora; then
+    sudo dnf install "${COMMON_PKGS[@]}" "${FEDORA_PKGS[@]}"
   else
     echo
-    echo "$(tput setaf 1)Unknown OS...$(tput sgr0)"
+    error "Unknown OS..."
     echo
     exit 2
   fi
@@ -372,20 +423,19 @@ install_required_pkgs() { #{{{
   if isdarwin; then
     $BIN/brew doctor || true
     echo
-    # shellcheck disable=SC2086
     $BIN/brew install bash bash-completion@2 zsh-completions "${REQUIRED_PKGS[@]}"
     $BIN/brew completions link
   elif isarch; then
     sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
     sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
-    # shellcheck disable=SC2086
     sudo pacman -Syu --noconfirm --needed "${REQUIRED_PKGS[@]}" etckeeper
   elif isdebian; then
-    # shellcheck disable=SC2086
     sudo apt-get update && sudo apt-get --yes install "${REQUIRED_PKGS[@]}" etckeeper
+  elif isfedora; then
+    sudo dnf install "${REQUIRED_PKGS[@]}" etckeeper
   else
     echo
-    echo "$(tput setaf 1)Unknown OS...$(tput sgr0)"
+    error "Unknown OS..."
     echo
     exit 5
   fi
@@ -455,7 +505,7 @@ if [ ! "$(id -u)" -eq 0 ] && [[ "${MYHOST}" =~ (ariel|theophilus) ]]; then
 fi
 
 echo
-echo "$(tput setaf 2)##### bootstrap completed #####$(tput sgr0)"
+info "##### bootstrap completed #####"
 
 # run the following after .ssh repo is cloned
 create_ssh_key
