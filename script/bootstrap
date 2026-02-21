@@ -424,7 +424,7 @@ stow_dotfiles_pkgs() { #{{{
   [ "${MYHOST}" = "ariel" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator
   [ "${MYHOST}" = "theophilus" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R i3 x11
   $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr tmux vcsh vim
-  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" ghostty kitty starship
+  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" ghostty kitty nvim starship
   #TODO
   # $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" git mise
 } #}}}
