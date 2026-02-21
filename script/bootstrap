@@ -58,7 +58,6 @@ AUR_PKGS=( #{{{
   brave-bin
   p4merge-bin
   paru
-  # vi-vim-symlink
 ) #}}}
 
 DARWIN_PKGS=( #{{{
@@ -354,15 +353,12 @@ install_paru_customizepkg() { #{{{
 
 install_remaining_pkgs() { #{{{
   # shellcheck disable=SC1091
-  # [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
   if isdarwin; then
     $BIN/brew install "${COMMON_PKGS[@]}" "${DARWIN_PKGS[@]}"
     [ "${MYHOST}" = "ariel" ] && $BIN/brew install p4v
   elif isarch; then
     sudo pacman -S --noconfirm --needed "${COMMON_PKGS[@]}" "${ARCH_PKGS[@]}"
-    # sudo systemctl enable --now sshd.service
-    # sudo systemctl enable --now tailscaled
-    # sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+    sudo systemctl enable --now sshd.service
 
     install_paru_customizepkg
 
@@ -541,9 +537,11 @@ isarch && install_caps2esc
 isdebian && clone_apt_vcsh
 
 echo
+#TODO
 # cd && $BIN/mr -m -j 1 up
 
 # install development tools
+#TODO
 if [ ! "$(id -u)" -eq 0 ] && [[ "${MYHOST}" =~ (ariel|theophilus) ]]; then
   echo
   ~/.dotfiles/script/install-dev-tools
