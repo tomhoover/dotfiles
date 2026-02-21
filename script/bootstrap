@@ -10,6 +10,7 @@ MYHOST=$(uname -n | sed -e 's/\..*//') # alternative to $(hostname -s), as arch 
 STOW_DOTFILES=( #{{{
   .aliases
   .bash_profile
+  .bash_logout
   .bashrc
   .envs
   .functions
@@ -18,6 +19,9 @@ STOW_DOTFILES=( #{{{
   .zshenv
   .zshrc
   .zshrc.local
+  .config/ghostty/config
+  .config/kitty/kitty.conf
+  .config/starship.toml
 ) #}}}
 
 REQUIRED_PKGS=( #{{{
@@ -159,10 +163,10 @@ iszsh() { #{{{
 
 create_ssh_key() { #{{{
   if [ ! "$(id -u)" -eq 0 ] && [ ! -f ~/.ssh/id_rsa_"${MYHOST}".pub ]; then
-    echo && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
     echo
-    echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
-    echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
+    success "Creating ssh key for ${MYHOST}..."
+    echo && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
+    export NEW_SSH_KEY=1
   fi
 } #}}}
 
@@ -178,10 +182,10 @@ clone_apt_vcsh() { #{{{
 backup_file() { #{{{
   success "Backing up ${1}..."
   # shellcheck disable=SC2086
-  mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
+  mkdir -p "$HOME/.backup-$(date '+%Y%m%d')/$(dirname ${1})"
   # shellcheck disable=SC2086
-  mv "$HOME/${1}" "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
-  echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} $HOME/${1}" >>"$HOME/fixups.sh"
+  mv "$HOME/${1}" "$HOME/.backup-$(date '+%Y%m%d')/$(dirname ${1})"
+  echo "nvim -d $HOME/.backup-$(date '+%Y%m%d')/${1} $HOME/${1}" >>"$HOME/fixups.sh"
 } #}}}
 
 # # bash/zsh function exporting shortcut
@@ -192,9 +196,9 @@ export -f backup_file
 # export backup_file='backup_file()
 # {
 #   echo "Backing up ${1}..."
-#   mkdir -p "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
-#   mv "$HOME/${1}" "$HOME/.config-backup-$(date '+%Y%m%d')/$(dirname ${1})"
-#   echo "nvim -d $HOME/.config-backup-$(date '+%Y%m%d')/${1} ${1}" >>"$HOME/fixups.sh"
+#   mkdir -p "$HOME/.backup-$(date '+%Y%m%d')/$(dirname ${1})"
+#   mv "$HOME/${1}" "$HOME/.backup-$(date '+%Y%m%d')/$(dirname ${1})"
+#   echo "nvim -d $HOME/.backup-$(date '+%Y%m%d')/${1} ${1}" >>"$HOME/fixups.sh"
 # }'
 # }}}
 
@@ -281,6 +285,37 @@ set_private_repos_tracking() { #{{{
   done
 } #}}}
 
+setup_keychain() { #{{{
+# start ssh-agent & load key
+command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_rsa_"${MYHOST}" github_rsa id_rsa)"
+[ -r "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
+} #}}}
+
+setup_tailscale() { #{{{
+  # shellcheck disable=SC1091
+  [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
+  [[ -f ${HOME}/TAILSCALE_KEY ]] && source "${HOME}/TAILSCALE_KEY"
+  if isdarwin; then
+    open tailscale-app
+  elif isarch; then
+    sudo systemctl enable --now tailscaled
+    sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+  elif isdebian; then
+    echo "TODO"
+    #TODO sudo systemctl enable --now tailscaled
+    sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+  elif isfedora; then
+    echo "TODO"
+    #TODO sudo systemctl enable --now tailscaled
+    sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+  else
+    echo
+    error "Unknown OS..."
+    echo
+    exit 10
+  fi
+} #}}}
+
 install_AUR_pkg() { #{{{
   if [ ! -d "$HOME/.cache/AUR/$1" ]; then
     echo
@@ -300,7 +335,7 @@ install_paru_customizepkg() { #{{{
       cd ~/.cache/AUR || exit 7
       $BIN/git clone https://aur.archlinux.org/paru.git
     fi
-    cd "${AURDEST}/paru" && makepkg -si
+    cd "${AURDEST}/paru" && makepkg -sri && makepkg -code
   fi
   if [ ! -d "${AURDEST}/customizepkg-git" ]; then
     rm ~/.config/paru/paru.conf
@@ -319,15 +354,15 @@ install_paru_customizepkg() { #{{{
 
 install_remaining_pkgs() { #{{{
   # shellcheck disable=SC1091
-  [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
+  # [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
   if isdarwin; then
     $BIN/brew install "${COMMON_PKGS[@]}" "${DARWIN_PKGS[@]}"
     [ "${MYHOST}" = "ariel" ] && $BIN/brew install p4v
   elif isarch; then
     sudo pacman -S --noconfirm --needed "${COMMON_PKGS[@]}" "${ARCH_PKGS[@]}"
     # sudo systemctl enable --now sshd.service
-    sudo systemctl enable --now tailscaled
-    sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+    # sudo systemctl enable --now tailscaled
+    # sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
 
     install_paru_customizepkg
 
@@ -355,6 +390,7 @@ clone_private_repos() { #{{{
 
   REPOS=(gnupg ssh)
   for REPO in "${REPOS[@]}"; do
+      find "${HOME}/.${REPO}" -type d -empty -delete
     if [ -d "${HOME}/git/${REPO}.git" ] && [ ! -d "${HOME}/.${REPO}" ]; then
       cd && $BIN/git clone "${HOME}/git/${REPO}.git" ".${REPO}" && chmod -R go= "${HOME}/.${REPO}"
       cd "${HOME}/.${REPO}" && $BIN/git remote rename origin localhost && $BIN/git remote add origin "gitolite:${REPO}.git"
@@ -391,7 +427,10 @@ stow_dotfiles_pkgs() { #{{{
   iszsh && $BIN/stow -d ~/.dotfiles/stow -t ~ -R zsh
   [ "${MYHOST}" = "ariel" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator
   [ "${MYHOST}" = "theophilus" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R i3 x11
-  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy ghostty git home kitty liquidprompt mise mr starship tmux vcsh vim
+  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr tmux vcsh vim
+  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" ghostty kitty starship
+  #TODO
+  # $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" git mise
 } #}}}
 
 setup_etckeeper() { #{{{
@@ -410,6 +449,7 @@ check_installed_commands() { #{{{
     command -v sudo >/dev/null 2>&1 &&
     command -v git >/dev/null 2>&1 &&
     command -v mr >/dev/null 2>&1 &&
+    command -v stow >/dev/null 2>&1 &&
     command -v vcsh >/dev/null 2>&1 ||
     {
       echo
@@ -458,7 +498,7 @@ if isdarwin; then
   [ -r /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
 fi
 
-case "$1" in
+case "$1" in #{{{
 "") ;;
 clone_dotfiles_repo)
   "$@"
@@ -478,6 +518,7 @@ update)
   exit 9
   ;;
 esac
+#}}}
 
 # Always prompt for sudo password at least once
 sudo --reset-timestamp
@@ -490,13 +531,17 @@ stow_dotfiles_pkgs
 clone_private_repos
 # github_vclone dotfiles
 install_remaining_pkgs
+# run the following after .ssh repo is cloned
+create_ssh_key
+setup_keychain
+setup_tailscale
 set_private_repos_tracking
 isarch && install_caps2esc
 # isarch && ~/.dotfiles/script/arch
 isdebian && clone_apt_vcsh
 
 echo
-cd && $BIN/mr -m -j 1 up
+# cd && $BIN/mr -m -j 1 up
 
 # install development tools
 if [ ! "$(id -u)" -eq 0 ] && [[ "${MYHOST}" =~ (ariel|theophilus) ]]; then
@@ -505,10 +550,13 @@ if [ ! "$(id -u)" -eq 0 ] && [[ "${MYHOST}" =~ (ariel|theophilus) ]]; then
 fi
 
 echo
-info "##### bootstrap completed #####"
+info "##### bootstrap completed - please reboot computer #####"
 
-# run the following after .ssh repo is cloned
-create_ssh_key
+if [ $NEW_SSH_KEY ]; then
+    echo
+    echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
+    echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
+fi
 
 if ! iszsh; then
   echo
