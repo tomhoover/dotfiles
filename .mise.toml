@@ -1,4 +1,4 @@
 [env]
-_.path = "./script"
+# _.path = "./script"
 # get python deprecation warnings
 # PYTHONDEVMODE=1
