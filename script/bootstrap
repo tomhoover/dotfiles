@@ -50,6 +50,7 @@ ARCH_PKGS=( #{{{
   base-devel
   ex-vi-compat
   interception-caps2esc
+  neovim
   tailscale
   zsh
 ) #}}}
@@ -287,12 +288,14 @@ set_private_repos_tracking() { #{{{
 setup_keychain() { #{{{
 # start ssh-agent & load key
 command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_rsa_"${MYHOST}" github_rsa id_rsa)"
+# shellcheck disable=SC1090
 [ -r "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
 } #}}}
 
 setup_tailscale() { #{{{
   # shellcheck disable=SC1091
   [[ -f ${HOME}/.SECRETS ]] && source "${HOME}/.SECRETS"
+  #shellcheck disable=SC1091
   [[ -f ${HOME}/TAILSCALE_KEY ]] && source "${HOME}/TAILSCALE_KEY"
   if isdarwin; then
     open tailscale-app
@@ -550,7 +553,7 @@ fi
 echo
 info "##### bootstrap completed - please reboot computer #####"
 
-if [ $NEW_SSH_KEY ]; then
+if [ "$NEW_SSH_KEY" ]; then
     echo
     echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
     echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
