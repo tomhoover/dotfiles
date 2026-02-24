@@ -39,6 +39,8 @@ COMMON_PKGS=( #{{{
   keychain
   mc
   mosh
+  neovim
+  ripgrep
   tmux
   tree
   vim
@@ -50,7 +52,6 @@ ARCH_PKGS=( #{{{
   base-devel
   ex-vi-compat
   interception-caps2esc
-  neovim
   tailscale
   zsh
 ) #}}}
@@ -79,21 +80,21 @@ FEDORA_PKGS=( #{{{
 # Only use COLORS in interactive shells, not from crontab #{{{
 # shellcheck disable=SC2034
 if [ -t 1 ]; then
-    RED=$(tput setaf 1)
-    GREEN=$(tput setaf 2)
-    YELLOW=$(tput setaf 3)
-    BLUE=$(tput setaf 4)
-    MAGENTA=$(tput setaf 5)
-    CYAN=$(tput setaf 6)
-    RESET=$(tput sgr0)
+  RED=$(tput setaf 1)
+  GREEN=$(tput setaf 2)
+  YELLOW=$(tput setaf 3)
+  BLUE=$(tput setaf 4)
+  MAGENTA=$(tput setaf 5)
+  CYAN=$(tput setaf 6)
+  RESET=$(tput sgr0)
 else
-    RED=
-    GREEN=
-    YELLOW=
-    BLUE=
-    MAGENTA=
-    CYAN=
-    RESET=
+  RED=
+  GREEN=
+  YELLOW=
+  BLUE=
+  MAGENTA=
+  CYAN=
+  RESET=
 fi
 #}}}
 
@@ -142,13 +143,13 @@ isdebian() { #{{{
 } #}}}
 
 isfedora() { #{{{
-    if islinux && [ -f /etc/os-release ]; then
-        # shellcheck disable=SC1091
-        . /etc/os-release
-        # shellcheck disable=SC2078
-        [ "${ID}" = "fedora" ] && return 0
-    fi
-    return 1
+  if islinux && [ -f /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    # shellcheck disable=SC2078
+    [ "${ID}" = "fedora" ] && return 0
+  fi
+  return 1
 } #}}}
 
 isomarchy() { #{{{
@@ -157,6 +158,10 @@ isomarchy() { #{{{
 
 iszsh() { #{{{
   [ "${SHELL}" = "/bin/zsh" ]
+} #}}}
+
+isdev() { #{{{
+  [[ "${MYHOST}" =~ (ariel|theophilus) ]]
 } #}}}
 
 ###
@@ -286,10 +291,10 @@ set_private_repos_tracking() { #{{{
 } #}}}
 
 setup_keychain() { #{{{
-# start ssh-agent & load key
-command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_rsa_"${MYHOST}" github_rsa id_rsa)"
-# shellcheck disable=SC1090
-[ -r "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
+  # start ssh-agent & load key
+  command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_rsa_"${MYHOST}" github_rsa id_rsa)"
+  # shellcheck disable=SC1090
+  [ -r "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
 } #}}}
 
 setup_tailscale() { #{{{
@@ -389,7 +394,7 @@ clone_private_repos() { #{{{
 
   REPOS=(gnupg ssh)
   for REPO in "${REPOS[@]}"; do
-      find "${HOME}/.${REPO}" -type d -empty -delete
+    find "${HOME}/.${REPO}" -type d -empty -delete
     if [ -d "${HOME}/git/${REPO}.git" ] && [ ! -d "${HOME}/.${REPO}" ]; then
       cd && $BIN/git clone "${HOME}/git/${REPO}.git" ".${REPO}" && chmod -R go= "${HOME}/.${REPO}"
       cd "${HOME}/.${REPO}" && $BIN/git remote rename origin localhost && $BIN/git remote add origin "gitolite:${REPO}.git"
@@ -418,6 +423,7 @@ stow_dotfiles_pkgs() { #{{{
     fi
   done
 
+  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr starship tmux vcsh vim
   isdarwin && $BIN/stow -d ~/.dotfiles/stow -t ~ -R darwin
   islinux && $BIN/stow -d ~/.dotfiles/stow -t ~ -R linux
   isarch && $BIN/stow -d ~/.dotfiles/stow -t ~ -R arch
@@ -426,8 +432,7 @@ stow_dotfiles_pkgs() { #{{{
   iszsh && $BIN/stow -d ~/.dotfiles/stow -t ~ -R zsh
   [ "${MYHOST}" = "ariel" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator
   [ "${MYHOST}" = "theophilus" ] && $BIN/stow -d ~/.dotfiles/stow -t ~ -R i3 x11
-  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr tmux vcsh vim
-  $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" ghostty kitty nvim starship
+  isdev && $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" ghostty kitty nvim
   #TODO
   # $BIN/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" git mise
 } #}}}
@@ -554,9 +559,9 @@ echo
 info "##### bootstrap completed - please reboot computer #####"
 
 if [ "$NEW_SSH_KEY" ]; then
-    echo
-    echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
-    echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
+  echo
+  echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
+  echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
 fi
 
 if ! iszsh; then
