@@ -265,7 +265,7 @@ install_caps2esc() { #{{{
     sudo mkdir -p /etc/interception/udevmon.d || exit 8
     {
       # shellcheck disable=SC2016
-      echo '- JOB: intercept -g $DEVNODE | caps2esc | uinput -d $DEVNODE'
+      echo '- JOB: intercept -g $DEVNODE | caps2esc -m 1 | uinput -d $DEVNODE'
       echo '  DEVICE:'
       echo '    EVENTS:'
       echo '      EV_KEY: [KEY_CAPSLOCK, KEY_ESC]'

@@ -34,7 +34,7 @@ repos:
 
     # json
     - id: check-json
-    - id: pretty-format-json
+#    - id: pretty-format-json
 
     # toml
     - id: check-toml
