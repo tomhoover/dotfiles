@@ -39,7 +39,14 @@
 
     # Switch to a branch, creating it if necessary
     # go = "!f() { git checkout -b \"$@\" 2> /dev/null || git checkout \"$@\"; }; f"
-    go = "!f() { git switch -c \"$@\" 2> /dev/null || git switch \"$@\"; }; f"
+    # go = "!f() { git switch -c \"$@\" 2> /dev/null || git switch \"$@\"; }; f"
+    go = "!f() { \
+        if [ -z \"$@\" ]; then \
+            git switch master 2>/dev/null || git switch main 2>/dev/null || git switch dev; \
+        else \
+            git switch \"$@\" 2>/dev/null || git switch -c \"$@\"; \
+        fi \
+    }; f"
 
     # Show verbose output about tags, branches or remotes
     tags = tag -l
