@@ -2,8 +2,7 @@
 
 # Load the shell dotfiles, and then some:
 # * ~/.extra can be used for other settings you don’t want to commit.
-load_shell_dotfiles()
-                      {
+load_shell_dotfiles() {
     local file
     for file in ~/.{aliases,functions,envs,extra,SECRETS}; do
         # shellcheck disable=SC1090
