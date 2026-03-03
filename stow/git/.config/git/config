@@ -353,3 +353,5 @@
 #    show = diff-highlight | less
 #    diff = diff-highlight | less
 ; }}}
+
+# vim: set tw=100 fdm=marker commentstring=#%s:
