@@ -4,6 +4,8 @@
 [ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" | tee -a /tmp/shell-init.txt
 export ZSHRC_LOCAL_LOADED=1
 
+unset -f battery
+
 SHEL=zsh
 # shellcheck disable=SC1036,SC1058,SC1072,SC1073
 for rc in ~/.rc.d/*.(sh|zsh); do
