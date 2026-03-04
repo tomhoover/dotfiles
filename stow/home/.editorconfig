@@ -19,7 +19,7 @@ indent_style = space
 
 [shell]
 binary_next_line   = true
-function_next_line = true
+# function_next_line = true
 switch_case_indent = true
 
 [*.{c,h,cmake,txt}]

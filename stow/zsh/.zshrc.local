@@ -13,8 +13,6 @@ for rc in ~/.rc.d/*.(sh|zsh); do
 done
 unset rc
 
-# MYHOST=$(uname -n | sed -e 's/\..*//')     # alternative to $(hostname -s), as arch does not install 'hostname' by default
-
 [ -r ~/.config/dotfiles/"$(uname)".zshrc ] && source ~/.config/dotfiles/"$(uname)".zshrc
 [ -r ~/.config/dotfiles/"${MYHOST}".zshrc ] && source ~/.config/dotfiles/"${MYHOST}".zshrc
 

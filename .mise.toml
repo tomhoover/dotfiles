@@ -2,3 +2,8 @@
 # _.path = "./script"
 # get python deprecation warnings
 # PYTHONDEVMODE=1
+
+[tools]
+bats = "latest"
+shellcheck = "latest"
+shfmt = "latest"

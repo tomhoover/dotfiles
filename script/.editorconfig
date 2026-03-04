@@ -1,3 +1,5 @@
 [[shell]]
 indent_size = 2
 indent_style = space
+binary_next_line   = true
+switch_case_indent = true
