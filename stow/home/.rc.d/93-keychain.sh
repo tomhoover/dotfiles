@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
 # start ssh-agent & load key
-command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_rsa_"${MYHOST}" github_rsa id_rsa)"
+command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_ed25519_"${MYHOST}" id_rsa_"${MYHOST}" github_rsa id_rsa)"
 
 # keychain
 # shellcheck disable=SC1090
