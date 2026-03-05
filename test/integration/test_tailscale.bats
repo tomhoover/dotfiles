@@ -96,6 +96,22 @@ make_os_release() {
     assert_success
 }
 
+@test "setup_tailscale does not crash with unbound variable when not connected and no secrets file" {
+    make_uname "Linux"
+    make_os_release "arch"
+    mock_systemctl
+    cat >"$BIN/tailscale" <<'EOF'
+#!/bin/bash
+[[ "$1" == "status" ]] && exit 1
+echo "tailscale called with: $@"
+exit 0
+EOF
+    chmod +x "$BIN/tailscale"
+    run "$RUNNER" setup_tailscale
+    refute_output --partial "unbound variable"
+    assert_success
+}
+
 # ---------------------------------------------------------------------------
 # macOS
 # ---------------------------------------------------------------------------

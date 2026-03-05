@@ -159,7 +159,7 @@ iszsh() { #{{{
   esac
 } #}}}
 
-isdev() {
+isdev() { #{{{
   case "${MYHOST}" in
     ariel | theophilus)
       return 0
@@ -168,15 +168,15 @@ isdev() {
       return 1
       ;;
   esac
-}
+} #}}}
 
 ###
 
 create_ssh_key() { #{{{
-  if [ ! "$(id -u)" -eq 0 ] && [ ! -f ~/.ssh/id_rsa_"${MYHOST}".pub ]; then
+  if [ ! "$(id -u)" -eq 0 ] && [ ! -f ~/.ssh/id_ed25519_"${MYHOST}".pub ]; then
     echo
     success "Creating ssh key for ${MYHOST}..."
-    echo && ssh-keygen -t rsa -b 4096 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_rsa_"${MYHOST}"
+    echo && ssh-keygen -t ed25519 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_ed25519_"${MYHOST}"
     export NEW_SSH_KEY=1
   fi
 } #}}}
@@ -298,7 +298,7 @@ set_private_repos_tracking() { #{{{
 
 setup_keychain() { #{{{
   # start ssh-agent & load key
-  command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_rsa_"${MYHOST}" github_rsa id_rsa)"
+  command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_ed25519_"${MYHOST}" github_rsa id_rsa)"
   # shellcheck disable=SC1090
   [ -f "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
 } #}}}
@@ -566,8 +566,8 @@ info "##### bootstrap completed - please reboot computer #####"
 
 if [ "${NEW_SSH_KEY:-}" ]; then
   echo
-  echo "$(tput setaf 1)Commit id_rsa_${MYHOST}* to .ssh repo$(tput sgr0)"
-  echo "$(tput setaf 1)Copy id_rsa_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
+  echo "$(tput setaf 1)Commit id_ed25519_${MYHOST}* to .ssh repo$(tput sgr0)"
+  echo "$(tput setaf 1)Copy id_ed25519_${MYHOST}.pub to gitea & gitolite-admin$(tput sgr0)"
 fi
 
 if ! iszsh; then
