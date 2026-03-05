@@ -1,7 +1,7 @@
-# Makefile for bootstrap — lint, format, and test
+# Makefile for bootstrap and install-dev-tools — lint, format, and test
 
 SHELL        := /usr/bin/env bash
-SCRIPT       := script/bootstrap
+SCRIPTS      := script/bootstrap script/install-dev-tools
 TEST_DIR     := test
 UNIT_DIR     := $(TEST_DIR)/unit
 INTEG_DIR    := $(TEST_DIR)/integration
@@ -22,13 +22,6 @@ SHFMT_OPTS   := -i 2 -ci -bn
 # bats options
 BATS_OPTS    := --timing
 
-# Colors
-# RED          := \033[0;31m
-# GREEN        := \033[0;32m
-# YELLOW       := \033[0;33m
-# CYAN         := \033[0;36m
-# RESET        := \033[0m
-
 RED          := $(shell tput setaf 1)
 GREEN        := $(shell tput setaf 2)
 YELLOW       := $(shell tput setaf 3)
@@ -46,28 +39,28 @@ RESET        := $(shell tput sgr0)
 .PHONY: help
 help:
 	@echo ""
-	@echo "  $(CYAN)Bootstrap script — development targets$(RESET)"
+	@echo "  $(CYAN)bootstrap & install-dev-tools — development targets$(RESET)"
 	@echo ""
 	@echo "  $(GREEN)Setup$(RESET)"
 	@echo "    make deps          Install bats, shellcheck, shfmt via package manager"
-	@echo "    make bats-libs     Clone bats helper libraries into tests/libs/"
+	@echo "    make bats-libs     Clone bats helper libraries into test/libs/"
 	@echo ""
 	@echo "  $(GREEN)Linting$(RESET)"
-	@echo "    make lint          Run shellcheck against bootstrap"
+	@echo "    make lint          Run shellcheck against all scripts"
 	@echo "    make lint-tests    Run shellcheck against all .bats files"
-	@echo "    make lint-all      Run shellcheck against bootstrap and all tests"
+	@echo "    make lint-all      Run shellcheck against all scripts and tests"
 	@echo ""
 	@echo "  $(GREEN)Formatting$(RESET)"
-	@echo "    make fmt           Format bootstrap in place with shfmt"
+	@echo "    make fmt           Format all scripts in place with shfmt"
 	@echo "    make fmt-check     Check formatting without modifying files (CI-safe)"
 	@echo "    make fmt-tests     Format all .bats files in place"
-	@echo "    make fmt-all       Format bootstrap and all .bats files"
+	@echo "    make fmt-all       Format all scripts and .bats files"
 	@echo ""
 	@echo "  $(GREEN)Testing$(RESET)"
 	@echo "    make test          Run all tests (unit + integration)"
 	@echo "    make test-unit     Run unit tests only"
 	@echo "    make test-integ    Run integration tests only"
-	@echo "    make test-file     Run a single test file  (FILE=tests/unit/foo.bats)"
+	@echo "    make test-file     Run a single test file  (FILE=test/unit/foo.bats)"
 	@echo "    make test-tap      Run all tests with TAP output (for CI)"
 	@echo "    make test-filter   Run tests matching a pattern (FILTER='backup file')"
 	@echo ""
@@ -80,6 +73,9 @@ help:
 	@echo "    make clean         Remove temp files and bats output artifacts"
 	@echo "    make list-tests    List all test names without running them"
 	@echo "    make verify-deps   Check that all required tools are installed"
+	@echo ""
+	@echo "  $(GREEN)Scripts$(RESET)"
+	@echo "    $(SCRIPTS)"
 	@echo ""
 
 # ---------------------------------------------------------------------------
@@ -184,12 +180,15 @@ verify-tools-for-deps:
 
 .PHONY: lint
 lint:
-	@echo "$(CYAN) shellcheck $(SCRIPT)...$(RESET)"
-	@$(SHELLCHECK) \
-		--severity=warning \
-		--shell=bash \
-		--external-sources \
-		$(SCRIPT) \
+	@echo "$(CYAN) shellcheck scripts...$(RESET)"
+	@for script in $(SCRIPTS); do \
+		echo "  checking $$script"; \
+		$(SHELLCHECK) \
+			--severity=warning \
+			--shell=bash \
+			--external-sources \
+			"$$script" || exit 1; \
+	done \
 	&& echo "$(GREEN)✔ shellcheck passed$(RESET)" \
 	|| { echo "$(RED)✘ shellcheck failed$(RESET)"; exit 1; }
 
@@ -217,18 +216,18 @@ lint-all: lint lint-tests
 
 .PHONY: fmt
 fmt:
-	@echo "$(CYAN) shfmt $(SCRIPT) (in place)...$(RESET)"
-	@$(SHFMT) -w $(SHFMT_OPTS) $(SCRIPT) \
-	&& echo "$(GREEN)✔ $(SCRIPT) formatted$(RESET)" \
+	@echo "$(CYAN) shfmt scripts (in place)...$(RESET)"
+	@$(SHFMT) -w $(SHFMT_OPTS) $(SCRIPTS) \
+	&& echo "$(GREEN)✔ scripts formatted$(RESET)" \
 	|| { echo "$(RED)✘ shfmt failed$(RESET)"; exit 1; }
 
 .PHONY: fmt-check
 fmt-check:
 	@echo "$(CYAN) shfmt check (no modifications)...$(RESET)"
-	@$(SHFMT) -d $(SHFMT_OPTS) $(SCRIPT) \
-	&& echo "$(GREEN)✔ $(SCRIPT) formatting OK$(RESET)" \
+	@$(SHFMT) -d $(SHFMT_OPTS) $(SCRIPTS) \
+	&& echo "$(GREEN)✔ scripts formatting OK$(RESET)" \
 	|| { \
-		echo "$(RED)✘ $(SCRIPT) has formatting issues. Run: make fmt$(RESET)"; \
+		echo "$(RED)✘ scripts have formatting issues. Run: make fmt$(RESET)"; \
 		exit 1; \
 	}
 
@@ -274,7 +273,7 @@ test-integ:
 .PHONY: test-file
 test-file:
 	@[ -n "$(FILE)" ] || { \
-		echo "$(RED)✘ Specify a file: make test-file FILE=tests/unit/test_backup_file.bats$(RESET)"; \
+		echo "$(RED)✘ Specify a file: make test-file FILE=test/unit/test_backup_file.bats$(RESET)"; \
 		exit 1; \
 	}
 	@echo "$(CYAN) Running $(FILE)...$(RESET)"
@@ -320,7 +319,10 @@ fix: fmt-all
 .PHONY: list-tests
 list-tests:
 	@echo "$(CYAN) Listing all tests...$(RESET)"
-	@$(BATS) --list $(UNIT_DIR) $(INTEG_DIR)
+	@grep -rh '^@test' $(UNIT_DIR) $(INTEG_DIR) \
+		| sed "s/@test //" \
+		| sed 's/ {$$//' \
+		| sort
 
 .PHONY: clean
 clean:
