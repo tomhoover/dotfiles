@@ -295,12 +295,10 @@ setup_tailscale() { #{{{
     sudo systemctl enable --now tailscaled
     sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
   elif isdebian; then
-    echo "TODO"
-    #TODO sudo systemctl enable --now tailscaled
+    sudo systemctl enable --now tailscaled
     sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
   elif isfedora; then
-    echo "TODO"
-    #TODO sudo systemctl enable --now tailscaled
+    sudo systemctl enable --now tailscaled
     sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
   else
     echo
@@ -361,8 +359,17 @@ install_remaining_pkgs() { #{{{
     done
 
   elif isdebian; then
+    # tailscale gpg key and repo
+    local os_release="${OS_RELEASE:-/etc/os-release}"
+    local debian_codename
+    # shellcheck disable=SC1090
+    debian_codename=$(. "$os_release" && echo "$VERSION_CODENAME")
+    curl -fsSL "https://pkgs.tailscale.com/stable/debian/${debian_codename}.noarmor.gpg" | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+    curl -fsSL "https://pkgs.tailscale.com/stable/debian/${debian_codename}.tailscale-keyring.list" | sudo tee /etc/apt/sources.list.d/tailscale.list
     sudo apt-get update && sudo apt-get --yes install "${COMMON_PKGS[@]}" "${DEBIAN_PKGS[@]}"
   elif isfedora; then
+    # tailscale repo
+    sudo dnf config-manager --add-repo https://pkgs.tailscale.com/stable/fedora/tailscale.repo
     sudo dnf install "${COMMON_PKGS[@]}" "${FEDORA_PKGS[@]}"
   else
     echo

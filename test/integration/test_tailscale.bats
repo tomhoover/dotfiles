@@ -186,30 +186,78 @@ EOF
 # Debian / Fedora
 # ---------------------------------------------------------------------------
 
-@test "setup_tailscale prints TODO on Debian" {
+@test "setup_tailscale enables and starts tailscaled on Debian" {
     make_uname "Linux"
     make_os_release "debian"
-    mock_tailscale_already_up
+    local systemctl_log="${BATS_TEST_TMPDIR}/systemctl.log"
     cat >"$BIN/sudo" <<'EOF'
 #!/bin/bash
 exec "$@"
 EOF
     chmod +x "$BIN/sudo"
+    cat >"$BIN/systemctl" <<EOF
+#!/bin/bash
+echo "\$@" >> "$systemctl_log"
+exit 0
+EOF
+    chmod +x "$BIN/systemctl"
+    mock_tailscale_already_up
     run "$RUNNER" setup_tailscale
-    assert_output --partial "TODO"
+    run grep "enable --now tailscaled" "$systemctl_log"
+    assert_success
 }
 
-@test "setup_tailscale prints TODO on Fedora" {
+@test "setup_tailscale runs 'tailscale up --auth-key' on Debian if not connected" {
+    make_uname "Linux"
+    make_os_release "debian"
+    mock_systemctl
+    echo 'TAILSCALE_KEY=tskey-debian-123' >"$HOME/.SECRETS"
+    cat >"$BIN/tailscale" <<'EOF'
+#!/bin/bash
+[[ "$1" == "status" ]] && exit 1
+echo "tailscale called with: $@"
+exit 0
+EOF
+    chmod +x "$BIN/tailscale"
+    run "$RUNNER" setup_tailscale
+    assert_output --partial "--auth-key=tskey-debian-123"
+}
+
+@test "setup_tailscale enables and starts tailscaled on Fedora" {
     make_uname "Linux"
     make_os_release "fedora"
-    mock_tailscale_already_up
+    local systemctl_log="${BATS_TEST_TMPDIR}/systemctl.log"
     cat >"$BIN/sudo" <<'EOF'
 #!/bin/bash
 exec "$@"
 EOF
     chmod +x "$BIN/sudo"
+    cat >"$BIN/systemctl" <<EOF
+#!/bin/bash
+echo "\$@" >> "$systemctl_log"
+exit 0
+EOF
+    chmod +x "$BIN/systemctl"
+    mock_tailscale_already_up
     run "$RUNNER" setup_tailscale
-    assert_output --partial "TODO"
+    run grep "enable --now tailscaled" "$systemctl_log"
+    assert_success
+}
+
+@test "setup_tailscale runs 'tailscale up --auth-key' on Fedora if not connected" {
+    make_uname "Linux"
+    make_os_release "fedora"
+    mock_systemctl
+    echo 'TAILSCALE_KEY=tskey-fedora-456' >"$HOME/.SECRETS"
+    cat >"$BIN/tailscale" <<'EOF'
+#!/bin/bash
+[[ "$1" == "status" ]] && exit 1
+echo "tailscale called with: $@"
+exit 0
+EOF
+    chmod +x "$BIN/tailscale"
+    run "$RUNNER" setup_tailscale
+    assert_output --partial "--auth-key=tskey-fedora-456"
 }
 
 # ---------------------------------------------------------------------------

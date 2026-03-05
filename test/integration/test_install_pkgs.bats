@@ -16,7 +16,8 @@ setup() {
     export PACMAN_CALL_LOG="${BATS_TEST_TMPDIR}/pacman.log"
     export APT_CALL_LOG="${BATS_TEST_TMPDIR}/apt.log"
     export DNF_CALL_LOG="${BATS_TEST_TMPDIR}/dnf.log"
-    rm -f "$BREW_CALL_LOG" "$PACMAN_CALL_LOG" "$APT_CALL_LOG" "$DNF_CALL_LOG"
+    export CURL_CALL_LOG="${BATS_TEST_TMPDIR}/curl.log"
+    rm -f "$BREW_CALL_LOG" "$PACMAN_CALL_LOG" "$APT_CALL_LOG" "$DNF_CALL_LOG" "$CURL_CALL_LOG"
 
     export RUNNER="${BATS_TEST_TMPDIR}/runner.sh"
     cat >"$RUNNER" <<'EOF'
@@ -43,8 +44,8 @@ EOF
 }
 
 teardown() {
-    rm -f "$BIN/uname" "$BIN/brew" "$BIN/pacman" "$BIN/apt-get" "$BIN/dnf" "$BIN/sudo" "$BIN/systemctl"
-    rm -f "$BREW_CALL_LOG" "$PACMAN_CALL_LOG" "$APT_CALL_LOG" "$DNF_CALL_LOG"
+    rm -f "$BIN/uname" "$BIN/brew" "$BIN/pacman" "$BIN/apt-get" "$BIN/dnf" "$BIN/sudo" "$BIN/systemctl" "$BIN/curl" "$BIN/tee"
+    rm -f "$BREW_CALL_LOG" "$PACMAN_CALL_LOG" "$APT_CALL_LOG" "$DNF_CALL_LOG" "$CURL_CALL_LOG"
     rm -f "${BATS_TEST_TMPDIR}/etc/os-release"
     unset OS_RELEASE
     unset PACMAN_CONF
@@ -84,6 +85,18 @@ echo "apt-get \$@" >> "$APT_CALL_LOG"
 exit 0
 EOF
     chmod +x "$BIN/apt-get"
+    cat >"$BIN/curl" <<EOF
+#!/bin/bash
+echo "curl \$@" >> "$CURL_CALL_LOG"
+exit 0
+EOF
+    chmod +x "$BIN/curl"
+    cat >"$BIN/tee" <<'EOF'
+#!/bin/bash
+cat >/dev/null
+exit 0
+EOF
+    chmod +x "$BIN/tee"
 }
 
 make_dnf() {
@@ -109,6 +122,10 @@ apt_was_called_with() {
 
 dnf_was_called_with() {
     grep -qF -- "$*" "$DNF_CALL_LOG" 2>/dev/null
+}
+
+curl_was_called_with() {
+    grep -qF -- "$*" "$CURL_CALL_LOG" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
@@ -294,6 +311,24 @@ dnf_was_called_with() {
     assert_failure
 }
 
+@test "install_remaining_pkgs fetches tailscale gpg key using distro codename on Debian" {
+    stub_uname_debian
+    make_apt
+    run "$RUNNER" install_remaining_pkgs
+    assert_success
+    run curl_was_called_with "pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg"
+    assert_success
+}
+
+@test "install_remaining_pkgs fetches tailscale keyring list using distro codename on Debian" {
+    stub_uname_debian
+    make_apt
+    run "$RUNNER" install_remaining_pkgs
+    assert_success
+    run curl_was_called_with "pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list"
+    assert_success
+}
+
 # ---------------------------------------------------------------------------
 # Fedora — dnf
 # ---------------------------------------------------------------------------
@@ -336,6 +371,17 @@ dnf_was_called_with() {
     assert_success
     run dnf_was_called_with "brave-browser"
     assert_failure
+}
+
+@test "install_remaining_pkgs adds tailscale repo via dnf config-manager on Fedora" {
+    stub_uname_fedora
+    make_dnf
+    run "$RUNNER" install_remaining_pkgs
+    assert_success
+    run dnf_was_called_with "config-manager --add-repo"
+    assert_success
+    run dnf_was_called_with "pkgs.tailscale.com/stable/fedora/tailscale.repo"
+    assert_success
 }
 
 # ---------------------------------------------------------------------------

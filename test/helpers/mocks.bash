@@ -44,7 +44,7 @@ stub_uname_arch() {
 stub_uname_debian() {
     stub_uname_linux
     mkdir -p "${BATS_TEST_TMPDIR}/etc"
-    echo "ID=debian" >"${BATS_TEST_TMPDIR}/etc/os-release"
+    printf 'ID=debian\nVERSION_CODENAME=bookworm\n' >"${BATS_TEST_TMPDIR}/etc/os-release"
     export OS_RELEASE="${BATS_TEST_TMPDIR}/etc/os-release"
 }
 
