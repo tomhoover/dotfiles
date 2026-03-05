@@ -213,54 +213,33 @@ backup_file() { #{{{
 # }'
 # }}}
 
-github_vclone() { #{{{
-  if "$BIN"/vcsh clone "https://github.com/tomhoover/${1}-vcsh.git" "${1}"; then
-    "$BIN"/vcsh "${1}" config get core.bare && "$BIN"/vcsh "${1}" config set core.bare false
-    success "${1} successfully cloned..."
+vclone() { #{{{
+  local name="$1" url="$2"
+  if "$BIN"/vcsh clone "$url" "$name"; then
+    "$BIN"/vcsh "$name" config get core.bare && "$BIN"/vcsh "$name" config set core.bare false
+    success "${name} successfully cloned..."
     return 0
-  elif "$BIN"/vcsh "${1}" pull; then
-    success "${1} successfully updated via pull..."
+  elif "$BIN"/vcsh "$name" pull; then
+    success "${name} successfully updated via pull..."
     return 0
   else
     error "Conflicting files found..."
-    # "$BIN"/vcsh "${1}" pull 2>&1 | grep -E '^\s+'   | xargs -I{} -n1 backup_file "{}"
-    # "$BIN"/vcsh "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 sh -c 'backup_file "{}"'
-    # "$BIN"/vcsh "${1}" pull 2>&1 | grep -E '^\s+\.' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN"/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN"/vcsh "${1}" checkout master 2>&1 && "$BIN"/vcsh "${1}" pull && success "${1} successfully cloned after backup of conflicting files..." && return 0
+    "$BIN"/vcsh "$name" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
+    "$BIN"/vcsh "$name" checkout master 2>&1 && "$BIN"/vcsh "$name" pull && success "${name} successfully cloned after backup of conflicting files..." && return 0
   fi
   return 1
+} #}}}
+
+github_vclone() { #{{{
+  vclone "$1" "https://github.com/tomhoover/${1}-vcsh.git"
 } #}}}
 
 gitolite_vclone() { #{{{
-  if "$BIN"/vcsh clone "gitolite:${1}-vcsh.git" "${1}"; then
-    "$BIN"/vcsh "${1}" config get core.bare && "$BIN"/vcsh "${1}" config set core.bare false
-    success "${1} successfully cloned..."
-    return 0
-  elif "$BIN"/vcsh "${1}" pull; then
-    success "${1} successfully updated via pull..."
-    return 0
-  else
-    error "Conflicting files found..."
-    "$BIN"/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN"/vcsh "${1}" checkout master 2>&1 && "$BIN"/vcsh "${1}" pull && success "${1} successfully cloned after backup of conflicting files..." && return 0
-  fi
+  vclone "$1" "gitolite:${1}-vcsh.git"
 } #}}}
 
 localhost_vclone() { #{{{
-  if "$BIN"/vcsh clone "${HOME}/git/${1}-vcsh.git" "${1}"; then
-    "$BIN"/vcsh "${1}" config get core.bare && "$BIN"/vcsh "${1}" config set core.bare false
-    success "${1} successfully cloned..."
-    return 0
-  elif "$BIN"/vcsh "${1}" pull; then
-    success "${1} successfully updated via pull..."
-    return 0
-  else
-    error "Conflicting files found..."
-    "$BIN"/vcsh "${1}" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
-    "$BIN"/vcsh "${1}" checkout master 2>&1 && "$BIN"/vcsh "${1}" pull && success "${1} successfully cloned after backup of conflicting files..." && return 0
-  fi
-  return 1
+  vclone "$1" "${HOME}/git/${1}-vcsh.git"
 } #}}}
 
 install_caps2esc() { #{{{
