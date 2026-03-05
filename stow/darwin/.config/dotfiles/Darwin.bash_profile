@@ -1,5 +1,5 @@
-[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_LOADED" | tee -a /tmp/shell-init.txt
 export DARWIN_BASH_PROFILE_LOADED=1
 
 # Case-insensitive globbing (used in pathname expansion)
@@ -35,4 +35,4 @@ complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes Syste
 # This won't be added again if you remove it.
 source ~/.orbstack/shell/init.bash 2>/dev/null || :
 
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_ENDED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_ENDED" | tee -a /tmp/shell-init.txt

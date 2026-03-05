@@ -1,5 +1,5 @@
-[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_LOADED" | tee -a /tmp/shell-init.txt
 export DARWIN_ZPROFILE_LOADED=1
 
 # MacPorts
@@ -13,4 +13,4 @@ export MANPATH="/opt/local/share/man:$MANPATH"
 # This won't be added again if you remove it.
 source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_ENDED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_ZPROFILE_ENDED" | tee -a /tmp/shell-init.txt

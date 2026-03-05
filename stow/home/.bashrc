@@ -1,7 +1,7 @@
 # shellcheck shell=bash disable=SC1090
 
-[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: BASHRC_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: BASHRC_LOADED" | tee -a /tmp/shell-init.txt
 export BASHRC_LOADED=1
 
 # exit if non-interactive shell

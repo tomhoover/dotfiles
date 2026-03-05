@@ -1,7 +1,7 @@
 # shellcheck shell=bash disable=SC1090
 
-[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" | tee -a /tmp/shell-init.txt
 export ZSHRC_LOCAL_LOADED=1
 
 unset -f battery
@@ -50,5 +50,5 @@ else
     zstyle ':prompt:grml:left:setup' items rc change-root user at host path vcs newline percent
 fi
 
-[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_ENDED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_ENDED" | tee -a /tmp/shell-init.txt

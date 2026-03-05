@@ -1,5 +1,5 @@
-[ "$DOTFILE_DEBUG" ] && echo "$PATH" >>/tmp/shell-init.txt
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: ALIASES_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: ALIASES_LOADED" | tee -a /tmp/shell-init.txt
 export ALIASES_LOADED=1
 
 # Easier navigation: .., ..., ...., ....., ~ and -
@@ -233,4 +233,4 @@ alias .git='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
 alias cu='copier update --skip-tasks'
 
-[ "$DOTFILE_DEBUG" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: ALIASES_ENDED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: ALIASES_ENDED" | tee -a /tmp/shell-init.txt
