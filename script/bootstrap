@@ -125,22 +125,27 @@ islinux() { #{{{
 } #}}}
 
 isarch() { #{{{
-  # shellcheck disable=SC1091
-  islinux && (. /etc/os-release && [ "$ID" = "arch" ])
+  local os_release="${OS_RELEASE:-/etc/os-release}"
+  # shellcheck disable=SC1090
+  islinux && (. "$os_release" && [ "$ID" = "arch" ])
 } #}}}
 
 isdebian() { #{{{
-  # shellcheck disable=SC1091
-  islinux && (. /etc/os-release && [ "$ID" = "debian" ])
+  local os_release="${OS_RELEASE:-/etc/os-release}"
+  # shellcheck disable=SC1090
+  islinux && (. "$os_release" && [ "$ID" = "debian" ])
 } #}}}
 
 isfedora() { #{{{
-  # shellcheck disable=SC1091
-  islinux && (. /etc/os-release && [ "$ID" = "fedora" ])
+  local os_release="${OS_RELEASE:-/etc/os-release}"
+  # shellcheck disable=SC1090
+  islinux && (. "$os_release" && [ "$ID" = "fedora" ])
 } #}}}
 
 isomarchy() { #{{{
-  isarch && grep -q '\[omarchy\]' /etc/pacman.conf
+  local pacman_conf="${PACMAN_CONF:-/etc/pacman.conf}"
+  # isarch && grep -q '\[omarchy\]' /etc/pacman.conf
+  isarch && grep -q '\[omarchy\]' "$pacman_conf"
 } #}}}
 
 iszsh() { #{{{
@@ -502,6 +507,8 @@ if isdarwin; then
   [ -f /usr/local/bin/brew ] && BIN="/usr/local/bin"
   [ -f /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
 fi
+
+[[ "${BASH_SOURCE[0]}" != "${0}" ]] && return 0 # being sourced — stop here
 
 if ! [ $# -eq 0 ]; then
   case "${1:-}" in #{{{
