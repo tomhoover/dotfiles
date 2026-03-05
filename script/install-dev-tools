@@ -1,8 +1,8 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Install development tools
 
-set -e
+set -euo pipefail
 
 # # add python build dependencies for debian/ubuntu (no longer needed with mise?)
 # command -v apt >/dev/null 2>&1 && \
@@ -15,21 +15,21 @@ set -e
 # Only use COLORS in interactive shells, not from crontab #{{{
 # shellcheck disable=SC2034
 if [ -t 1 ]; then
-    RED=$(tput setaf 1)
-    GREEN=$(tput setaf 2)
-    YELLOW=$(tput setaf 3)
-    BLUE=$(tput setaf 4)
-    MAGENTA=$(tput setaf 5)
-    CYAN=$(tput setaf 6)
-    RESET=$(tput sgr0)
+  RED=$(tput setaf 1)
+  GREEN=$(tput setaf 2)
+  YELLOW=$(tput setaf 3)
+  BLUE=$(tput setaf 4)
+  MAGENTA=$(tput setaf 5)
+  CYAN=$(tput setaf 6)
+  RESET=$(tput sgr0)
 else
-    RED=
-    GREEN=
-    YELLOW=
-    BLUE=
-    MAGENTA=
-    CYAN=
-    RESET=
+  RED=
+  GREEN=
+  YELLOW=
+  BLUE=
+  MAGENTA=
+  CYAN=
+  RESET=
 fi
 #}}}
 
@@ -52,24 +52,32 @@ success() { #{{{
 cd "$(dirname "$0")"/..
 
 mkdir -p "$HOME/.local/bin"
-chmod go= "$HOME/.local" && chmod 755 "$HOME/.local/bin"
-# export PATH=$HOME/.local/bin:$PATH
+chmod 700 "$HOME/.local"
+chmod 755 "$HOME/.local/bin"
 
 echo
 info "Installing development tools..."
 echo
 # find the installers and run them iteratively
-find . -maxdepth 2 -name install.sh | sort | while read -r installer; do
-  program=$(echo "$installer" | sed -e 's/^\.\///' -e 's/^[0-9]-//' -e 's/\/.*$//')
+while read -r installer; do
+  # Expects paths like ./1-mise/install.sh → program name "mise"
+  #   or, ./direnv/install.sh → program name "direnv"
+  program=$(echo "$installer" | sed -e 's|^\./||' -e 's|^[0-9]*-||' -e 's|/.*$||')
   if command -v "${program}" >/dev/null 2>&1; then continue; fi
   echo
   success "Installing ${program}..."
   if [ "$program" = direnv ]; then
-    sh -c "bin_path=~/.local/bin ${installer}" || exit 90
+    bin_path=~/.local/bin sh "${installer}" || {
+      error "Failed to run ${program}/install.sh"
+      exit 1
+    }
   else
-    sh -c "${installer}" || exit 99
+    sh "${installer}" || {
+      error "Failed to run ${program}/install.sh"
+      exit 1
+    }
   fi
-done
+done < <(find . -maxdepth 2 -name install.sh | sort)
 
 # install most tools with mise
 mise install
@@ -77,21 +85,21 @@ mise install
 # install ansible with uv
 uv tool install --with requests --with passlib --with netaddr --with-executables-from ansible-core,ansible-lint ansible
 
-# disable exit on error
-# set +e
-
 echo
 info "Installed versions:"
 echo
-which -a mise
+type -a mise | sed -e 's/^.* is //'
 echo
-which -a ansible
+type -a ansible | sed -e 's/^.* is //'
 echo
-which -a direnv
+type -a direnv | sed -e 's/^.* is //'
 echo
-# shellcheck disable=SC2088
-cd && for x in $(mise ls | grep '~/.config/mise/config.toml' | sed -e 's/ .*//' -e 's/^go:.*\///' -e 's/^pipx://' -e 's/^audible-cli$/audible/' | sort -u); do
-  which -a "${x}"
+
+cd "$HOME"
+# the following checks each executable for multiple versions that may exist on the PATH
+# shellcheck disable=SC2088 # tilde in single-quoted grep pattern is intentional literal match
+for x in $(mise ls | grep '~/.config/mise/config.toml' | sed -e 's/ .*//' -e 's/^go:.*\///' -e 's/^pipx://' -e 's/^audible-cli$/audible/' | sort -u); do
+  type -a "${x}" 2>/dev/null | sed -e 's/^.* is //' || true
   echo
 done
 
@@ -118,4 +126,4 @@ if ls -d ~/.local/share/rtx* >/dev/null 2>&1; then
   ls -d ~/.local/share/rtx*
 fi
 
-# vim: set tw=120 fdm=marker commentstring=#%s:
+# vim: set tw=120 expandtab tabstop=2 shiftwidth=2 fdm=marker commentstring=#%s:
