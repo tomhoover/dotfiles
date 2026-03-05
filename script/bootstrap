@@ -304,6 +304,7 @@ setup_keychain() { #{{{
 } #}}}
 
 setup_tailscale() { #{{{
+  TAILSCALE_KEY=
   if [ -f "${HOME}/.SECRETS" ]; then
     TAILSCALE_KEY=$(grep TAILSCALE_KEY ~/.SECRETS | sed -e 's/TAILSCALE_KEY=//')
   elif [ -f "${HOME}/TAILSCALE_KEY" ]; then
