@@ -1,0 +1,20 @@
+[settings]
+## setting the following will enable reading .env everywhere below this directory
+# env_file = ".env"
+
+python.uv_venv_auto = true
+
+[env]
+## setting the following will enable reading .env only within this directory
+# _.file = '.env'
+
+# _.path = "./script"
+
+# use ipdb for debugging
+PYTHONBREAKPOINT = "ipdb.set_trace"
+
+# get python deprecation warnings
+# PYTHONDEVMODE=1
+
+[tools]
+# python = "3.13"
