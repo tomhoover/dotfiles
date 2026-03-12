@@ -34,9 +34,7 @@ if [ -x /usr/bin/dircolors ]; then test -r ~/.dircolors && eval "$(dircolors -b 
 
 # enable bash-completion to work with git aliases
 # https://stackoverflow.com/questions/342969/how-do-i-get-bash-completion-to-work-with-aliases
-#TODO
-#__git_complete g __git_main
-#TODO
+__git_complete g __git_main
 # https://github.com/cykerway/complete-alias ??
 
 # ----------
