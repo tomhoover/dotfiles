@@ -164,6 +164,16 @@
 # interim checkin && bypass git hooks
     w = commit -m 'wip' --no-verify
 
+    # usage example: 'git squash HEAD~2' & then later: 'git ri'
+    # https://technosorcery.net/blog/2010/02/fun-with-the-upcoming-1-7-release-of-git-rebase---interactive---autosquash/:
+    #  fixup = !sh -c 'git commit -m \"fixup! $(git log -1 --format='\\''%s'\\'' $@)\"' -
+    #  squash = !sh -c 'git commit -m \"squash! $(git log -1 --format='\\''%s'\\'' $@)\"' -
+    # simplified fixup & squash aliases from https://technosorcery.net/blog/2012/08/updated-git-rebase-interactive-autosquash-commit-preparation/:
+    fixup = !sh -c 'git commit --no-verify --fixup=$1' -
+    squash = !sh -c 'git commit --no-verify --squash=$1' -
+    # And for doing a rebase interactive which will always benefit from the automatic reordering of commits meant to be squashed:
+    ri = rebase --interactive --autosquash
+
 ; }}}
 
 [apply] ; {{{
