@@ -3,13 +3,20 @@ experimental = true
 idiomatic_version_file_enable_tools = ["python"]
 # python_compile = true
 
+## setting the following will enable reading .env everywhere
+# env_file = ".env"
+
+## to only read .env from a particular project directory, include the following within the project's [.]mise.[local.]toml file
+# [env]
+# _.file = '.env'
+
 [plugins]
 fnox-env = "https://github.com/jdx/mise-env-fnox"
 
 [env]
 # Use default profile
 _.fnox-env = { tools = true }
-# # Use production profile
+# Use production profile
 # _.fnox-env = { tools = true, profile = "production" }
 
 [tools]
@@ -40,3 +47,5 @@ shellcheck = "latest"
 shfmt = "latest"
 usage = "latest"
 uv = "latest"
+fd = "latest"
+node = "20"

@@ -1,10 +1,16 @@
+[settings]
+## setting the following will enable reading .env everywhere below this directory
+# env_file = ".env"
+
 [env]
+## setting the following will enable reading .env only within this directory
+# _.file = '.env'
+
 # _.path = "./script"
+
 # get python deprecation warnings
 # PYTHONDEVMODE=1
 
 [tools]
 bats = "latest"
 claude = "latest"
-shellcheck = "latest"
-shfmt = "latest"
