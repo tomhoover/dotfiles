@@ -79,3 +79,5 @@ export COPIER_SETTINGS_PATH=~/.config/copier/settings.yml
 [ -f ~/.acme.sh/acme.sh.env ] && source ~/.acme.sh/acme.sh.env
 
 if command -v rg  &>/dev/null; then  export FZF_DEFAULT_COMMAND='rg --files'; fi
+
+export FNOX_AGE_KEY_FILE=~/.ssh/fnox_ed25519

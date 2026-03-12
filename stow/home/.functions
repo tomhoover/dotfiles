@@ -360,3 +360,14 @@ function gmr() {
 function gdot() {
     grep -in "$@" ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/home/.rc.d/* ~/.SECRETS ~/.aliases ~/.envs ~/.extra ~/.functions
 }
+
+# https://github.com/jdx/fnox/discussions/320
+# usage: fnox-reencrypt default staging dev prod
+function fnox-reencrypt() {
+  if [ $# -eq 0 ]; then echo "Must supply at least one profile (e.g. 'fnox-reencrypt default staging dev prod')"; fi
+  for profile in "$@"; do
+    fnox list --profile "$profile" | awk '/provider \(age\)/ {print $1}' | while read env_key; do
+      fnox set "$env_key" "$(fnox get "$env_key" --profile "$profile")" --provider age --profile "$profile"
+    done
+  done
+}
