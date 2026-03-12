@@ -172,7 +172,7 @@
     fixup = !sh -c 'git commit --no-verify --fixup=$1' -
     squash = !sh -c 'git commit --no-verify --squash=$1' -
     # And for doing a rebase interactive which will always benefit from the automatic reordering of commits meant to be squashed:
-    ri = rebase --interactive --autosquash
+    ri = rebase --interactive --autosquash --no-verify
 
 ; }}}
 
