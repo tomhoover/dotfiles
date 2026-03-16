@@ -208,7 +208,7 @@ if [ `uname` = Darwin ] ; then
     alias pumpitup="osascript -e 'set volume 7'"
 fi
 
-alias mux='tmuxinator'
+alias mux='tmuxifier'
 
 # always include --minimal & --stats options when running 'mr'
 alias mr='command mr --minimal --stats'
