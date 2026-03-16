@@ -185,8 +185,16 @@ create_ssh_key() { #{{{
 clone_apt_vcsh() { #{{{
   if isdebian; then
     github_vclone apt
-    sudo aptitude install "$(cat ~/.config/apt/installed)"
-    sudo apt-mark manual "$(cat ~/.config/apt/installed)" # this line is probably not needed, but added for good measure
+    if [ -f "$HOME/.config/apt/installed" ]; then
+      mapfile -t apt_pkgs <"$HOME/.config/apt/installed"
+      if [ "${#apt_pkgs[@]}" -gt 0 ]; then
+        sudo apt-get update
+        sudo apt-get --yes install "${apt_pkgs[@]}"
+        sudo apt-mark manual "${apt_pkgs[@]}" # this line is probably not needed, but added for good measure
+      fi
+    else
+      warn "$HOME/.config/apt/installed not found; skipping apt package restore"
+    fi
   fi
 } #}}}
 
