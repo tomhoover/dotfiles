@@ -13,6 +13,8 @@ setup() {
 
     export VCSH_CALL_LOG="${BATS_TEST_TMPDIR}/vcsh.log"
     rm -f "$VCSH_CALL_LOG"
+    export BACKUP_LOG="${BATS_TEST_TMPDIR}/backup.log"
+    rm -f "$BACKUP_LOG"
 
     export RUNNER="${BATS_TEST_TMPDIR}/runner.sh"
     cat >"$RUNNER" <<'EOF'
@@ -21,6 +23,8 @@ source "${REPO_ROOT}/script/bootstrap"
 [[ -n "${MYHOST_OVERRIDE+x}" ]] && MYHOST="${MYHOST_OVERRIDE}"
 # Override BIN after bootstrap has set it so vcsh/git calls go through mocks.
 BIN="${MOCK_BIN}"
+# Mock backup_file to record calls without moving files.
+backup_file() { echo "backup_file $1" >> "$BACKUP_LOG"; }
 "$@"
 EOF
     chmod +x "$RUNNER"
@@ -29,6 +33,7 @@ EOF
 teardown() {
     rm -f "$BIN/vcsh"
     rm -f "$VCSH_CALL_LOG" "${VCSH_CALL_LOG}.pull_count"
+    rm -f "$BACKUP_LOG"
 }
 
 # ---------------------------------------------------------------------------
@@ -64,9 +69,9 @@ case "\$subcmd" in
     [ "\$_n" -eq 1 ] && exit ${pull_exit} || exit 0
     ;;
   checkout)
-    # Emit a whitespace-prefixed line so the grep '^\s+' pipeline in
-    # github_vclone's backup path doesn't exit 1 under set -o pipefail.
+    # Emit whitespace-prefixed lines so the backup path is exercised.
     echo "  conflict-file"
+    echo "  conflict file with spaces"
     exit ${checkout_exit}
     ;;
   config)   exit ${config_exit}   ;;
@@ -82,6 +87,10 @@ vcsh_was_called_with() {
 
 vcsh_was_not_called_with() {
     ! grep -qF -- "$*" "$VCSH_CALL_LOG" 2>/dev/null
+}
+
+backup_was_called_for() {
+    grep -qF -- "backup_file $1" "$BACKUP_LOG" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
@@ -173,6 +182,13 @@ vcsh_was_not_called_with() {
     make_vcsh clone=1 pull=1 checkout=0
     run "$RUNNER" github_vclone "dotfiles"
     assert_output --partial "successfully cloned after backup"
+}
+
+@test "github_vclone: backs up conflicting files with spaces" {
+    make_vcsh clone=1 pull=1 checkout=0
+    run "$RUNNER" github_vclone "dotfiles"
+    run backup_was_called_for "conflict file with spaces"
+    assert_success
 }
 
 # ---------------------------------------------------------------------------

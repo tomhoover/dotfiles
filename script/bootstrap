@@ -233,7 +233,13 @@ vclone() { #{{{
     return 0
   else
     error "Conflicting files found..."
-    "$BIN"/vcsh "$name" checkout master 2>&1 | grep -E '^\s+' | xargs -I{} -n1 bash -c 'backup_file "{}"'
+    "$BIN"/vcsh "$name" checkout master 2>&1 \
+      | grep -E '^[[:space:]]+' \
+      | while IFS= read -r path; do
+        # Trim leading whitespace from vcsh conflict output.
+        path="${path#"${path%%[![:space:]]*}"}"
+        [ -n "$path" ] && backup_file "$path"
+      done
     "$BIN"/vcsh "$name" checkout master 2>&1 && "$BIN"/vcsh "$name" pull && success "${name} successfully cloned after backup of conflicting files..." && return 0
   fi
   return 1
