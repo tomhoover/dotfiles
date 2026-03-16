@@ -184,6 +184,12 @@ EOF
     assert_output --partial "$MOCK_BIN/audible"
 }
 
+@test "versions: does not fail when mise ls has no config.toml entries" {
+    make_mise_with_tools "node    20.0.0  /tmp/other.toml"
+    run bash "$SCRIPT"
+    assert_success
+}
+
 @test "versions: deduplicates tool names from mise ls output" {
     cat >"$MOCK_BIN/node" <<'EOF'
 #!/bin/bash

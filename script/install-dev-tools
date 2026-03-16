@@ -98,7 +98,7 @@ echo
 cd "$HOME"
 # the following checks each executable for multiple versions that may exist on the PATH
 # shellcheck disable=SC2088 # tilde in single-quoted grep pattern is intentional literal match
-for x in $(mise ls | grep '~/.config/mise/config.toml' | sed -e 's/ .*//' -e 's/^go:.*\///' -e 's/^pipx://' -e 's/^audible-cli$/audible/' | sort -u); do
+for x in $(mise ls | grep '~/.config/mise/config.toml' | sed -e 's/ .*//' -e 's/^go:.*\///' -e 's/^pipx://' -e 's/^audible-cli$/audible/' | sort -u || true); do
   type -a "${x}" 2>/dev/null | sed -e 's/^.* is //' || true
   echo
 done

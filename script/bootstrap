@@ -330,7 +330,7 @@ install_paru_customizepkg() { #{{{
     cd "${AURDEST}/paru" && makepkg -sri && makepkg -code
   fi
   if [ ! -d "${AURDEST}/customizepkg-git" ]; then
-    rm ~/.config/paru/paru.conf
+    rm -f ~/.config/paru/paru.conf
     paru -S customizepkg-git
   fi
   if [ ! -f ~/.config/paru/paru.conf ]; then
