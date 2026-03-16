@@ -27,6 +27,7 @@ STOW_DOTFILES=( #{{{
 ) #}}}
 
 REQUIRED_PKGS=( #{{{
+  curl
   git
   myrepos
   stow
