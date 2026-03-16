@@ -186,7 +186,10 @@ clone_apt_vcsh() { #{{{
   if isdebian; then
     github_vclone apt
     if [ -f "$HOME/.config/apt/installed" ]; then
-      mapfile -t apt_pkgs <"$HOME/.config/apt/installed"
+      apt_pkgs=()
+      while IFS= read -r line || [ -n "$line" ]; do
+        [ -n "$line" ] && apt_pkgs+=("$line")
+      done <"$HOME/.config/apt/installed"
       if [ "${#apt_pkgs[@]}" -gt 0 ]; then
         sudo apt-get update
         sudo apt-get --yes install "${apt_pkgs[@]}"
