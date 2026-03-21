@@ -61,7 +61,7 @@ bind-key -N 'Split window vertically & prompt for command' - command-prompt -p "
 # unbind-key C-b
 unbind-key C-a
 # remove the following line when I've learned the new tmux prefix
-bind-key -n -N 'Reminder that C-Space is now the tmux prefix' C-a display-message "Reminder that C-Space is now the tmux prefix"
+# bind-key -n -N 'Reminder that C-Space is now the tmux prefix' C-a display-message "Reminder that C-Space is now the tmux prefix"
 set-option -g prefix C-Space
 bind-key -N 'Select the last (previously selected) window' C-Space last-window
 
