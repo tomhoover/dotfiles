@@ -1,0 +1,26 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "plan",
+  "model": "opencode/minimax-m2.5-free",
+  "agent": {
+    "plan": {
+      "mode": "primary",
+      "model": "opencode/gemini-3-flash",
+      "temperature": 0.1
+    },
+    "build": {
+      "mode": "primary",
+      "model": "opencode/minimax-m2.5"
+    },
+    "general": {
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "description": "General questions and help"
+    },
+    "explore": {
+      "mode": "subagent",
+      "model": "opencode/minimax-m2.5-free",
+      "description": "Fast code exploration"
+    }
+  }
+}
