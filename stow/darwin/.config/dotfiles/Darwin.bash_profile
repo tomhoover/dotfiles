@@ -1,5 +1,5 @@
-[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 [ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 export DARWIN_BASH_PROFILE_LOADED=1
 
 # Case-insensitive globbing (used in pathname expansion)

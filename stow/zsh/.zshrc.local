@@ -1,15 +1,20 @@
 # shellcheck shell=bash disable=SC1090
-
-[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 [ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 export ZSHRC_LOCAL_LOADED=1
+# start time zsh startup
+# zmodload zsh/zprof
 
 unset -f battery
 
 SHEL=zsh
 # shellcheck disable=SC1036,SC1058,SC1072,SC1073
 for rc in ~/.rc.d/*.(sh|zsh); do
+    # timer=$(($(gdate +%s%N)/1000000))
     [ -r "$rc" ] && [ -f "$rc" ] && source "$rc"
+    # now=$(($(gdate +%s%N)/1000000))
+    # elapsed=$(($now-$timer))
+    # echo $elapsed":" "$rc"
 done
 unset rc
 
@@ -52,3 +57,6 @@ fi
 
 [ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 [ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOCAL_ENDED" | tee -a /tmp/shell-init.txt
+
+# end time zsh startup
+# zprof

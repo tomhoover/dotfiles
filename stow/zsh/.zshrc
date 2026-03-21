@@ -1,6 +1,6 @@
 # shellcheck disable=all
-[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 [ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZSHRC_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 export ZSHRC_LOADED=1
 
 # Filename:      /etc/zsh/zshrc

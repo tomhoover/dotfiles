@@ -1,7 +1,6 @@
 # shellcheck shell=bash disable=SC1090
-
-[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 [ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: ZPROFILE_LOADED" | tee -a /tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 export ZPROFILE_LOADED=1
 
 [ -r ~/.profile ] && emulate sh -c 'source ~/.profile'
