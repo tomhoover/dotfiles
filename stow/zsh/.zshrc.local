@@ -34,6 +34,12 @@ autoload -Uz compinit bashcompinit
 compinit
 bashcompinit
 
+# enable tab completion of hidden files
+# https://unix.stackexchange.com/questions/308315/how-can-i-configure-zsh-completion-to-show-hidden-files-and-folders
+_comp_options+=(globdots)
+# remove completion of '..' as set in .zshrc:
+zstyle ':completion:*' special-dirs false
+
 # ----------
 
 # Use starship prompt if available, otherwise liquidprompt or customized grml prompt
