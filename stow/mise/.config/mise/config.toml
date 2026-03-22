@@ -24,6 +24,7 @@ _.fnox-env = { tools = true }
 # "pipx:flake8" = "latest"
 # "pipx:isort" = "latest"
 # "pipx:pylint" = "latest"
+"aqua:runkids/skillshare" = "latest"
 "github:anomalyco/opencode" = "latest"
 "pipx:audible-cli" = "latest"
 "pipx:ipython" = "latest"

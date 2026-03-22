@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/runkids/skillshare/main/schemas/config.schema.json
+source: ~/.config/skillshare/skills
+extras_source: ~/.config/skillshare/extras
+mode: merge
+targets:
+    claude:
+        path: ~/.claude/skills
+    codex:
+        path: ~/.codex/skills
+    gemini:
+        path: ~/.gemini/skills
+    opencode:
+        path: ~/.config/opencode/skills
+    universal:
+        path: ~/.agents/skills
+ignore:
+    - '**/.DS_Store'
+    - '**/.git/**'
+audit:
+    # block_threshold: CRITICAL
+    # VALID_BLOCK_THRESHOLDS = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO']
+    block_threshold: MEDIUM
