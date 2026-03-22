@@ -65,7 +65,20 @@ unbind-key C-a
 set-option -g prefix C-Space
 bind-key -N 'Select the last (previously selected) window' C-Space last-window
 
-bind-key -N 'Toggle mouse mode' M-m set -g mouse\; display-message "mouse is now #{?mouse,on,off}"
+# bind-key -N 'Toggle mouse mode' M-m set -g mouse\; display-message "mouse is now #{?mouse,on,off}"
+bind-key -N 'Toggle mouse mode' M-m run-shell 'if [ "$(tmux show -gv mouse)" = "on" ]; then tmux set -g mouse off; tmux set -g @mouse 0; tmux display-message "mouse is now off"; else tmux set -g mouse on; tmux set -g @mouse 1; tmux display-message "mouse is now on"; fi'
+# Set initial mouse state to off.
+set -g mouse off
+set -g @mouse 0
+
+# Ghostty forwards discrete scroll wheel events as mouse events even when tmux
+# mouse mode is off. Override default WheelUpPane/WheelDownPane bindings to send
+# arrow keys (CLI history navigation) when mouse mode is off, matching behavior
+# of trackpad-based machines where Ghostty converts scroll to arrow keys.
+# @mouse is a 1/0 user option kept in sync with the mouse toggle above.
+bind-key -T root WheelUpPane   if -F '#{@mouse}' { if -F '#{pane_in_mode}' 'send-keys -M' 'copy-mode -e' } { send-keys Up }
+bind-key -T root WheelDownPane if -F '#{@mouse}' { if -F '#{pane_in_mode}' 'send-keys -M' '' }            { send-keys Down }
+
 bind-key -N 'Toggle synchronize panes' M-s set-window-option synchronize-panes\; display-message "synchronize-panes is now #{?pane_synchronized,on,off}"
 
 # https://www.bugsnag.com/blog/tmux-and-vim
