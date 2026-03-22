@@ -1,7 +1,9 @@
 # shellcheck shell=bash
 
 if command -v tmuxifier &>/dev/null; then
+    alias mux='tmuxifier'
     export TMUXIFIER_LAYOUT_PATH="$HOME/.config/tmuxifier/layouts"
+
     _bin="$(command -v tmuxifier)"
     _cache="${XDG_CACHE_HOME:-$HOME/.cache}/tmuxifier/init.${SHEL}"
     if [[ ! -f "$_cache" || "$_bin" -nt "$_cache" ]]; then
