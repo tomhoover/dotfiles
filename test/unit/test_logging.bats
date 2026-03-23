@@ -2,24 +2,24 @@
 load '../helpers/mocks'
 
 setup() {
-    export HOME="${BATS_TEST_TMPDIR}/home"
-    mkdir -p "$HOME"
-    export PATH="${BATS_TEST_TMPDIR}/bin:$PATH"
-    mkdir -p "${BATS_TEST_TMPDIR}/bin"
+  export HOME="${BATS_TEST_TMPDIR}/home"
+  mkdir -p "$HOME"
+  export PATH="${BATS_TEST_TMPDIR}/bin:$PATH"
+  mkdir -p "${BATS_TEST_TMPDIR}/bin"
 
-    export RUNNER="${BATS_TEST_TMPDIR}/runner.sh"
-    cat >"$RUNNER" <<'EOF'
+  export RUNNER="${BATS_TEST_TMPDIR}/runner.sh"
+  cat >"$RUNNER" <<'EOF'
 #!/bin/bash
 source ./script/bootstrap
 [[ -n "${MYHOST_OVERRIDE+x}" ]] && MYHOST="${MYHOST_OVERRIDE}"
 "$@"
 EOF
-    chmod +x "$RUNNER"
+  chmod +x "$RUNNER"
 }
 
 teardown() {
-    rm -f "${BATS_TEST_TMPDIR}/bin/uname"
-    rm -f "${BATS_TEST_TMPDIR}/bin/tput"
+  rm -f "${BATS_TEST_TMPDIR}/bin/uname"
+  rm -f "${BATS_TEST_TMPDIR}/bin/tput"
 }
 
 # ---------------------------------------------------------------------------
@@ -27,20 +27,20 @@ teardown() {
 # ---------------------------------------------------------------------------
 
 make_uname() {
-    cat >"${BATS_TEST_TMPDIR}/bin/uname" <<EOF
+  cat >"${BATS_TEST_TMPDIR}/bin/uname" <<EOF
 #!/bin/bash
 echo "$1"
 EOF
-    chmod +x "${BATS_TEST_TMPDIR}/bin/uname"
+  chmod +x "${BATS_TEST_TMPDIR}/bin/uname"
 }
 
 # Stub tput to return empty strings, simulating non-interactive / no-color
 stub_tput_empty() {
-    cat >"${BATS_TEST_TMPDIR}/bin/tput" <<'EOF'
+  cat >"${BATS_TEST_TMPDIR}/bin/tput" <<'EOF'
 #!/bin/bash
 echo ""
 EOF
-    chmod +x "${BATS_TEST_TMPDIR}/bin/tput"
+  chmod +x "${BATS_TEST_TMPDIR}/bin/tput"
 }
 
 # ---------------------------------------------------------------------------
@@ -48,33 +48,33 @@ EOF
 # ---------------------------------------------------------------------------
 
 @test "error: outputs to stderr" {
-    run "$RUNNER" error "something went wrong"
-    # bats 'run' captures both streams by default; check output contains the message
-    assert_output --partial "something went wrong"
+  run "$RUNNER" error "something went wrong"
+  # bats 'run' captures both streams by default; check output contains the message
+  assert_output --partial "something went wrong"
 }
 
 @test "error: message contains ERROR label" {
-    run "$RUNNER" error "disk full"
-    assert_output --partial "ERROR"
+  run "$RUNNER" error "disk full"
+  assert_output --partial "ERROR"
 }
 
 @test "error: message contains input text" {
-    run "$RUNNER" error "disk full"
-    assert_output --partial "disk full"
+  run "$RUNNER" error "disk full"
+  assert_output --partial "disk full"
 }
 
 @test "error: message contains error symbol" {
-    stub_tput_empty
-    run "$RUNNER" error "oops"
-    assert_output --partial "✘"
+  stub_tput_empty
+  run "$RUNNER" error "oops"
+  assert_output --partial "✘"
 }
 
 @test "error: exits with non-zero status when used with set -e" {
-    # error() itself does not exit — it just prints. This confirms it returns 0
-    # and does not itself terminate the script.
-    run "$RUNNER" error "test"
-    # exit code is 0 because error() uses echo which succeeds
-    assert_success
+  # error() itself does not exit — it just prints. This confirms it returns 0
+  # and does not itself terminate the script.
+  run "$RUNNER" error "test"
+  # exit code is 0 because error() uses echo which succeeds
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -82,19 +82,19 @@ EOF
 # ---------------------------------------------------------------------------
 
 @test "warn: message contains WARNING label" {
-    run "$RUNNER" warn "low disk"
-    assert_output --partial "WARNING"
+  run "$RUNNER" warn "low disk"
+  assert_output --partial "WARNING"
 }
 
 @test "warn: message contains input text" {
-    run "$RUNNER" warn "low disk space"
-    assert_output --partial "low disk space"
+  run "$RUNNER" warn "low disk space"
+  assert_output --partial "low disk space"
 }
 
 @test "warn: message contains warning symbol" {
-    stub_tput_empty
-    run "$RUNNER" warn "careful"
-    assert_output --partial "‼"
+  stub_tput_empty
+  run "$RUNNER" warn "careful"
+  assert_output --partial "‼"
 }
 
 # ---------------------------------------------------------------------------
@@ -102,8 +102,8 @@ EOF
 # ---------------------------------------------------------------------------
 
 @test "info: message contains input text" {
-    run "$RUNNER" info "starting up"
-    assert_output --partial "starting up"
+  run "$RUNNER" info "starting up"
+  assert_output --partial "starting up"
 }
 
 # ---------------------------------------------------------------------------
@@ -111,14 +111,14 @@ EOF
 # ---------------------------------------------------------------------------
 
 @test "success: message contains input text" {
-    run "$RUNNER" success "all done"
-    assert_output --partial "all done"
+  run "$RUNNER" success "all done"
+  assert_output --partial "all done"
 }
 
 @test "success: message contains checkmark symbol" {
-    stub_tput_empty
-    run "$RUNNER" success "completed"
-    assert_output --partial "✔"
+  stub_tput_empty
+  run "$RUNNER" success "completed"
+  assert_output --partial "✔"
 }
 
 # ---------------------------------------------------------------------------
@@ -126,9 +126,9 @@ EOF
 # ---------------------------------------------------------------------------
 
 @test "color variables are empty when stdout is not a terminal" {
-    # bootstrap sets colors via tput only when [ -t 1 ] (stdout is a TTY).
-    # When run via bats, stdout is not a TTY, so all color vars should be empty.
-    # shellcheck disable=SC2016
-    run "$RUNNER" bash -c 'source ./script/bootstrap; printf "%s" "$RED"'
-    assert_output ""
+  # bootstrap sets colors via tput only when [ -t 1 ] (stdout is a TTY).
+  # When run via bats, stdout is not a TTY, so all color vars should be empty.
+  # shellcheck disable=SC2016
+  run "$RUNNER" bash -c 'source ./script/bootstrap; printf "%s" "$RED"'
+  assert_output ""
 }

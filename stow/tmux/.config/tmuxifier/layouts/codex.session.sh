@@ -7,15 +7,15 @@ session_root "$(pwd -P)"
 # argument is given, session name will be based on layout file name.
 if initialize_session "CO_$(basename "$(pwd -P)")"; then
 
-    # Create a new window inline within session layout definition.
-    #new_window "misc"
+  # Create a new window inline within session layout definition.
+  #new_window "misc"
 
-    # Load a defined window layout.
-    load_window "codex"
-    load_window "nvim"
+  # Load a defined window layout.
+  load_window "codex"
+  load_window "nvim"
 
-    # Select the default active window on session creation.
-    select_window 1
+  # Select the default active window on session creation.
+  select_window 1
 
 fi
 

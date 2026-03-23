@@ -17,40 +17,40 @@ REPO_ROOT="$(cd "${BATS_TEST_DIRNAME}/../.." && pwd)"
 # ---------------------------------------------------------------------------
 
 stub_uname_darwin() {
-    mkdir -p "${BATS_TEST_TMPDIR}/bin"
-    cat >"${BATS_TEST_TMPDIR}/bin/uname" <<'EOF'
+  mkdir -p "${BATS_TEST_TMPDIR}/bin"
+  cat >"${BATS_TEST_TMPDIR}/bin/uname" <<'EOF'
 #!/bin/bash
 echo "Darwin"
 EOF
-    chmod +x "${BATS_TEST_TMPDIR}/bin/uname"
+  chmod +x "${BATS_TEST_TMPDIR}/bin/uname"
 }
 
 stub_uname_linux() {
-    mkdir -p "${BATS_TEST_TMPDIR}/bin"
-    cat >"${BATS_TEST_TMPDIR}/bin/uname" <<'EOF'
+  mkdir -p "${BATS_TEST_TMPDIR}/bin"
+  cat >"${BATS_TEST_TMPDIR}/bin/uname" <<'EOF'
 #!/bin/bash
 echo "Linux"
 EOF
-    chmod +x "${BATS_TEST_TMPDIR}/bin/uname"
+  chmod +x "${BATS_TEST_TMPDIR}/bin/uname"
 }
 
 stub_uname_arch() {
-    stub_uname_linux
-    mkdir -p "${BATS_TEST_TMPDIR}/etc"
-    echo "ID=arch" >"${BATS_TEST_TMPDIR}/etc/os-release"
-    export OS_RELEASE="${BATS_TEST_TMPDIR}/etc/os-release"
+  stub_uname_linux
+  mkdir -p "${BATS_TEST_TMPDIR}/etc"
+  echo "ID=arch" >"${BATS_TEST_TMPDIR}/etc/os-release"
+  export OS_RELEASE="${BATS_TEST_TMPDIR}/etc/os-release"
 }
 
 stub_uname_debian() {
-    stub_uname_linux
-    mkdir -p "${BATS_TEST_TMPDIR}/etc"
-    printf 'ID=debian\nVERSION_CODENAME=bookworm\n' >"${BATS_TEST_TMPDIR}/etc/os-release"
-    export OS_RELEASE="${BATS_TEST_TMPDIR}/etc/os-release"
+  stub_uname_linux
+  mkdir -p "${BATS_TEST_TMPDIR}/etc"
+  printf 'ID=debian\nVERSION_CODENAME=bookworm\n' >"${BATS_TEST_TMPDIR}/etc/os-release"
+  export OS_RELEASE="${BATS_TEST_TMPDIR}/etc/os-release"
 }
 
 stub_uname_fedora() {
-    stub_uname_linux
-    mkdir -p "${BATS_TEST_TMPDIR}/etc"
-    echo "ID=fedora" >"${BATS_TEST_TMPDIR}/etc/os-release"
-    export OS_RELEASE="${BATS_TEST_TMPDIR}/etc/os-release"
+  stub_uname_linux
+  mkdir -p "${BATS_TEST_TMPDIR}/etc"
+  echo "ID=fedora" >"${BATS_TEST_TMPDIR}/etc/os-release"
+  export OS_RELEASE="${BATS_TEST_TMPDIR}/etc/os-release"
 }

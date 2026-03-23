@@ -2,8 +2,7 @@
 
 # vim: set tw=120 fdm=marker commentstring=#%s:
 
-install_AUR_pkg()
-{ #{{{
+install_AUR_pkg() { #{{{
   if [ ! -d "$HOME/.cache/AUR/$1" ]; then
     echo
     echo "$(tput setaf 1)Installing $1...$(tput sgr0)"

@@ -13,13 +13,13 @@ trim_trailing_whitespace = true
 [Makefile]
 indent_style = tab
 
-[config]
-indent_size = 4
-indent_style = space
+# [config]
+# indent_size = 4
+# indent_style = space
 
-[shell]
+[[shell]]
 binary_next_line   = true
-# function_next_line = true
+# function_next_line = true # Controls the placement of function opening braces.
 switch_case_indent = true
 
 [*.{c,h,cmake,txt}]

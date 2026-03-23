@@ -2,22 +2,22 @@
 load '../helpers/mocks'
 
 setup() {
-    export HOME="${BATS_TEST_TMPDIR}/home"
-    mkdir -p "$HOME"
-    export PATH="${BATS_TEST_TMPDIR}/bin:$PATH"
-    export BIN="${BATS_TEST_TMPDIR}/bin"
-    mkdir -p "$BIN"
-    # REPO_ROOT is set by mocks.bash at load time. MOCK_BIN must be set here
-    # because BATS_TEST_TMPDIR is only available per-test, not at load time.
-    export MOCK_BIN="${BATS_TEST_TMPDIR}/bin"
+  export HOME="${BATS_TEST_TMPDIR}/home"
+  mkdir -p "$HOME"
+  export PATH="${BATS_TEST_TMPDIR}/bin:$PATH"
+  export BIN="${BATS_TEST_TMPDIR}/bin"
+  mkdir -p "$BIN"
+  # REPO_ROOT is set by mocks.bash at load time. MOCK_BIN must be set here
+  # because BATS_TEST_TMPDIR is only available per-test, not at load time.
+  export MOCK_BIN="${BATS_TEST_TMPDIR}/bin"
 
-    export VCSH_CALL_LOG="${BATS_TEST_TMPDIR}/vcsh.log"
-    rm -f "$VCSH_CALL_LOG"
-    export BACKUP_LOG="${BATS_TEST_TMPDIR}/backup.log"
-    rm -f "$BACKUP_LOG"
+  export VCSH_CALL_LOG="${BATS_TEST_TMPDIR}/vcsh.log"
+  rm -f "$VCSH_CALL_LOG"
+  export BACKUP_LOG="${BATS_TEST_TMPDIR}/backup.log"
+  rm -f "$BACKUP_LOG"
 
-    export RUNNER="${BATS_TEST_TMPDIR}/runner.sh"
-    cat >"$RUNNER" <<'EOF'
+  export RUNNER="${BATS_TEST_TMPDIR}/runner.sh"
+  cat >"$RUNNER" <<'EOF'
 #!/bin/bash
 source "${REPO_ROOT}/script/bootstrap"
 [[ -n "${MYHOST_OVERRIDE+x}" ]] && MYHOST="${MYHOST_OVERRIDE}"
@@ -27,13 +27,13 @@ BIN="${MOCK_BIN}"
 backup_file() { echo "backup_file $1" >> "$BACKUP_LOG"; }
 "$@"
 EOF
-    chmod +x "$RUNNER"
+  chmod +x "$RUNNER"
 }
 
 teardown() {
-    rm -f "$BIN/vcsh"
-    rm -f "$VCSH_CALL_LOG" "${VCSH_CALL_LOG}.pull_count"
-    rm -f "$BACKUP_LOG"
+  rm -f "$BIN/vcsh"
+  rm -f "$VCSH_CALL_LOG" "${VCSH_CALL_LOG}.pull_count"
+  rm -f "$BACKUP_LOG"
 }
 
 # ---------------------------------------------------------------------------
@@ -41,18 +41,18 @@ teardown() {
 # ---------------------------------------------------------------------------
 
 make_vcsh() {
-    local clone_exit=0 pull_exit=0 checkout_exit=0 config_exit=0
+  local clone_exit=0 pull_exit=0 checkout_exit=0 config_exit=0
 
-    for arg in "$@"; do
-        case "$arg" in
-        clone=*) clone_exit="${arg#*=}" ;;
-        pull=*) pull_exit="${arg#*=}" ;;
-        checkout=*) checkout_exit="${arg#*=}" ;;
-        config=*) config_exit="${arg#*=}" ;;
-        esac
-    done
+  for arg in "$@"; do
+    case "$arg" in
+      clone=*) clone_exit="${arg#*=}" ;;
+      pull=*) pull_exit="${arg#*=}" ;;
+      checkout=*) checkout_exit="${arg#*=}" ;;
+      config=*) config_exit="${arg#*=}" ;;
+    esac
+  done
 
-    cat >"$BIN/vcsh" <<EOF
+  cat >"$BIN/vcsh" <<EOF
 #!/bin/bash
 echo "vcsh \$@" >> "$VCSH_CALL_LOG"
 subcmd="\$1"
@@ -78,19 +78,19 @@ case "\$subcmd" in
   *)        exit 0                ;;
 esac
 EOF
-    chmod +x "$BIN/vcsh"
+  chmod +x "$BIN/vcsh"
 }
 
 vcsh_was_called_with() {
-    grep -qF -- "$*" "$VCSH_CALL_LOG" 2>/dev/null
+  grep -qF -- "$*" "$VCSH_CALL_LOG" 2>/dev/null
 }
 
 vcsh_was_not_called_with() {
-    ! grep -qF -- "$*" "$VCSH_CALL_LOG" 2>/dev/null
+  ! grep -qF -- "$*" "$VCSH_CALL_LOG" 2>/dev/null
 }
 
 backup_was_called_for() {
-    grep -qF -- "backup_file $1" "$BACKUP_LOG" 2>/dev/null
+  grep -qF -- "backup_file $1" "$BACKUP_LOG" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------
@@ -98,37 +98,37 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "github_vclone: succeeds on first clone" {
-    make_vcsh clone=0
-    run "$RUNNER" github_vclone "dotfiles"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" github_vclone "dotfiles"
+  assert_success
 }
 
 @test "github_vclone: prints success message on first clone" {
-    make_vcsh clone=0
-    run "$RUNNER" github_vclone "dotfiles"
-    assert_output --partial "successfully cloned"
+  make_vcsh clone=0
+  run "$RUNNER" github_vclone "dotfiles"
+  assert_output --partial "successfully cloned"
 }
 
 @test "github_vclone: clones from correct GitHub URL" {
-    make_vcsh clone=0
-    run "$RUNNER" github_vclone "dotfiles"
-    run vcsh_was_called_with "clone https://github.com/tomhoover/dotfiles-vcsh.git dotfiles"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" github_vclone "dotfiles"
+  run vcsh_was_called_with "clone https://github.com/tomhoover/dotfiles-vcsh.git dotfiles"
+  assert_success
 }
 
 @test "github_vclone: sets core.bare to false after successful clone" {
-    make_vcsh clone=0
-    run "$RUNNER" github_vclone "dotfiles"
-    run vcsh_was_called_with "config set core.bare false"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" github_vclone "dotfiles"
+  run vcsh_was_called_with "config set core.bare false"
+  assert_success
 }
 
 @test "github_vclone: uses \$1 not \$REPO in config commands after clone" {
-    make_vcsh clone=0
-    unset REPO
-    run "$RUNNER" github_vclone "dotfiles"
-    run vcsh_was_not_called_with "vcsh  config"
-    assert_success
+  make_vcsh clone=0
+  unset REPO
+  run "$RUNNER" github_vclone "dotfiles"
+  run vcsh_was_not_called_with "vcsh  config"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -136,22 +136,22 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "github_vclone: falls back to pull when clone fails" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" github_vclone "dotfiles"
-    assert_success
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" github_vclone "dotfiles"
+  assert_success
 }
 
 @test "github_vclone: prints 'updated via pull' message on pull fallback" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" github_vclone "dotfiles"
-    assert_output --partial "successfully updated via pull"
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" github_vclone "dotfiles"
+  assert_output --partial "successfully updated via pull"
 }
 
 @test "github_vclone: pull uses correct repo name" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" github_vclone "dotfiles"
-    run vcsh_was_called_with "dotfiles pull"
-    assert_success
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" github_vclone "dotfiles"
+  run vcsh_was_called_with "dotfiles pull"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -159,36 +159,36 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "github_vclone: attempts checkout when clone and pull both fail" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" github_vclone "dotfiles"
-    run vcsh_was_called_with "dotfiles checkout master"
-    assert_success
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" github_vclone "dotfiles"
+  run vcsh_was_called_with "dotfiles checkout master"
+  assert_success
 }
 
 @test "github_vclone: prints error message when conflicting files found" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" github_vclone "dotfiles"
-    assert_output --partial "Conflicting files found"
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" github_vclone "dotfiles"
+  assert_output --partial "Conflicting files found"
 }
 
 @test "github_vclone: pulls after successful checkout and backup" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" github_vclone "dotfiles"
-    run vcsh_was_called_with "dotfiles pull"
-    assert_success
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" github_vclone "dotfiles"
+  run vcsh_was_called_with "dotfiles pull"
+  assert_success
 }
 
 @test "github_vclone: prints cloned-after-backup success message" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" github_vclone "dotfiles"
-    assert_output --partial "successfully cloned after backup"
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" github_vclone "dotfiles"
+  assert_output --partial "successfully cloned after backup"
 }
 
 @test "github_vclone: backs up conflicting files with spaces" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" github_vclone "dotfiles"
-    run backup_was_called_for "conflict file with spaces"
-    assert_success
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" github_vclone "dotfiles"
+  run backup_was_called_for "conflict file with spaces"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -196,9 +196,9 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "github_vclone: returns failure when clone, pull, and checkout all fail" {
-    make_vcsh clone=1 pull=1 checkout=1
-    run "$RUNNER" github_vclone "dotfiles"
-    assert_failure
+  make_vcsh clone=1 pull=1 checkout=1
+  run "$RUNNER" github_vclone "dotfiles"
+  assert_failure
 }
 
 # ---------------------------------------------------------------------------
@@ -206,26 +206,26 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "github_vclone: works with repo name 'apt'" {
-    make_vcsh clone=0
-    run "$RUNNER" github_vclone "apt"
-    assert_success
-    run vcsh_was_called_with "clone https://github.com/tomhoover/apt-vcsh.git apt"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" github_vclone "apt"
+  assert_success
+  run vcsh_was_called_with "clone https://github.com/tomhoover/apt-vcsh.git apt"
+  assert_success
 }
 
 @test "github_vclone: works with repo name 'private'" {
-    make_vcsh clone=0
-    run "$RUNNER" github_vclone "private"
-    assert_success
-    run vcsh_was_called_with "clone https://github.com/tomhoover/private-vcsh.git private"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" github_vclone "private"
+  assert_success
+  run vcsh_was_called_with "clone https://github.com/tomhoover/private-vcsh.git private"
+  assert_success
 }
 
 @test "github_vclone: constructs URL correctly for any repo name" {
-    make_vcsh clone=0
-    run "$RUNNER" github_vclone "myrepo"
-    run vcsh_was_called_with "clone https://github.com/tomhoover/myrepo-vcsh.git myrepo"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" github_vclone "myrepo"
+  run vcsh_was_called_with "clone https://github.com/tomhoover/myrepo-vcsh.git myrepo"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -233,37 +233,37 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "gitolite_vclone: succeeds on first clone" {
-    make_vcsh clone=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  assert_success
 }
 
 @test "gitolite_vclone: clones from correct gitolite URL" {
-    make_vcsh clone=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    run vcsh_was_called_with "clone gitolite:dotfiles-vcsh.git dotfiles"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  run vcsh_was_called_with "clone gitolite:dotfiles-vcsh.git dotfiles"
+  assert_success
 }
 
 @test "gitolite_vclone: prints success message on first clone" {
-    make_vcsh clone=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    assert_output --partial "successfully cloned"
+  make_vcsh clone=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  assert_output --partial "successfully cloned"
 }
 
 @test "gitolite_vclone: sets core.bare to false after successful clone" {
-    make_vcsh clone=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    run vcsh_was_called_with "config set core.bare false"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  run vcsh_was_called_with "config set core.bare false"
+  assert_success
 }
 
 @test "gitolite_vclone: uses \$1 not \$REPO in config commands" {
-    make_vcsh clone=0
-    unset REPO
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    run vcsh_was_not_called_with "vcsh  config"
-    assert_success
+  make_vcsh clone=0
+  unset REPO
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  run vcsh_was_not_called_with "vcsh  config"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -271,15 +271,15 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "gitolite_vclone: falls back to pull when clone fails" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    assert_success
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  assert_success
 }
 
 @test "gitolite_vclone: prints 'updated via pull' on pull fallback" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    assert_output --partial "successfully updated via pull"
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  assert_output --partial "successfully updated via pull"
 }
 
 # ---------------------------------------------------------------------------
@@ -287,16 +287,16 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "gitolite_vclone: attempts checkout when clone and pull both fail" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    run vcsh_was_called_with "dotfiles checkout master"
-    assert_success
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  run vcsh_was_called_with "dotfiles checkout master"
+  assert_success
 }
 
 @test "gitolite_vclone: prints error on conflicting files" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" gitolite_vclone "dotfiles"
-    assert_output --partial "Conflicting files found"
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" gitolite_vclone "dotfiles"
+  assert_output --partial "Conflicting files found"
 }
 
 # ---------------------------------------------------------------------------
@@ -304,10 +304,10 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "gitolite_vclone: constructs URL correctly for any repo name" {
-    make_vcsh clone=0
-    run "$RUNNER" gitolite_vclone "private"
-    run vcsh_was_called_with "clone gitolite:private-vcsh.git private"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" gitolite_vclone "private"
+  run vcsh_was_called_with "clone gitolite:private-vcsh.git private"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -315,37 +315,37 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "localhost_vclone: succeeds on first clone" {
-    make_vcsh clone=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  assert_success
 }
 
 @test "localhost_vclone: clones from correct local path" {
-    make_vcsh clone=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    run vcsh_was_called_with "clone ${HOME}/git/dotfiles-vcsh.git dotfiles"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  run vcsh_was_called_with "clone ${HOME}/git/dotfiles-vcsh.git dotfiles"
+  assert_success
 }
 
 @test "localhost_vclone: prints success message on first clone" {
-    make_vcsh clone=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    assert_output --partial "successfully cloned"
+  make_vcsh clone=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  assert_output --partial "successfully cloned"
 }
 
 @test "localhost_vclone: sets core.bare to false after successful clone" {
-    make_vcsh clone=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    run vcsh_was_called_with "config set core.bare false"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  run vcsh_was_called_with "config set core.bare false"
+  assert_success
 }
 
 @test "localhost_vclone: uses \$1 not \$REPO in config commands" {
-    make_vcsh clone=0
-    unset REPO
-    run "$RUNNER" localhost_vclone "dotfiles"
-    run vcsh_was_not_called_with "vcsh  config"
-    assert_success
+  make_vcsh clone=0
+  unset REPO
+  run "$RUNNER" localhost_vclone "dotfiles"
+  run vcsh_was_not_called_with "vcsh  config"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -353,22 +353,22 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "localhost_vclone: falls back to pull when clone fails" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    assert_success
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  assert_success
 }
 
 @test "localhost_vclone: prints 'updated via pull' on pull fallback" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    assert_output --partial "successfully updated via pull"
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  assert_output --partial "successfully updated via pull"
 }
 
 @test "localhost_vclone: pull uses correct repo name" {
-    make_vcsh clone=1 pull=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    run vcsh_was_called_with "dotfiles pull"
-    assert_success
+  make_vcsh clone=1 pull=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  run vcsh_was_called_with "dotfiles pull"
+  assert_success
 }
 
 # ---------------------------------------------------------------------------
@@ -376,22 +376,22 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "localhost_vclone: attempts checkout when clone and pull both fail" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    run vcsh_was_called_with "dotfiles checkout master"
-    assert_success
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  run vcsh_was_called_with "dotfiles checkout master"
+  assert_success
 }
 
 @test "localhost_vclone: prints error on conflicting files" {
-    make_vcsh clone=1 pull=1 checkout=0
-    run "$RUNNER" localhost_vclone "dotfiles"
-    assert_output --partial "Conflicting files found"
+  make_vcsh clone=1 pull=1 checkout=0
+  run "$RUNNER" localhost_vclone "dotfiles"
+  assert_output --partial "Conflicting files found"
 }
 
 @test "localhost_vclone: returns failure when clone, pull, and checkout all fail" {
-    make_vcsh clone=1 pull=1 checkout=1
-    run "$RUNNER" localhost_vclone "dotfiles"
-    assert_failure
+  make_vcsh clone=1 pull=1 checkout=1
+  run "$RUNNER" localhost_vclone "dotfiles"
+  assert_failure
 }
 
 # ---------------------------------------------------------------------------
@@ -399,8 +399,8 @@ backup_was_called_for() {
 # ---------------------------------------------------------------------------
 
 @test "localhost_vclone: constructs URL correctly for any repo name" {
-    make_vcsh clone=0
-    run "$RUNNER" localhost_vclone "ssh"
-    run vcsh_was_called_with "clone ${HOME}/git/ssh-vcsh.git ssh"
-    assert_success
+  make_vcsh clone=0
+  run "$RUNNER" localhost_vclone "ssh"
+  run vcsh_was_called_with "clone ${HOME}/git/ssh-vcsh.git ssh"
+  assert_success
 }
