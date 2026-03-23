@@ -381,7 +381,7 @@ gmr() {
 }
 # grep dotfiles
 gdot() {
-  grep -in "$@" ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/**/.rc.d/* ~/.SECRETS
+  grep -in "$@" ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/**/.rc.d/*
 }
 
 # https://github.com/jdx/fnox/discussions/320
