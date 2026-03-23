@@ -259,12 +259,15 @@ tre() {
   tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRX
 }
 
+# unalias grep to allow the following function definition; grml .zshrc sets 'alias grep=grep --color=auto'
+unalias grep 2>/dev/null
+
 # add line numbers when when grep is the only command on the line;
 # otherwise, omit them when piping thru grep
 # https://unix.stackexchange.com/questions/25546/grep-alias-line-numbers-unless-its-in-a-pipeline/25549#25549
 grep() {
   if [ -t 1 ] && [ -t 0 ]; then
-    command grep -n "$@"
+    command grep --color=auto -n "$@"
   else
     command grep "$@"
   fi
@@ -378,7 +381,7 @@ gmr() {
 }
 # grep dotfiles
 gdot() {
-  grep -in "$@" ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/home/.rc.d/* ~/.SECRETS ~/.aliases ~/.envs ~/.extra ~/.functions
+  grep -in "$@" ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/**/.rc.d/* ~/.SECRETS ~/.extra
 }
 
 # https://github.com/jdx/fnox/discussions/320
