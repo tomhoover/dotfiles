@@ -18,14 +18,10 @@ export LC_ALL='en_US.UTF-8'
 
 # Highlight section titles in manual pages.
 # shellcheck disable=SC2154
-export LESS_TERMCAP_md="${yellow}"
+export LESS_TERMCAP_md="${YELLOW}"
 
 # Don’t clear the screen after quitting a manual page.
 export MANPAGER='less -X'
-
-# Always enable colored `grep` output.
-# GREP_OPTIONS is deprecated from grep 2.21
-# export GREP_OPTIONS='--color=auto';
 
 # setup Go workspace
 export GOPATH="${HOME}"
