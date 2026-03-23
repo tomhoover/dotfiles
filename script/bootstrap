@@ -443,9 +443,9 @@ stow_dotfiles_pkgs() { #{{{
   iszsh && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R zsh || true
   [ "${MYHOST}" = "ariel" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator || true
   [ "${MYHOST}" = "theophilus" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R i3 x11 || true
-  isdev && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R claude fnox ghostty kitty nvim opencode skillshare || true # need to add: git mise # currently unused: alacritty podman
-  #TODO
-  # "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" git mise
+  isdev && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R claude fnox ghostty kitty nvim opencode skillshare || true # currently unused: alacritty podman
+  #TODO the following line needs testing on newly installed machines
+  isdev && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R git mise || true
 } #}}}
 
 setup_etckeeper() { #{{{
