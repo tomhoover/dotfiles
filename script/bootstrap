@@ -45,6 +45,7 @@ COMMON_PKGS=( #{{{
   neovim
   ripgrep
   tmux
+  trash-cli
   tree
   vim
   yazi

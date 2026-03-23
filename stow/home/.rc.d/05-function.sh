@@ -404,3 +404,13 @@ fnox-reencrypt() {
     done
   done
 }
+
+# https://yazi-rs.github.io/docs/quick-start
+y() {
+  local tmp cwd
+  tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+  command yazi "$@" --cwd-file="$tmp"
+  IFS= read -r -d '' cwd <"$tmp"
+  [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd" || return
+  rm -f -- "$tmp"
+}
