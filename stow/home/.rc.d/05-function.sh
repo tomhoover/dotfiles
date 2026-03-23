@@ -75,11 +75,11 @@ fs() {
 
 ## Use Git's colored diff when available
 #hash git &>/dev/null;
-#if [ $? -eq 0 ]; then
-#	function diff() {
-#		git diff --no-index --color-words "$@";
-#	}
-#fi;
+# if [ $? -eq 0 ]; then
+#   function diff() {
+#     git diff --no-index --color-words "$@";
+#   }
+# fi;
 
 # Create a data URL from a file
 dataurl() {
@@ -210,25 +210,25 @@ getcertnames() {
   fi
 }
 
-# `s` with no arguments opens the current directory in Sublime Text, otherwise
-# opens the given location
-s() {
-  if [ $# -eq 0 ]; then
-    subl .
-  else
-    subl "$@"
-  fi
-}
+# # `s` with no arguments opens the current directory in Sublime Text, otherwise
+# # opens the given location
+# s() {
+#   if [ $# -eq 0 ]; then
+#     subl .
+#   else
+#     subl "$@"
+#   fi
+# }
 
-# `a` with no arguments opens the current directory in Atom Editor, otherwise
-# opens the given location
-a() {
-  if [ $# -eq 0 ]; then
-    atom .
-  else
-    atom "$@"
-  fi
-}
+# # `a` with no arguments opens the current directory in Atom Editor, otherwise
+# # opens the given location
+# a() {
+#   if [ $# -eq 0 ]; then
+#     atom .
+#   else
+#     atom "$@"
+#   fi
+# }
 
 # `v` with no arguments opens the current directory in Vim, otherwise opens the
 # given location
@@ -237,6 +237,16 @@ v() {
     vim .
   else
     vim "$@"
+  fi
+}
+
+# `e` with no arguments opens the current directory in $EDITOR, otherwise opens the
+# given location
+e() {
+  if [ $# -eq 0 ]; then
+    $EDITOR .
+  else
+    $EDITOR "$@"
   fi
 }
 

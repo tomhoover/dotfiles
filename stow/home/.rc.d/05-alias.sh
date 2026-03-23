@@ -3,6 +3,9 @@
 [ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 export ALIASES_LOADED=1
 
+# shellcheck disable=SC2139
+alias vi="$EDITOR"
+
 # Easier navigation: .., ..., ...., ....., ~ and -
 alias ..="cd .."
 alias ...="cd ../.."
@@ -231,9 +234,11 @@ alias cc='cookiecutter'
 
 # edit all files containg 'TODO' within current directory (including sub-directories)
 if command -v rg >/dev/null 2>&1; then # ripgrep installed
-  alias todo="vim -c 'cwindow' -q <(rg --vimgrep 'TODO')"
+  #shellcheck disable=SC2139
+  alias todo="$EDITOR -c 'cwindow' -q <(rg --vimgrep 'TODO')"
 else
-  alias todo="vim -c 'cwindow' -q <(grep -nr 'TODO' ./*)"
+  #shellcheck disable=SC2139
+  alias todo="$EDITOR -c 'cwindow' -q <(grep -nr 'TODO' ./*)"
 fi
 
 # mise x|exec
@@ -244,5 +249,3 @@ alias .git='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 alias cu='copier update --skip-tasks'
 
 alias ss='skillshare'
-
-[ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: ALIASES_ENDED" | tee -a /tmp/shell-init.txt

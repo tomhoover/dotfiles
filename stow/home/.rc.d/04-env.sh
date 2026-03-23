@@ -1,10 +1,16 @@
-# shellcheck shell=bash disable=SC1090
+# shellcheck shell=sh disable=SC1090
 [ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: ENVS_LOADED" | tee -a /tmp/shell-init.txt
 [ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 export ENVS_LOADED=1
 
-# Make vim the default editor.
-export EDITOR='vim'
+# Make nvim|vim|vi the default editor.
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR='nvim'
+elif command -v vim >/dev/null 2>&1; then
+  export EDITOR='vim'
+else
+  export EDITOR='vi'
+fi
 
 # Prefer US English and use UTF-8.
 export LANG='en_US.UTF-8'
@@ -70,6 +76,6 @@ export LS_COLORS='no=00:fi=00:di=36:ln=35:pi=30;44:so=35;44:do=35;44:bd=33;44:cd
 export COPIER_SETTINGS_PATH=~/.config/copier/settings.yml
 
 # acme.sh
-[ -f ~/.acme.sh/acme.sh.env ] && source ~/.acme.sh/acme.sh.env
+[ -f ~/.acme.sh/acme.sh.env ] && . ~/.acme.sh/acme.sh.env
 
 export FNOX_AGE_KEY_FILE=~/.ssh/fnox_ed25519
