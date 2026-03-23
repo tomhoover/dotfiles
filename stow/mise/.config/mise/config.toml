@@ -19,6 +19,13 @@ _.fnox-env = { tools = true }
 # Use production profile
 # _.fnox-env = { tools = true, profile = "production" }
 
+# Git credentials
+# Not included in public .gitconfig, to prevent people from accidentally committing under my name
+GIT_AUTHOR_NAME = "Tom Hoover"
+GIT_AUTHOR_EMAIL = "tom@hisword.net"
+GIT_COMMITTER_NAME = "Tom Hoover"
+GIT_COMMITTER_EMAIL = "tom@hisword.net"
+
 [tools]
 # "go:github.com/containerscrew/tftools" = "latest"
 # "pipx:flake8" = "latest"
