@@ -31,6 +31,7 @@ fixups =
     grep -q '\[remote "gitolite2"\]' .git/config && git remote remove gitolite2 || true
     grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite    gitolite:tom/dotfiles.git
     grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/dotfiles.git && git init --bare $HOME/git/dotfiles.git )
+    [ -e ~/bin/,update-stow ] && ~/bin/,update-stow || true
 
 [$HOME/bin]
 checkout = git clone 'https://github.com/tomhoover/bin.git' 'bin'
