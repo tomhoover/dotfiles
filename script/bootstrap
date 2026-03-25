@@ -57,6 +57,7 @@ ARCH_PKGS=( #{{{
   ex-vi-compat
   interception-caps2esc
   tailscale
+  xsel
   zsh
 ) #}}}
 
