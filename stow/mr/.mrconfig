@@ -31,7 +31,7 @@ fixups =
     grep -q '\[remote "gitolite2"\]' .git/config && git remote remove gitolite2 || true
     grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite    gitolite:tom/dotfiles.git
     grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/dotfiles.git && git init --bare $HOME/git/dotfiles.git )
-    [ -e ~/bin/,update-stow ] && ~/bin/,update-stow || true
+    command -v ~/bin/,update-stow ] && ~/bin/,update-stow || true
 
 [$HOME/bin]
 checkout = git clone 'https://github.com/tomhoover/bin.git' 'bin'
@@ -115,6 +115,48 @@ fixups =
     grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/fin.git && git init --bare $HOME/git/fin.git )
     #TODO
     git config remote.gitea.skipFetchAll true
+
+##### private ai-* repos on github
+
+[$HOME/.config/skillshare/skills]
+checkout = git clone 'https://github.com/tomhoover/ai-skills.git' 'skills'
+skip = lazy || ([ "$1" = update ] && ! hours_since "$1" 12)
+fetch = fetchOrigin; fetchGitolite
+push  = pushOriginMaster; pushAllGitolite
+fixups =
+    cd "$MR_REPO"
+    grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite gitolite:tom/ai-skills.git
+    command -v skillshare &>/dev/null && skillshare sync --all || true
+
+[$HOME/.config/skillshare/extras/commands]
+checkout = git clone 'https://github.com/tomhoover/ai-commands.git' 'commands'
+skip = lazy || ([ "$1" = update ] && ! hours_since "$1" 12)
+fetch = fetchOrigin; fetchGitolite
+push  = pushOriginMaster; pushAllGitolite
+fixups =
+    cd "$MR_REPO"
+    grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite gitolite:tom/ai-commands.git
+    command -v skillshare &>/dev/null && skillshare sync --all || true
+
+[$HOME/.config/skillshare/extras/prompts]
+checkout = git clone 'https://github.com/tomhoover/ai-prompts.git' 'prompts'
+skip = lazy || ([ "$1" = update ] && ! hours_since "$1" 12)
+fetch = fetchOrigin; fetchGitolite
+push  = pushOriginMaster; pushAllGitolite
+fixups =
+    cd "$MR_REPO"
+    grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite gitolite:tom/ai-prompts.git
+    command -v skillshare &>/dev/null && skillshare sync --all || true
+
+[$HOME/.config/skillshare/extras/rules]
+checkout = git clone 'https://github.com/tomhoover/ai-rules.git' 'rules'
+skip = lazy || ([ "$1" = update ] && ! hours_since "$1" 12)
+fetch = fetchOrigin; fetchGitolite
+push  = pushOriginMaster; pushAllGitolite
+fixups =
+    cd "$MR_REPO"
+    grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite gitolite:tom/ai-rules.git
+    command -v skillshare &>/dev/null && skillshare sync --all || true
 
 ##### read-only repos
 
