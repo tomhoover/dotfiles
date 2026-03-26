@@ -30,9 +30,12 @@ shell-integration-features = no-cursor,ssh-env
 # Send ESC+CR (same as option+enter) for shift+enter, so TUIs like Claude Code
 # can use shift+enter for newline consistently across macOS and Linux
 keybind = shift+enter=text:\x1b\r
+
+# default (use selection clipboard); override in linux file for system clipboard
+copy-on-select = true
+
 keybind = shift+insert=paste_from_clipboard
 keybind = control+insert=copy_to_clipboard
-copy-on-select = true  # default (use selection clipboard); override in linux file for system clipboard
 keybind = super+control+shift+alt+arrow_down=resize_split:down,100
 keybind = super+control+shift+alt+arrow_up=resize_split:up,100
 keybind = super+control+shift+alt+arrow_left=resize_split:left,100

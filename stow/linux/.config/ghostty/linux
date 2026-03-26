@@ -1,4 +1,5 @@
-copy-on-select = clipboard  # use system clipboard (enables Ctrl+V paste to work)
+# use system clipboard (enables Ctrl+V paste to work)
+copy-on-select = clipboard
 
 # Tab switching: Alt+1-9, Ctrl+Tab/Ctrl+Shift+Tab (default Ghostty bindings)
 # super+t/new_tab and super+w/close_tab are handled by Ghostty defaults on macOS
