@@ -1,4 +1,5 @@
-keybind = super+c=performable:copy_to_clipboard
-keybind = super+v=performable:paste_from_clipboard
+copy-on-select = clipboard  # use system clipboard (enables Ctrl+V paste to work)
+keybind = super+c=copy_to_clipboard
+keybind = super+v=paste_from_clipboard
 keybind = ctrl+c=performable:copy_to_clipboard
 keybind = ctrl+v=performable:paste_from_clipboard
