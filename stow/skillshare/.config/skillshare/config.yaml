@@ -3,6 +3,8 @@ source: ~/.config/skillshare/skills
 extras_source: ~/.config/skillshare/extras
 mode: merge
 targets:
+    universal:
+        path: ~/.agents/skills
     claude:
         path: ~/.claude/skills
     codex:
@@ -11,12 +13,30 @@ targets:
         path: ~/.gemini/skills
     opencode:
         path: ~/.config/opencode/skills
-    universal:
-        path: ~/.agents/skills
+extras:
+    - name: commands
+      targets:
+        - path: ~/.agents/commands
+        - path: ~/.claude/commands
+        - path: ~/.codex/commands
+        - path: ~/.gemini/commands
+        - path: ~/.config/opencode/commands
+    - name: prompts
+      targets:
+        - path: ~/.agents/prompts
+        - path: ~/.claude/prompts
+        - path: ~/.codex/prompts
+        - path: ~/.gemini/prompts
+        - path: ~/.config/opencode/prompts
+    - name: rules
+      targets:
+        - path: ~/.agents/rules
+        - path: ~/.claude/rules
+        - path: ~/.codex/rules
+        - path: ~/.gemini/rules
+        - path: ~/.config/opencode/rules
 ignore:
     - '**/.DS_Store'
     - '**/.git/**'
 audit:
-    # block_threshold: CRITICAL
-    # VALID_BLOCK_THRESHOLDS = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW', 'INFO']
     block_threshold: MEDIUM
