@@ -1,4 +1,5 @@
 {
+  "disabled_providers": ["amazon-bedrock", "vultr"],
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "plan",
   "model": "opencode/minimax-m2.5-free",
