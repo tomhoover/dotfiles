@@ -2,7 +2,7 @@
 config-file = ?"~/.config/omarchy/current/theme/ghostty.conf"
 
 # Load optional OS-specific files if they exist
-config-file = ?~/.config/ghostty/macos
+config-file = ?~/.config/ghostty/darwin
 config-file = ?~/.config/ghostty/linux
 
 # Font
