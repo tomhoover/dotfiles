@@ -86,6 +86,9 @@ set -g @mouse 0
 bind-key -T root WheelUpPane   if -F '#{@mouse}' { if -F '#{pane_in_mode}' 'send-keys -M' 'copy-mode -e' } { send-keys Up }
 bind-key -T root WheelDownPane if -F '#{@mouse}' { if -F '#{pane_in_mode}' 'send-keys -M' '' }            { send-keys Down }
 
+# Pass Shift+Enter through to terminal (for TUIs like opencode)
+bind-key -n S-Enter send-keys "\e\r"
+
 bind-key -N 'Toggle synchronize panes' M-s set-window-option synchronize-panes\; display-message "synchronize-panes is now #{?pane_synchronized,on,off}"
 
 # https://www.bugsnag.com/blog/tmux-and-vim
@@ -187,6 +190,7 @@ set -g @continuum-restore 'on'
 # List of plugins
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-yank'
 # set -g @plugin 'dracula/tmux'
 # set -g @plugin 'christoomey/vim-tmux-navigator'
 # set -g @plugin 'ianchesal/tmux-scout-golang'
