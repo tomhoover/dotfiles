@@ -12,16 +12,19 @@ set -euo pipefail
 #       sudo apt --yes install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
 #       libsqlite3-dev curl libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev )
 
-# Only use COLORS in interactive shells, not from crontab #{{{
+# Only use colors in interactive shells, not from crontab; honor NO_COLOR (https://no-color.org) #{{{
 # shellcheck disable=SC2034
-if [ -t 1 ]; then
-  RED=$(tput setaf 1)
-  GREEN=$(tput setaf 2)
-  YELLOW=$(tput setaf 3)
-  BLUE=$(tput setaf 4)
-  MAGENTA=$(tput setaf 5)
-  CYAN=$(tput setaf 6)
-  RESET=$(tput sgr0)
+if [ -t 1 ] && [[ -z "${NO_COLOR:-}" ]]; then
+  RED=$(tput setaf 1 2>/dev/null || true)
+  GREEN=$(tput setaf 2 2>/dev/null || true)
+  YELLOW=$(tput setaf 3 2>/dev/null || true)
+  BLUE=$(tput setaf 4 2>/dev/null || true)
+  MAGENTA=$(tput setaf 5 2>/dev/null || true)
+  CYAN=$(tput setaf 6 2>/dev/null || true)
+  BOLD=$(tput bold 2>/dev/null || true)
+  ITALICS_ON=$(tput sitm 2>/dev/null || true)
+  ITALICS_OFF=$(tput ritm 2>/dev/null || tput sgr0 2>/dev/null || true)
+  RESET=$(tput sgr0 2>/dev/null || true)
 else
   RED=
   GREEN=
@@ -29,9 +32,11 @@ else
   BLUE=
   MAGENTA=
   CYAN=
+  BOLD=
+  ITALICS_ON=
+  ITALICS_OFF=
   RESET=
-fi
-#}}}
+fi #}}}
 
 error() { #{{{
   echo "${RED}✘ ERROR: $*${RESET}" >&2
@@ -79,7 +84,14 @@ while read -r installer; do
   fi
 done < <(find . -maxdepth 2 -name install.sh | sort)
 
+#TODO copy MISE_GITHUB_TOKEN to ironkey for new installations
 # install most tools with mise
+MISE_GITHUB_TOKEN=${MISE_GITHUB_TOKEN:-}
+if [ -f "${HOME}/.SECRETS" ]; then
+  MISE_GITHUB_TOKEN=$(grep MISE_GITHUB_TOKEN ~/.SECRETS | sed -e 's/MISE_GITHUB_TOKEN=//')
+elif [ -f "${HOME}/MISE_GITHUB_TOKEN" ]; then
+  MISE_GITHUB_TOKEN=$(grep MISE_GITHUB_TOKEN ~/MISE_GITHUB_TOKEN | sed -e 's/MISE_GITHUB_TOKEN=//')
+fi
 mise install
 
 # install ansible with uv
