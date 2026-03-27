@@ -22,13 +22,15 @@ SHFMT_OPTS   := -i 2 -ci -bn
 # bats options
 BATS_OPTS    := --timing
 
-RED          := $(shell tput setaf 1)
-GREEN        := $(shell tput setaf 2)
-YELLOW       := $(shell tput setaf 3)
-# BLUE         := $(shell tput setaf 4)
-# MAGENTA      := $(shell tput setaf 5)
-CYAN         := $(shell tput setaf 6)
-RESET        := $(shell tput sgr0)
+# Only use colors when stdout is a terminal (skip in CI/non-TTY contexts)
+# tput handles non-TTY gracefully; redirect stderr to suppress any warnings
+RED          := $(shell tput setaf 1 2>/dev/null)
+GREEN        := $(shell tput setaf 2 2>/dev/null)
+YELLOW       := $(shell tput setaf 3 2>/dev/null)
+# BLUE         := $(shell tput setaf 4 2>/dev/null)
+# MAGENTA      := $(shell tput setaf 5 2>/dev/null)
+CYAN         := $(shell tput setaf 6 2>/dev/null)
+RESET        := $(shell tput sgr0 2>/dev/null)
 
 .DEFAULT_GOAL := help
 
