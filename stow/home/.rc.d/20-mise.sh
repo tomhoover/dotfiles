@@ -36,4 +36,5 @@ fi
 # insert ~/bin into $PATH before rbenv/pyenv/asdf/mise shims
 export PATH="$HOME/bin:$PATH"
 
-echo "$PATH" >/tmp/pathAfterMise.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "pathAfterMise:" >>/tmp/shell-init.txt
+[ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
