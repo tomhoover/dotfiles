@@ -1,16 +1,21 @@
 {
-  "disabled_providers": ["amazon-bedrock", "vultr"],
+  "disabled_providers": [
+    "amazon-bedrock",
+    "vultr"
+  ],
   "$schema": "https://opencode.ai/config.json",
   "default_agent": "plan",
   "model": "opencode/minimax-m2.5-free",
   "agent": {
     "plan": {
       "mode": "primary",
-      "model": "opencode/gemini-3-flash",
+      "_comment": "was opencode/gemini-3-flash",
+      "model": "github-copilot/gemini-3-flash-preview",
       "temperature": 0.1
     },
     "build": {
       "mode": "primary",
+      "_comment": "tried nvidia/minimaxai/minimax-m2.5",
       "model": "opencode/minimax-m2.5"
     },
     "general": {
