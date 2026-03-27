@@ -1,2 +1,15 @@
 stow/vcsh/.config/vcsh/repo.d/
 test/libs/
+session-ses_*.md
+
+# Local environment and machine-specific files
+.env
+*.local.toml
+*.bak
+omarchy/
+
+# OS and editor artifacts
+.DS_Store
+*.swp
+*.swo
+*~
