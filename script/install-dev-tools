@@ -88,10 +88,11 @@ done < <(find . -maxdepth 2 -name install.sh | sort)
 # install most tools with mise
 MISE_GITHUB_TOKEN=${MISE_GITHUB_TOKEN:-}
 if [ -f "${HOME}/.SECRETS" ]; then
-  MISE_GITHUB_TOKEN=$(grep MISE_GITHUB_TOKEN ~/.SECRETS | sed -e 's/MISE_GITHUB_TOKEN=//')
+  MISE_GITHUB_TOKEN=$(grep MISE_GITHUB_TOKEN ~/.SECRETS | sed -e 's/^export //' -e 's/^MISE_GITHUB_TOKEN=//')
 elif [ -f "${HOME}/MISE_GITHUB_TOKEN" ]; then
-  MISE_GITHUB_TOKEN=$(grep MISE_GITHUB_TOKEN ~/MISE_GITHUB_TOKEN | sed -e 's/MISE_GITHUB_TOKEN=//')
+  MISE_GITHUB_TOKEN=$(grep MISE_GITHUB_TOKEN ~/MISE_GITHUB_TOKEN | sed -e 's/^export //' -e 's/^MISE_GITHUB_TOKEN=//')
 fi
+export MISE_GITHUB_TOKEN
 mise install
 
 # install ansible with uv
