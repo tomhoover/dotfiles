@@ -335,13 +335,7 @@ setup_tailscale() { #{{{
     else
       warn "Tailscale.app not found in /Applications"
     fi
-  elif isarch; then
-    sudo systemctl enable --now tailscaled
-    sudo tailscale status || sudo tailscale up --auth-key="${tailscale_key}"
-  elif isdebian; then
-    sudo systemctl enable --now tailscaled
-    sudo tailscale status || sudo tailscale up --auth-key="${tailscale_key}"
-  elif isfedora; then
+  elif isarch || isdebian || isfedora; then
     sudo systemctl enable --now tailscaled
     sudo tailscale status || sudo tailscale up --auth-key="${tailscale_key}"
   else
