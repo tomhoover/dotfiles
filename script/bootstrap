@@ -178,6 +178,13 @@ isdev() { #{{{
   esac
 } #}}}
 
+get_default_branch() { #{{{
+  local repo_dir="${1:-.}"
+  local branch
+  branch=$(git -C "$repo_dir" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "master")
+  echo "$branch"
+} #}}}
+
 ###
 
 create_ssh_key() { #{{{
@@ -209,12 +216,14 @@ clone_apt_vcsh() { #{{{
 } #}}}
 
 backup_file() { #{{{
-  success "Backing up ${1}..."
+  local target="${1:-}"
+  [ -z "$target" ] && return 1
+  success "Backing up ${target}..."
   local backup_dir
   backup_dir="$HOME/.backup-$(date '+%Y%m%d')"
-  mkdir -p "$backup_dir/$(dirname "${1}")"
-  mv "$HOME/${1}" "$backup_dir/$(dirname "${1}")"
-  echo "nvim -d $backup_dir/${1} $HOME/${1}" >>"$HOME/fixups.sh"
+  mkdir -p "$backup_dir/$(dirname "${target}")"
+  mv "$HOME/${target}" "$backup_dir/$(dirname "${target}")"
+  echo "nvim -d $backup_dir/${target} $HOME/${target}" >>"$HOME/fixups.sh"
 } #}}}
 
 # bash function exporting shortcut
@@ -288,14 +297,20 @@ set_private_repos_tracking() { #{{{
   REPOS=(gnupg ssh)
   for REPO in "${REPOS[@]}"; do
     if [ -d "${HOME}/.${REPO}" ]; then
-      cd "${HOME}/.${REPO}" && "$BIN"/git fetch origin && ("$BIN"/git branch -avv | grep master | grep -q '\[origin/master\]' || "$BIN"/git branch --set-upstream-to=origin/master)
+      cd "${HOME}/.${REPO}" && "$BIN"/git fetch origin
+      local branch
+      branch=$(get_default_branch "${HOME}/.${REPO}")
+      ("$BIN"/git branch -avv | grep "$branch" | grep -q "\[origin/${branch}\]" || "$BIN"/git branch --set-upstream-to="origin/${branch}")
     fi
   done
 
   REPOS=(private)
   for REPO in "${REPOS[@]}"; do
     if [ -d "$HOME/.config/vcsh/repo.d/${REPO}.git" ]; then
-      "$BIN"/vcsh "${REPO}" fetch origin && ("$BIN"/vcsh "${REPO}" branch -avv | grep master | grep -q '\[origin/master\]' || "$BIN"/vcsh "${REPO}" branch --set-upstream-to=origin/master)
+      "$BIN"/vcsh "${REPO}" fetch origin
+      local branch
+      branch=$("$BIN"/vcsh "${REPO}" rev-parse --abbrev-ref HEAD 2>/dev/null || echo "master")
+      ("$BIN"/vcsh "${REPO}" branch -avv | grep "$branch" | grep -q "\[origin/${branch}\]" || "$BIN"/vcsh "${REPO}" branch --set-upstream-to="origin/${branch}")
     fi
   done
 } #}}}
@@ -308,23 +323,27 @@ setup_keychain() { #{{{
 } #}}}
 
 setup_tailscale() { #{{{
-  TAILSCALE_KEY=${TAILSCALE_KEY:-}
+  local tailscale_key="${TAILSCALE_KEY:-}"
   if [ -f "${HOME}/.SECRETS" ]; then
-    TAILSCALE_KEY=$(grep TAILSCALE_KEY ~/.SECRETS | sed -e 's/^export //' -e 's/^TAILSCALE_KEY=//')
+    tailscale_key=$(grep TAILSCALE_KEY ~/.SECRETS | sed -e 's/^export //' -e 's/^TAILSCALE_KEY=//')
   elif [ -f "${HOME}/TAILSCALE_KEY" ]; then
-    TAILSCALE_KEY=$(grep TAILSCALE_KEY ~/TAILSCALE_KEY | sed -e 's/^export //' -e 's/^TAILSCALE_KEY=//')
+    tailscale_key=$(grep TAILSCALE_KEY ~/TAILSCALE_KEY | sed -e 's/^export //' -e 's/^TAILSCALE_KEY=//')
   fi
   if isdarwin; then
-    open /Applications/Tailscale.app
+    if [ -d "/Applications/Tailscale.app" ]; then
+      open /Applications/Tailscale.app
+    else
+      warn "Tailscale.app not found in /Applications"
+    fi
   elif isarch; then
     sudo systemctl enable --now tailscaled
-    sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+    sudo tailscale status || sudo tailscale up --auth-key="${tailscale_key}"
   elif isdebian; then
     sudo systemctl enable --now tailscaled
-    sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+    sudo tailscale status || sudo tailscale up --auth-key="${tailscale_key}"
   elif isfedora; then
     sudo systemctl enable --now tailscaled
-    sudo tailscale status || sudo tailscale up --auth-key="${TAILSCALE_KEY}"
+    sudo tailscale status || sudo tailscale up --auth-key="${tailscale_key}"
   else
     echo
     error "Unknown OS..."
@@ -334,10 +353,12 @@ setup_tailscale() { #{{{
 } #}}}
 
 install_AUR_pkg() { #{{{
-  if [ ! -d "$HOME/.cache/AUR/$1" ]; then
+  local pkg="${1:-}"
+  [ -z "$pkg" ] && return 1
+  if [ ! -d "$HOME/.cache/AUR/${pkg}" ]; then
     echo
-    success "Installing $1..."
-    paru -S "$1"
+    success "Installing ${pkg}..."
+    paru -S "${pkg}"
   fi
 } #}}}
 

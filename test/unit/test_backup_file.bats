@@ -120,3 +120,12 @@ teardown() {
   assert [ ! -f "$HOME/my file.txt" ]
   assert [ -f "$HOME/.backup-$(date '+%Y%m%d')/my file.txt" ]
 }
+
+# ---------------------------------------------------------------------------
+# backup_file — edge cases
+# ---------------------------------------------------------------------------
+
+@test "backup_file with no arg returns early (defensive coding)" {
+  run "$RUNNER" backup_file
+  refute_output --partial "Backing up"
+}
