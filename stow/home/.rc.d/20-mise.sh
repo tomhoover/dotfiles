@@ -1,7 +1,11 @@
 # shellcheck shell=bash
 
-# ensure ~/.local/bin follows rbenv/pyenv/asdf/mise shims in $PATH (i.e. pipx installed packages are secondary to shims)
-export PATH="$HOME/.local/bin:$PATH"
+# Add mise shims and local bins to PATH early so tools are available to later .rc.d files.
+# Full mise activation (hook-env) is deferred to after the first prompt via zle-line-init.
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+
+# insert ~/bin into $PATH before mise shims
+export PATH="$HOME/bin:$PATH"
 
 if command -v mise &>/dev/null; then
   _mise_bin="$(command -v mise)"
@@ -12,29 +16,39 @@ if command -v mise &>/dev/null; then
     mkdir -p "$_mise_cache_dir"
     mise activate "${SHEL}" >"$_mise_activate_cache"
   fi
-  # shellcheck disable=SC1090
-  source "$_mise_activate_cache"
-
-  # In zsh, move _mise_hook from precmd (every prompt) to chpwd (directory change only)
-  if [[ -n "${ZSH_VERSION:-}" ]]; then
-    precmd_functions=("${precmd_functions[@]/_mise_hook/}")
-    chpwd_functions+=(_mise_hook)
-  fi
 
   _mise_comp_cache="$_mise_cache_dir/completion.${SHEL}"
   if [[ ! -f "$_mise_comp_cache" || "$_mise_bin" -nt "$_mise_comp_cache" ]]; then
+    mkdir -p "$_mise_cache_dir"
     mise completion "${SHEL}" >"$_mise_comp_cache"
   fi
-  # shellcheck disable=SC1090
-  source "$_mise_comp_cache"
 
-  unset _mise_bin _mise_cache_dir _mise_activate_cache _mise_comp_cache
+  if [[ -n "${ZSH_VERSION:-}" ]] && [[ -o interactive ]]; then
+    _mise_deferred_activate() {
+      add-zle-hook-widget -d zle-line-init _mise_deferred_activate
+      zle -D _mise_deferred_activate
+      # shellcheck disable=SC1090
+      source "$_mise_activate_cache"
+      # shellcheck disable=SC1090
+      source "$_mise_comp_cache"
+      # Move _mise_hook from precmd (every prompt) to chpwd (directory change only)
+      precmd_functions=("${precmd_functions[@]/_mise_hook/}")
+      chpwd_functions+=(_mise_hook)
+      unset _mise_activate_cache _mise_comp_cache
+    }
+    zle -N _mise_deferred_activate
+    add-zle-hook-widget zle-line-init _mise_deferred_activate
+  else
+    # bash or non-interactive: activate immediately
+    # shellcheck disable=SC1090
+    source "$_mise_activate_cache"
+    # shellcheck disable=SC1090
+    source "$_mise_comp_cache"
+    unset _mise_activate_cache _mise_comp_cache
+  fi
+
+  unset _mise_bin _mise_cache_dir
 fi
-
-# export PATH=$HOME/.local/share/mise/shims:$PATH # add mise shims to PATH in .profile, instead of .bashrc and .zshrc:
-
-# insert ~/bin into $PATH before rbenv/pyenv/asdf/mise shims
-export PATH="$HOME/bin:$PATH"
 
 [ "${DOTFILE_DEBUG:-}" ] && echo "pathAfterMise:" >>/tmp/shell-init.txt
 [ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
