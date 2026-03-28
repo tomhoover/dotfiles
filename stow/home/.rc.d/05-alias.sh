@@ -168,7 +168,6 @@ dclean() { docker rmi -f "$(docker images | grep "$1" | awk '{print $3}')"; }
 
 ### other misc aliases from https://gist.github.com/IronicBadger/362c408d1f2c27a0503cb9252b508140
 #alias df='df -h -x aufs -x tmpfs -x udev'
-#alias editle='sudo vi /mnt/cache/appdata/letsencrypt/nginx/site-confs/default'
 
 # https://www.tecmint.com/ctop-monitor-docker-containers/
 alias ctop='docker run --rm -ti --name=ctop -v /var/run/docker.sock:/var/run/docker.sock quay.io/vektorlab/ctop:latest'

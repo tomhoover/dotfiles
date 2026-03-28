@@ -210,26 +210,6 @@ getcertnames() {
   fi
 }
 
-# # `s` with no arguments opens the current directory in Sublime Text, otherwise
-# # opens the given location
-# s() {
-#   if [ $# -eq 0 ]; then
-#     subl .
-#   else
-#     subl "$@"
-#   fi
-# }
-
-# # `a` with no arguments opens the current directory in Atom Editor, otherwise
-# # opens the given location
-# a() {
-#   if [ $# -eq 0 ]; then
-#     atom .
-#   else
-#     atom "$@"
-#   fi
-# }
-
 # `v` with no arguments opens the current directory in Vim, otherwise opens the
 # given location
 v() {
@@ -392,6 +372,27 @@ gmr() {
 # grep dotfiles
 gdot() {
   grep -in "$@" ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/**/.rc.d/*
+}
+
+# edit mrconfig
+emr() {
+  if [ "$#" -eq 0 ]; then
+    $EDITOR ~/.mrconfig ~/src/.mrconfig ~/src/gh/.mrconfig ~/src/3dPrinting/.mrconfig ~/.config/mr/*
+  else
+    local -a files
+    while IFS= read -r f; do files+=("$f"); done < <(grep -l "$@" ~/.mrconfig ~/src/.mrconfig ~/src/gh/.mrconfig ~/src/3dPrinting/.mrconfig ~/.config/mr/* 2>/dev/null)
+    [[ ${#files[@]} -gt 0 ]] && $EDITOR "${files[@]}"
+  fi
+}
+# edit dotfiles
+edot() {
+  if [ "$#" -eq 0 ]; then
+    $EDITOR ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/**/.rc.d/*
+  else
+    local -a files
+    while IFS= read -r f; do files+=("$f"); done < <(grep -l "$@" ~/.profile ~/.bash_profile ~/.bashrc ~/.zshenv ~/.zprofile ~/.zshrc ~/.zshrc.local ~/.config/dotfiles/* ~/.dotfiles/stow/**/.rc.d/* 2>/dev/null)
+    [[ ${#files[@]} -gt 0 ]] && $EDITOR "${files[@]}"
+  fi
 }
 
 # https://github.com/jdx/fnox/discussions/320
