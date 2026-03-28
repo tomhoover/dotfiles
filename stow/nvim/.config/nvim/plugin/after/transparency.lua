@@ -27,6 +27,10 @@ vim.api.nvim_set_hl(0, "NvimTreeNormal", { bg = "none" })
 vim.api.nvim_set_hl(0, "NvimTreeVertSplit", { bg = "none" })
 vim.api.nvim_set_hl(0, "NvimTreeEndOfBuffer", { bg = "none" })
 
+-- ghost text colors
+vim.api.nvim_set_hl(0, "BlinkCmpGhostText", { fg = "#888888" })
+vim.api.nvim_set_hl(0, "CopilotSuggestion", { fg = "#888888" })
+
 -- transparent notify background
 vim.api.nvim_set_hl(0, "NotifyINFOBody", { bg = "none" })
 vim.api.nvim_set_hl(0, "NotifyERRORBody", { bg = "none" })
