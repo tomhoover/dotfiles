@@ -1,6 +1,14 @@
 # shellcheck shell=bash disable=SC1090,SC1091
 
 if command -v brew &>/dev/null; then
+  # Avoid slow `brew --prefix` subprocess calls by detecting the prefix from the filesystem.
+  # Apple Silicon: /opt/homebrew, Intel: /usr/local
+  if [[ -d /opt/homebrew ]]; then
+    HOMEBREW_PREFIX=/opt/homebrew
+  else
+    HOMEBREW_PREFIX=/usr/local
+  fi
+
   # instruct Homebrew to return to pre-4.0.0 behaviour by cloning the Homebrew/homebrew-core tap during installation
   # https://docs.brew.sh/Installation
   export HOMEBREW_NO_INSTALL_FROM_API=1
@@ -15,7 +23,7 @@ if command -v brew &>/dev/null; then
   # Homebrew
   # To enable command-not-found
   # Add the following lines to ~/.zshrc
-  HOMEBREW_COMMAND_NOT_FOUND_HANDLER="$(brew --repository)/Library/Homebrew/command-not-found/handler.sh"
+  HOMEBREW_COMMAND_NOT_FOUND_HANDLER="$HOMEBREW_PREFIX/Library/Homebrew/command-not-found/handler.sh"
   if [ -f "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER" ]; then
     source "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER"
   fi
@@ -23,7 +31,7 @@ if command -v brew &>/dev/null; then
   # The following PATH definition is required, as .zshrc prepends the MacPorts PATH
   # (PATH="/opt/local/bin:/opt/local/sbin:$PATH"), which places it at a higher
   # precedence than homebrew
-  export PATH="$HOME/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+  # export PATH="$HOME/bin:$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
 
   if [ "$SHEL" = zsh ]; then
     # ==> zsh-completions
@@ -49,7 +57,7 @@ if command -v brew &>/dev/null; then
     # fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
     # FPATH=$(brew --prefix)/share/zsh/site-functions:$FPATH
     # fpath=($(brew --prefix)/share/zsh-completions $fpath)
-    FPATH=$(brew --prefix)/share/zsh-completions:$(brew --prefix)/share/zsh/site-functions:$FPATH
+    FPATH=$HOMEBREW_PREFIX/share/zsh-completions:$HOMEBREW_PREFIX/share/zsh/site-functions:$FPATH
   else
     # # TODO
     # # Add tab completion for many Bash commands
@@ -71,7 +79,7 @@ if command -v brew &>/dev/null; then
     #   fi
     # fi
 
-    [[ -r "/opt/homebrew/etc/profile.d/bash_completion.sh" ]] && source "/opt/homebrew/etc/profile.d/bash_completion.sh"
+    [[ -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]] && source "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
   fi
   # homebrew automatically installs tailscale cli in /opt/homebrew/bin/tailscale,
   #   so this alias is no longer needed
