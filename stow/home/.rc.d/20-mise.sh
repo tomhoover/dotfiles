@@ -1,11 +1,6 @@
 # shellcheck shell=bash
 
-# Add mise shims and local bins to PATH early so tools are available to later .rc.d files.
 # Full mise activation (hook-env) is deferred to after the first prompt via zle-line-init.
-export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
-
-# insert ~/bin into $PATH before mise shims
-export PATH="$HOME/bin:$PATH"
 
 if command -v mise &>/dev/null; then
   _mise_bin="$(command -v mise)"
@@ -35,6 +30,8 @@ if command -v mise &>/dev/null; then
       precmd_functions=("${precmd_functions[@]/_mise_hook/}")
       chpwd_functions+=(_mise_hook)
       unset _mise_activate_cache _mise_comp_cache
+      # insert ~/bin into $PATH before everything else
+      export PATH="$HOME/bin:$PATH"
     }
     zle -N _mise_deferred_activate
     add-zle-hook-widget zle-line-init _mise_deferred_activate

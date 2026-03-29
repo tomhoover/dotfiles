@@ -3,6 +3,17 @@
 [ "${DOTFILE_DEBUG:-}" ] && echo "$PATH" >>/tmp/shell-init.txt
 export ENVS_LOADED=1
 
+export PATH=/usr/local/bin:/usr/local/sbin:"$PATH"
+
+# Add mise shims to PATH early so tools are available to later .rc.d files.
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+# MacPorts (loaded by grml .zshrc):
+# isdarwin && export PATH="/opt/local/bin:/opt/local/sbin:$PATH" || true
+# isdarwin && export MANPATH="/opt/local/share/man:$MANPATH" || true
+
+export PATH="$HOME/.local/bin:$PATH"
+
 # Make nvim|vim|vi the default editor.
 if command -v nvim >/dev/null 2>&1; then
   export EDITOR='nvim'
