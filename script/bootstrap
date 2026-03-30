@@ -200,7 +200,8 @@ clone_apt_vcsh() { #{{{
   if isdebian; then
     github_vclone apt
     if [ -f "$HOME/.config/apt/installed" ]; then
-      apt_pkgs=()
+      local apt_pkgs=()
+      local line
       while IFS= read -r line || [ -n "$line" ]; do
         [ -n "$line" ] && apt_pkgs+=("$line")
       done <"$HOME/.config/apt/installed"
@@ -243,6 +244,7 @@ backup_file() { #{{{
 
 vclone() { #{{{
   local name="$1" url="$2"
+  local path
   if "$BIN"/vcsh clone "$url" "$name"; then
     "$BIN"/vcsh "$name" config get core.bare && "$BIN"/vcsh "$name" config set core.bare false
     success "${name} successfully cloned..."
@@ -294,7 +296,8 @@ install_caps2esc() { #{{{
 } #}}}
 
 set_private_repos_tracking() { #{{{
-  REPOS=(gnupg ssh)
+  local REPOS=(gnupg ssh)
+  local REPO
   for REPO in "${REPOS[@]}"; do
     if [ -d "${HOME}/.${REPO}" ]; then
       cd "${HOME}/.${REPO}" && "$BIN"/git fetch origin
@@ -394,6 +397,7 @@ install_remaining_pkgs() { #{{{
 
     install_paru_customizepkg
 
+    local AUR_PKG
     for AUR_PKG in "${AUR_PKGS[@]}"; do
       install_AUR_pkg "$AUR_PKG"
     done
@@ -425,7 +429,8 @@ clone_private_repos() { #{{{
   echo "          $(tput setaf 4)press the $(tput setaf 2)ENTER$(tput setaf 4) key to continue (or $(tput setaf 1)CTRL-C$(tput setaf 4) to abort)$(tput sgr0)"
   read -r _ </dev/tty
 
-  REPOS=(gnupg ssh)
+  local REPOS=(gnupg ssh)
+  local REPO
   for REPO in "${REPOS[@]}"; do
     find "${HOME}/.${REPO}" -type d -empty -delete
     if [ -d "${HOME}/git/${REPO}.git" ] && [ ! -d "${HOME}/.${REPO}" ]; then
