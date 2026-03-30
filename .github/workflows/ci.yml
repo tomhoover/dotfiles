@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Install shfmt
+        run: |
+          curl -sS -L "https://github.com/mvdan/sh/releases/download/v3.10.0/shfmt_v3.10.0_linux_amd64" \
+            -o /usr/local/bin/shfmt
+          chmod +x /usr/local/bin/shfmt
+
+      - name: Install bats
+        run: |
+          sudo apt-get install -y bats
+          make bats-libs
+
+      - name: Lint
+        run: make lint-all
+
+      - name: Format check
+        run: make fmt-check
+
+      - name: Test
+        run: make test-tap
