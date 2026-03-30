@@ -54,6 +54,7 @@ fnox = "latest"
 gemini = "latest"
 hyperfine = "latest"
 node = "latest"
+pi = "latest"
 pre-commit = "latest"
 prek = "latest"
 python = ["3.13", "3.12", "3.11", "3.10"]
