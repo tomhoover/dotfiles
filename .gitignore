@@ -1,6 +1,7 @@
+.aider*
+session-ses_*.md
 stow/vcsh/.config/vcsh/repo.d/
 test/libs/
-session-ses_*.md
 
 # Local environment and machine-specific files
 .env
