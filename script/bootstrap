@@ -83,7 +83,7 @@ FEDORA_PKGS=( #{{{
 ) #}}}
 
 # Only use colors in interactive shells, not from crontab; honor NO_COLOR (https://no-color.org) #{{{
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034 # color vars are used by error/warn/info/success but shellcheck can't trace them
 if [ -t 1 ] && [[ -z "${NO_COLOR:-}" ]]; then
   RED=$(tput setaf 1 2>/dev/null || true)
   GREEN=$(tput setaf 2 2>/dev/null || true)
@@ -134,19 +134,19 @@ islinux() { #{{{
 
 isarch() { #{{{
   local os_release="${OS_RELEASE:-/etc/os-release}"
-  # shellcheck disable=SC1090
+  # shellcheck disable=SC1090 # os_release path is dynamic (overridable for tests)
   islinux && (. "$os_release" && [ "$ID" = "arch" ])
 } #}}}
 
 isdebian() { #{{{
   local os_release="${OS_RELEASE:-/etc/os-release}"
-  # shellcheck disable=SC1090
+  # shellcheck disable=SC1090 # os_release path is dynamic (overridable for tests)
   islinux && (. "$os_release" && [ "$ID" = "debian" ])
 } #}}}
 
 isfedora() { #{{{
   local os_release="${OS_RELEASE:-/etc/os-release}"
-  # shellcheck disable=SC1090
+  # shellcheck disable=SC1090 # os_release path is dynamic (overridable for tests)
   islinux && (. "$os_release" && [ "$ID" = "fedora" ])
 } #}}}
 
@@ -481,7 +481,7 @@ setup_etckeeper() { #{{{
 } #}}}
 
 check_installed_commands() { #{{{
-  # shellcheck disable=SC2015
+  # shellcheck disable=SC2015 # the || { ... } block is intentional error handling, not a naive ternary
   command -v curl >/dev/null 2>&1 \
     && command -v sudo >/dev/null 2>&1 \
     && command -v git >/dev/null 2>&1 \
