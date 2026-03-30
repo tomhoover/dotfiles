@@ -31,7 +31,9 @@ if command -v mise &>/dev/null; then
       chpwd_functions+=(_mise_hook)
       unset _mise_activate_cache _mise_comp_cache
       # insert ~/bin into $PATH before everything else
-      export PATH="$HOME/bin:$PATH"
+      # export PATH="$HOME/bin:$HOME/.opencode/bin:$PATH"
+      # shellcheck disable=SC1091
+      source "$HOME/.rc.d/99-after.sh"
     }
     zle -N _mise_deferred_activate
     add-zle-hook-widget zle-line-init _mise_deferred_activate
