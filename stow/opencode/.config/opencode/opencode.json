@@ -1,32 +1,39 @@
 {
-  "disabled_providers": [
-    "amazon-bedrock",
-    "vultr"
-  ],
-  "$schema": "https://opencode.ai/config.json",
-  "default_agent": "plan",
-  "model": "opencode/minimax-m2.5-free",
-  "agent": {
-    "plan": {
-      "mode": "primary",
-      "_comment": "was opencode/gemini-3-flash",
-      "model": "github-copilot/gemini-3-flash-preview",
-      "temperature": 0.1
-    },
-    "build": {
-      "mode": "primary",
-      "_comment": "tried nvidia/minimaxai/minimax-m2.5",
-      "model": "opencode/minimax-m2.5"
-    },
-    "general": {
-      "mode": "subagent",
-      "model": "opencode/minimax-m2.5-free",
-      "description": "General questions and help"
-    },
-    "explore": {
-      "mode": "subagent",
-      "model": "opencode/minimax-m2.5-free",
-      "description": "Fast code exploration"
+    "disabled_providers": [
+        "amazon-bedrock",
+        "vultr"
+    ],
+    "$schema": "https://opencode.ai/config.json",
+    "default_agent": "build",
+    "model": "github-copilot/gpt-5-mini",
+    "agent": {
+        "plan": {
+            "mode": "primary",
+            "model": "github-copilot/claude-sonnet-4.6"
+        },
+        "build": {
+            "mode": "primary",
+            "model": "github-copilot/gpt-4o"
+        },
+        "general": {
+            "mode": "subagent",
+            "model": "github-copilot/gpt-5-mini",
+            "description": "General questions and help"
+        },
+        "explore": {
+            "mode": "subagent",
+            "model": "github-copilot/gemini-3-flash-preview",
+            "description": "Fast code exploration"
+        },
+        "review": {
+            "mode": "subagent",
+            "model": "github-copilot/gemini-3.1-pro-preview",
+            "description": "PR review and deep logic verification"
+        },
+        "fallback": {
+            "mode": "subagent",
+            "model": "opencode/minimax-m2.5-free",
+            "description": "Free fallback when premium credits are low"
+        }
     }
-  }
 }
