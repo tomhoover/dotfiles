@@ -103,13 +103,13 @@ EOF
 
 @test "setup block: sets \$HOME/.local permissions to 700" {
   run bash "$SCRIPT"
-  perms=$(stat -f "%OLp" "$HOME/.local" 2>/dev/null || stat -c "%a" "$HOME/.local")
+  perms=$(stat -f "%OLp" "$HOME/.local" 2>/dev/null) || perms=$(stat -c "%a" "$HOME/.local")
   assert [ "$perms" = "700" ]
 }
 
 @test "setup block: sets \$HOME/.local/bin permissions to 755" {
   run bash "$SCRIPT"
-  perms=$(stat -f "%OLp" "$HOME/.local/bin" 2>/dev/null || stat -c "%a" "$HOME/.local/bin")
+  perms=$(stat -f "%OLp" "$HOME/.local/bin" 2>/dev/null) || perms=$(stat -c "%a" "$HOME/.local/bin")
   assert [ "$perms" = "755" ]
 }
 
