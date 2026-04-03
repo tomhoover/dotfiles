@@ -118,6 +118,9 @@ EOF
 
 @test "setup_tailscale calls 'open Tailscale.app' on macOS" {
   make_uname "Darwin"
+  local fake_app="${BATS_TEST_TMPDIR}/Applications/Tailscale.app"
+  mkdir -p "$fake_app"
+  export TAILSCALE_APP="$fake_app"
   cat >"$BIN/open" <<'EOF'
 #!/bin/bash
 echo "open called with: $@"
@@ -125,7 +128,7 @@ exit 0
 EOF
   chmod +x "$BIN/open"
   run "$RUNNER" setup_tailscale
-  assert_output --partial "open called with: /Applications/Tailscale.app"
+  assert_output --partial "open called with: ${fake_app}"
 }
 
 # ---------------------------------------------------------------------------

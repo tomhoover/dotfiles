@@ -333,8 +333,9 @@ setup_tailscale() { #{{{
     tailscale_key=$(grep TAILSCALE_KEY ~/TAILSCALE_KEY | sed -e 's/^export //' -e 's/^TAILSCALE_KEY=//')
   fi
   if isdarwin; then
-    if [ -d "/Applications/Tailscale.app" ]; then
-      open /Applications/Tailscale.app
+    local tailscale_app="${TAILSCALE_APP:-/Applications/Tailscale.app}"
+    if [ -d "$tailscale_app" ]; then
+      open "$tailscale_app"
     else
       warn "Tailscale.app not found in /Applications"
     fi
