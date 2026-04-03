@@ -61,11 +61,15 @@ echo "pacman \$@" >> "$PACMAN_CALL_LOG"
 exit 0
 EOF
   chmod +x "$BIN/pacman"
-  cat >"$BIN/sed" <<EOF
+  # Quoted heredoc: $@ and $SED_CALL_LOG expand at runtime (not write time).
+  # Stdin is drained when piped to prevent SIGPIPE; bootstrap sources
+  # `uname -n | sed ...` to assign MYHOST, so the stub must consume stdin.
+  cat >"$BIN/sed" <<'STUB'
 #!/bin/bash
-echo "sed \$@" >> "$SED_CALL_LOG"
+[[ -p /dev/stdin ]] && cat > /dev/null
+echo "sed $@" >> "$SED_CALL_LOG"
 exit 0
-EOF
+STUB
   chmod +x "$BIN/sed"
 }
 
