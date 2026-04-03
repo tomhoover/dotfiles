@@ -24,3 +24,16 @@ end, { expr = true, silent = true })
 
 -- <S-Tab> for recursive open/close folds
 vim.keymap.set("n", "<S-Tab>", "zA", { silent = true })
+
+-- -- Toggle coPilot ghost text (<leader>uP)
+-- vim.keymap.set("n", "<leader>uP", function()
+--   local copilot = require("copilot.command")
+--   local client = vim.lsp.get_clients({ name = "copilot" })[1]
+--   if client then
+--     copilot.disable()
+--     vim.notify("Copilot disabled", vim.log.levels.INFO)
+--   else
+--     copilot.enable()
+--     vim.notify("Copilot enabled", vim.log.levels.INFO)
+--   end
+-- end, { desc = "Toggle coPilot ghost text" })
