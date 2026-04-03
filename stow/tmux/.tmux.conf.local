@@ -109,6 +109,10 @@ set-window-option -g window-status-style fg=blue,bg=#282A36
 
 set -g default-terminal "tmux-256color"
 
+set -g extended-keys on
+set -g extended-keys-format csi-u
+set -as terminal-features 'xterm*:extkeys'
+
 # }}}
 
 # Plugins {{{
