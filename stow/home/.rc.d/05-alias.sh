@@ -240,9 +240,6 @@ else
   alias todo="$EDITOR -c 'cwindow' -q <(grep -nr 'TODO' ./*)"
 fi
 
-# mise x|exec
-alias x="mise x --"
-
 alias .git='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 
 alias cu='copier update --skip-tasks'

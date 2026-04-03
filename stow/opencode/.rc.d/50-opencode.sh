@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
 if command -v "$HOME/.opencode/bin/opencode" &>/dev/null; then
-  export PATH="$HOME/.opencode/bin:$PATH"
+  # export PATH="$HOME/.opencode/bin:$PATH" # moved to 99-after.sh to ensure it takes precedence over mise
 
   if [ "$SHEL" = "zsh" ]; then
     _bin="$HOME/.opencode/bin/opencode"

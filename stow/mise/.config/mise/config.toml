@@ -1,5 +1,7 @@
 [settings]
+# activate_aggressive = false
 experimental = true
+hook_env.chpwd_only = true
 idiomatic_version_file_enable_tools = ["python"]
 # python_compile = true
 
@@ -18,6 +20,12 @@ fnox-env = "https://github.com/jdx/mise-env-fnox"
 _.fnox-env = { tools = true }
 # Use production profile
 # _.fnox-env = { tools = true, profile = "production" }
+
+_.path = [
+    "~/bin",
+    "~/.opencode/bin",
+    "~/.local/bin"
+]
 
 # Git credentials
 # Not included in public .gitconfig, to prevent people from accidentally committing under my name
