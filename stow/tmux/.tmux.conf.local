@@ -106,6 +106,7 @@ set-option -g renumber-windows on
 ### set status line appearance
 set -g status-style fg=white,bg=#282A36
 set-window-option -g window-status-style fg=blue,bg=#282A36
+set -g status-left-length 45
 
 set -g default-terminal "tmux-256color"
 

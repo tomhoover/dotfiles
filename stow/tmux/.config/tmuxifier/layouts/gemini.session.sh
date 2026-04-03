@@ -2,10 +2,11 @@
 # Set a custom session root path. Default is `$HOME`.
 # Must be called before `initialize_session`.
 session_root "$(pwd -P)"
+session_name="$(basename "$(pwd -P)" | sed -e 's/^/G~/' -e 's/\./_/g')"
 
 # Create session with specified name if it does not already exist. If no
 # argument is given, session name will be based on layout file name.
-if initialize_session "G_$(basename "$(pwd -P)")"; then
+if initialize_session "$session_name"; then
 
   # Create a new window inline within session layout definition.
   #new_window "misc"
