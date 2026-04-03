@@ -1,13 +1,16 @@
 # shellcheck shell=bash disable=SC1090,SC1091
 
+# Avoid slow `brew --prefix` subprocess calls by detecting the prefix from the filesystem.
+# Apple Silicon: /opt/homebrew, Intel: /usr/local
+if [[ -d /opt/homebrew ]]; then
+  # HOMEBREW_PREFIX=/opt/homebrew
+  [ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+else
+  # HOMEBREW_PREFIX=/usr/local
+  [ -x /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv)"
+fi
+
 if command -v brew &>/dev/null; then
-  # Avoid slow `brew --prefix` subprocess calls by detecting the prefix from the filesystem.
-  # Apple Silicon: /opt/homebrew, Intel: /usr/local
-  if [[ -d /opt/homebrew ]]; then
-    HOMEBREW_PREFIX=/opt/homebrew
-  else
-    HOMEBREW_PREFIX=/usr/local
-  fi
 
   # instruct Homebrew to return to pre-4.0.0 behaviour by cloning the Homebrew/homebrew-core tap during installation
   # https://docs.brew.sh/Installation
@@ -31,7 +34,7 @@ if command -v brew &>/dev/null; then
   # The following PATH definition is required, as .zshrc prepends the MacPorts PATH
   # (PATH="/opt/local/bin:/opt/local/sbin:$PATH"), which places it at a higher
   # precedence than homebrew
-  # export PATH="$HOME/bin:$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
+  # export PATH="$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH"
 
   if [ "$SHEL" = zsh ]; then
     # ==> zsh-completions

@@ -28,7 +28,4 @@ complete -W "NSGlobalDomain" defaults;
 # Add `killall` tab completion for common apps
 complete -o "nospace" -W "Contacts Calendar Dock Finder Mail Safari iTunes SystemUIServer Terminal Twitter" killall;
 
-[ -r /usr/local/bin/brew ] && eval "$(/usr/local/bin/brew shellenv bash)"
-[ -r /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv bash)"
-
 [ "${DOTFILE_DEBUG:-}" ] && echo "$(date '+%Y-%m-%d %H:%M') :: :: DARWIN_BASH_PROFILE_ENDED" | tee -a /tmp/shell-init.txt
