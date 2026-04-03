@@ -3,40 +3,45 @@ source: ~/.config/skillshare/skills
 extras_source: ~/.config/skillshare/extras
 mode: merge
 targets:
-    universal:
-        path: ~/.agents/skills
-    claude:
-        path: ~/.claude/skills
-    codex:
-        path: ~/.codex/skills
-    gemini:
-        path: ~/.gemini/skills
-    opencode:
-        path: ~/.config/opencode/skills
+  claude:
+    skills:
+      path: ~/.claude/skills
+  codex:
+    skills:
+      path: ~/.codex/skills
+  gemini:
+    skills:
+      path: ~/.gemini/skills
+  opencode:
+    skills:
+      path: ~/.config/opencode/skills
+  universal:
+    skills:
+      path: ~/.agents/skills
 extras:
-    - name: commands
-      targets:
-        - path: ~/.agents/commands
-        - path: ~/.claude/commands
-        - path: ~/.codex/commands
-        - path: ~/.gemini/commands
-        - path: ~/.config/opencode/commands
-    - name: prompts
-      targets:
-        - path: ~/.agents/prompts
-        - path: ~/.claude/prompts
-        - path: ~/.codex/prompts
-        - path: ~/.gemini/prompts
-        - path: ~/.config/opencode/prompts
-    - name: rules
-      targets:
-        - path: ~/.agents/rules
-        - path: ~/.claude/rules
-        - path: ~/.codex/rules
-        - path: ~/.gemini/rules
-        - path: ~/.config/opencode/rules
+  - name: commands
+    targets:
+      - path: ~/.agents/commands
+      - path: ~/.claude/commands
+      - path: ~/.codex/commands
+      - path: ~/.gemini/commands
+      - path: ~/.config/opencode/commands
+  - name: prompts
+    targets:
+      - path: ~/.agents/prompts
+      - path: ~/.claude/prompts
+      - path: ~/.codex/prompts
+      - path: ~/.gemini/prompts
+      - path: ~/.config/opencode/prompts
+  - name: rules
+    targets:
+      - path: ~/.agents/rules
+      - path: ~/.claude/rules
+      - path: ~/.codex/rules
+      - path: ~/.gemini/rules
+      - path: ~/.config/opencode/rules
 ignore:
-    - '**/.DS_Store'
-    - '**/.git/**'
+  - '**/.DS_Store'
+  - '**/.git/**'
 audit:
-    block_threshold: MEDIUM
+  block_threshold: MEDIUM
