@@ -20,7 +20,17 @@ SHFMT        := shfmt
 SHFMT_OPTS   := -i 2 -ci -bn
 
 # bats options
-BATS_OPTS    := --timing
+# Enable parallel execution when GNU parallel or rush is available.
+# --jobs uses all logical CPUs; falls back to serial if neither tool is found.
+BATS_PARALLEL_BINARY := $(or \
+$(shell command -v parallel 2>/dev/null), \
+$(shell command -v rush 2>/dev/null))
+BATS_JOBS    := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
+ifdef BATS_PARALLEL_BINARY
+BATS_OPTS := --timing --jobs $(BATS_JOBS)
+else
+BATS_OPTS := --timing
+endif
 
 # Only use colors when stdout is a terminal (skip in CI/non-TTY contexts)
 # tput handles non-TTY gracefully; redirect stderr to suppress any warnings
@@ -63,8 +73,9 @@ help:
 	@echo "    make test-unit     Run unit tests only"
 	@echo "    make test-integ    Run integration tests only"
 	@echo "    make test-file     Run a single test file  (FILE=test/unit/foo.bats)"
-	@echo "    make test-tap      Run all tests with TAP output (for CI)"
+	@echo "    make test-tap      Run all tests with TAP output (for CI, serial)"
 	@echo "    make test-filter   Run tests matching a pattern (FILTER='backup file')"
+	@echo "    (Tests run in parallel with -j $(BATS_JOBS) when GNU parallel/rush is available)"
 	@echo ""
 	@echo "  $(GREEN)Combined$(RESET)"
 	@echo "    make check         lint-all + fmt-check + test"
@@ -286,7 +297,7 @@ test-file:
 .PHONY: test-tap
 test-tap:
 	@echo "$(CYAN) Running all tests (TAP output)...$(RESET)"
-	@$(BATS) --formatter tap $(UNIT_DIR) $(INTEG_DIR)
+	@$(BATS) --timing --formatter tap $(UNIT_DIR) $(INTEG_DIR)
 
 .PHONY: test-filter
 test-filter:
