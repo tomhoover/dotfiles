@@ -415,3 +415,16 @@ y() {
   [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd" || return
   rm -f -- "$tmp"
 }
+
+m() {
+  if [ "$#" -eq 0 ]; then
+    mise tasks ls
+    command make help
+  else
+    if grep "$@" <<<"$(mise tasks ls)" >/dev/null 2>&1; then
+      mise run "$@"
+    else
+      make "$@"
+    fi
+  fi
+}
