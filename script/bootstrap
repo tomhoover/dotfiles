@@ -462,7 +462,7 @@ stow_dotfiles_pkgs() { #{{{
     fi
   done
 
-  "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr starship tmux vcsh vim
+  "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr starship tmux vcsh vim yazi
   isdarwin && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R darwin || true
   islinux && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R linux || true
   isarch && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R arch || true
