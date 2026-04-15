@@ -1,4 +1,5 @@
 # tests/unit/test_logging.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {

@@ -1,4 +1,5 @@
 # test/unit/test_get_default_branch.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {

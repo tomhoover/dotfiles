@@ -1,4 +1,5 @@
 # tests/unit/test_case_dispatch.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {

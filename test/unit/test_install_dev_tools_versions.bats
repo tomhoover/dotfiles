@@ -1,4 +1,5 @@
 # tests/unit/test_install_dev_tools_versions.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {

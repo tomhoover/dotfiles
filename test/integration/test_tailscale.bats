@@ -1,4 +1,5 @@
 # tests/integration/test_tailscale.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {

@@ -73,6 +73,7 @@ help:
 	@echo ""
 	@echo "  $(GREEN)Testing$(RESET)"
 	@echo "    make test          Run all tests (unit + integration)"
+	@echo "    make test-fast     Run all tests (unit + integration) tagged with 'fast'"
 	@echo "    make test-unit     Run unit tests only"
 	@echo "    make test-integ    Run integration tests only"
 	@echo "    make test-file     Run a single test file  (FILE=test/unit/foo.bats)"
@@ -271,6 +272,13 @@ test:
 	@$(BATS) $(BATS_OPTS) $(UNIT_DIR) $(INTEG_DIR) \
 	&& echo "$(GREEN)✔ All tests passed$(RESET)" \
 	|| { echo "$(RED)✘ Tests failed$(RESET)"; exit 1; }
+
+.PHONY: test-fast
+test-fast:
+	@echo "$(CYAN) Running all tests tagged with 'fast'...$(RESET)"
+	@$(BATS) $(BATS_OPTS) --filter-tags fast $(UNIT_DIR) $(INTEG_DIR) \
+	&& echo "$(GREEN)✔ All 'fast' tests passed$(RESET)" \
+	|| { echo "$(RED)✘ 'fast' tests failed$(RESET)"; exit 1; }
 
 .PHONY: test-unit
 test-unit:

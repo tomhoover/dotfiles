@@ -1,4 +1,5 @@
 # tests/unit/test_backup_file.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {

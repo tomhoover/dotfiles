@@ -1,4 +1,5 @@
 # tests/unit/test_install_dev_tools_installer_loop.bats
+# bats file_tags=fast
 bats_require_minimum_version 1.5.0
 load '../helpers/mocks'
 

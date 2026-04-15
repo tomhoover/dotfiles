@@ -1,4 +1,5 @@
 # tests/unit/test_clone_apt_vcsh.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {

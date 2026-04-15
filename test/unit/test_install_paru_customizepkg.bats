@@ -1,4 +1,5 @@
 # tests/unit/test_install_paru_customizepkg.bats
+# bats file_tags=fast
 load '../helpers/mocks'
 
 setup() {
