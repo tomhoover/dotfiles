@@ -39,6 +39,7 @@ COMMON_PKGS=( #{{{
   diff-so-fancy
   fzf
   ghostty
+  jdupes
   keychain
   mc
   mosh
