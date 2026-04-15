@@ -47,13 +47,12 @@ GIT_COMMITTER_EMAIL = "tom@hisword.net"
 # bats = "latest"
 # black = "latest"
 # cookiecutter = "latest"
-# node = "latest"
 # pipx = "latest"
+# pre-commit = "latest"
 # terraform = "latest"
 # tflint = "latest"
 # tfsec = "latest"
 bat = "latest"
-bats = "latest"
 claude = "latest"
 codex = "latest"
 copier = "latest"
@@ -63,11 +62,16 @@ gemini = "latest"
 hyperfine = "latest"
 node = "latest"
 pi = "latest"
-pre-commit = "latest"
 prek = "latest"
-python = ["3.13", "3.12", "3.11", "3.10"]
+python = ["3.10", "3.11", "3.12", "3.13"]
 ruff = "latest"
 shellcheck = "latest"
 shfmt = "latest"
 usage = "latest"
 uv = "latest"
+
+[tasks.docker]
+run = "docker run --pull=always -it --rm --entrypoint bash jdxcode/mise:latest"
+
+[tasks.pin]
+run = "mise use --pin $(mise registry | fzf --multi | awk '{print $2}')"

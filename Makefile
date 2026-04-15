@@ -1,23 +1,26 @@
 # Makefile for bootstrap and install-dev-tools — lint, format, and test
 
-SHELL        := /usr/bin/env bash
-SCRIPTS      := script/bootstrap script/install-dev-tools
-TEST_DIR     := test
-UNIT_DIR     := $(TEST_DIR)/unit
-INTEG_DIR    := $(TEST_DIR)/integration
-LIBS_DIR     := $(TEST_DIR)/libs
-HELPERS_DIR  := $(TEST_DIR)/helpers
+SHELL           := /usr/bin/env bash
+SCRIPTS         := script/bootstrap script/install-dev-tools
+TEST_DIR        := test
+UNIT_DIR        := $(TEST_DIR)/unit
+INTEG_DIR       := $(TEST_DIR)/integration
+LIBS_DIR        := $(TEST_DIR)/libs
+HELPERS_DIR     := $(TEST_DIR)/helpers
 
 # Tool paths — override via environment if needed
-BATS         := bats
-SHELLCHECK   := shellcheck
-SHFMT        := shfmt
+BATS            := bats
+SHELLCHECK      := shellcheck
+SHFMT           := shfmt
+
+# shellcheck options: warn on everything, target bash
+SHELLCHECK_OPTS := --shell=bash --severity=warning
 
 # shfmt formatting options — match common bash style
 # -i 2  : indent with 2 spaces
 # -ci   : indent switch cases
 # -bn   : binary ops (&&, ||) start a new line
-SHFMT_OPTS   := -i 2 -ci -bn
+SHFMT_OPTS      := -i 2 -ci -bn
 
 # bats options
 # Enable parallel execution when GNU parallel or rush is available.
@@ -25,24 +28,24 @@ SHFMT_OPTS   := -i 2 -ci -bn
 BATS_PARALLEL_BINARY := $(or \
 $(shell command -v parallel 2>/dev/null), \
 $(shell command -v rush 2>/dev/null))
-BATS_JOBS    := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
+BATS_JOBS       := $(shell nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 1)
 ifdef BATS_PARALLEL_BINARY
-BATS_OPTS := --timing --jobs $(BATS_JOBS)
+BATS_OPTS       := --timing --jobs $(BATS_JOBS)
 else
-BATS_OPTS := --timing
+BATS_OPTS       := --timing
 endif
 
 # Only use colors when stdout is a terminal (skip in CI/non-TTY contexts)
 # tput handles non-TTY gracefully; redirect stderr to suppress any warnings
-RED          := $(shell tput setaf 1 2>/dev/null)
-GREEN        := $(shell tput setaf 2 2>/dev/null)
-YELLOW       := $(shell tput setaf 3 2>/dev/null)
-# BLUE         := $(shell tput setaf 4 2>/dev/null)
-# MAGENTA      := $(shell tput setaf 5 2>/dev/null)
-CYAN         := $(shell tput setaf 6 2>/dev/null)
-RESET        := $(shell tput sgr0 2>/dev/null)
+RED             := $(shell tput setaf 1 2>/dev/null)
+GREEN           := $(shell tput setaf 2 2>/dev/null)
+YELLOW          := $(shell tput setaf 3 2>/dev/null)
+# BLUE          := $(shell tput setaf 4 2>/dev/null)
+# MAGENTA       := $(shell tput setaf 5 2>/dev/null)
+CYAN            := $(shell tput setaf 6 2>/dev/null)
+RESET           := $(shell tput sgr0 2>/dev/null)
 
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL   := help
 
 # ---------------------------------------------------------------------------
 # Help

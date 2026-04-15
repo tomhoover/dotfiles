@@ -12,5 +12,6 @@
 # PYTHONDEVMODE=1
 
 [tools]
-bats = "latest"
-claude = "latest"
+bats       = "1.13"
+shellcheck = "0.11"
+shfmt      = "3.13"
