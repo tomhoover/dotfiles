@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/runkids/skillshare/main/schemas/config.schema.json
 source: ~/.config/skillshare/skills
+agents_source: ~/.config/skillshare/agents/
 extras_source: ~/.config/skillshare/extras
 mode: merge
 targets:
