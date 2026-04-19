@@ -219,6 +219,13 @@ disabled = false
 disabled = true
 # }}}
 
+[vcsh] # {{{
+# symbol = ""
+style = "bold green"
+# format = "vcsh [$symbol$repo]($style) "
+# disabled = false
+# }}}
+
 # [aws]
 # format = 'on [$symbol($profile )(\($region\) )(\[$duration\] )]($style)'
 # symbol = "☁️  "
@@ -1411,12 +1418,6 @@ disabled = true
 # detect_extensions = []
 # detect_files = ["Vagrantfile"]
 # detect_folders = []
-#
-# [vcsh]
-# symbol = ""
-# style = "bold yellow"
-# format = "vcsh [$symbol$repo]($style) "
-# disabled = false
 #
 # [vlang]
 # format = "via [$symbol($version )]($style)"
