@@ -21,6 +21,10 @@ if command -v fnox &>/dev/null; then
   _cache_completion "$(command -v fnox)" fnox fnox completion "${SHEL}"
 fi
 
+if command -v hk &>/dev/null; then
+  _cache_completion "$(command -v hk)" hk hk completion "${SHEL}"
+fi
+
 if command -v register-python-argcomplete &>/dev/null && command -v pipx &>/dev/null; then
   _cache_completion "$(command -v pipx)" pipx register-python-argcomplete pipx
 fi

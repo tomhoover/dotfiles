@@ -1,3 +1,8 @@
+# macos-option-as-alt = left
+#
+# keybind = alt+left=unbind
+# keybind = alt+right=unbind
+
 # Font
 font-family = "JetBrainsMono Nerd Font"
 font-style = Regular
