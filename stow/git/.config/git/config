@@ -204,10 +204,8 @@
     # http://michael-kuehnel.de/git/2014/11/21/git-mac-osx-and-german-umlaute.html
     precomposeunicode = false
 
-    # thanks to cdunn2001 - see http://stackoverflow.com/questions/136178/git-diff-handling-long-lines
-    # pager = less -eiFRSX
-    # pager = diff-so-fancy | less --tabs=4 -RFX
-    pager = diff-so-fancy | less --tabs=4 -eiFRSX
+    # pager = less -eFiRSX
+    pager = diff-so-fancy | less --tabs=4 -eFiRSX
     # pager = delta
 
     # disabled per https://www.edwardthomson.com/blog/advent_day_1_gitattributes_for_text_files.html
