@@ -13,6 +13,12 @@ _cache_completion() {
   source "$cache_file"
 }
 
+# changed from 'mise install' to native pkg mgr due to issues with bat completion function:
+# _arguments:comparguments:327: can only be called from completion function
+# if command -v bat &>/dev/null; then
+#   _cache_completion "$(command -v bat)" bat bat --completion "${SHEL}"
+# fi
+
 if command -v codex &>/dev/null; then
   _cache_completion "$(command -v codex)" codex codex completion "${SHEL}"
 fi

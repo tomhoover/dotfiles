@@ -1,4 +1,4 @@
-bootstrap a new system:
+# bootstrap a new system
 
 - Copy desired private repos (gnupg ssh private-vcsh) from IRONKEY to ~/git/
 

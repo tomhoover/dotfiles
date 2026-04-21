@@ -9,6 +9,7 @@ For the "font-size not working" issue:
 Could change to:
   font-family = "JetBrains Mono" (without "Nerd Font" suffix - Ghostty auto-patches with Nerd Fonts)
 ```
+
 # i3 default config
 
 # nvim

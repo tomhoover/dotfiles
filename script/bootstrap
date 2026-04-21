@@ -35,6 +35,7 @@ REQUIRED_PKGS=( #{{{
 ) #}}}
 
 COMMON_PKGS=( #{{{
+  bat
   colordiff
   diff-so-fancy
   fzf
