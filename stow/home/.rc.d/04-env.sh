@@ -91,3 +91,5 @@ export COPIER_SETTINGS_PATH=~/.config/copier/settings.yml
 [ -f ~/.acme.sh/acme.sh.env ] && . ~/.acme.sh/acme.sh.env
 
 export FNOX_AGE_KEY_FILE=~/.ssh/fnox_ed25519
+
+export ZK_NOTEBOOK_DIR=~/Vault
