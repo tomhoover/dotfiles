@@ -19,14 +19,14 @@ indent_style = tab
 
 [[shell]]
 binary_next_line   = true
-# function_next_line = true # Controls the placement of function opening braces.
+function_next_line = false
 switch_case_indent = true
 
 [*.{c,h,cmake,txt}]
 indent_size = 4
 indent_style = tab
 
-[*.{xml,yml}]
+[*.{json,toml,xml,yml}]
 indent_size = 2
 indent_style = space
 
