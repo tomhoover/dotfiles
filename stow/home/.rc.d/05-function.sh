@@ -428,3 +428,8 @@ m() {
     fi
   fi
 }
+
+ghc() {
+  REPO=$(gh repo view "$1" | awk "/^name:/{print \$2}")
+  gh repo clone "${REPO}" "${HOME}/src/gh/${REPO}" && cd "${HOME}/src/gh/${REPO}" || return
+}
