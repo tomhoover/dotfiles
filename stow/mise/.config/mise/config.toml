@@ -1,7 +1,7 @@
 [settings]
 # activate_aggressive = false
 experimental = true
-hook_env.chpwd_only = true
+# hook_env.chpwd_only = true
 idiomatic_version_file_enable_tools = ["python"]
 # python_compile = true
 
