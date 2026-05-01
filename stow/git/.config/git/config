@@ -282,7 +282,7 @@
 
 [init] ; {{{
     defaultBranch = master
-    templateDir = ~/.config/git/template
+    # templateDir = ~/.config/git/template
 ; }}}
 
 [interactive] ; {{{
