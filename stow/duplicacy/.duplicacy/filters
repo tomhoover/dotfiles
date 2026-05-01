@@ -3,6 +3,8 @@
 -data/*
 
 -*/.direnv/
+-*/.uv_cache/
+-*/.venv/
 -*/.sync/Archive/
 
 +.config/
