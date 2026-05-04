@@ -87,6 +87,23 @@ fixups =
     git config remote.gitea.skipFetchAll true
     git config remote.ironkey.skipFetchAll true
 
+# mr --force -d ~/.gnupg-old checkout
+[$HOME/.gnupg-old]
+checkout = git clone 'gitolite:gnupg-old.git' '.gnupg-old'
+skip = lazy
+fetch = fetchOrigin; fetchGitea; fetchLocalhost
+push  = pushAllOrigin; pushAllGitea; pushAllLocalhost
+fixups =
+    chmod -R go= $HOME/.gnupg-old
+    cd "$MR_REPO"
+    grep -q '\[remote "gitolite"\]'  .git/config && git remote rename gitolite origin || true
+    grep -q '\[remote "gitea"\]'     .git/config || git remote add gitea   gitea:tom/gnupg-old.git
+    grep -q '\[remote "ironkey"\]'   .git/config || git remote add ironkey /Volumes/IRONKEY64/git/gnupg-old.git
+    grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/gnupg-old.git && git init --bare $HOME/git/gnupg-old.git )
+    #TODO
+    git config remote.gitea.skipFetchAll true
+    git config remote.ironkey.skipFetchAll true
+
 # mr --force -d ~/.ssh checkout
 [$HOME/.ssh]
 checkout = git clone 'gitolite:ssh.git' '.ssh'
