@@ -28,7 +28,7 @@ PYTHONWARNINGS="ignore:Unverified HTTPS request"
 @weekly             ansible 'APT:&proxmox_all_running' --become -m apt -a update-cache=yes ; ansible 'APT:&proxmox_all_running' -m shell -a "apt list --upgradeable"             && curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/0a8e83fe-1e4a-4fe5-b94d-773fbf60aed5
 @weekly             rsync -qcltz --block-size=8192 --partial --progress --exclude=emeritus-* --exclude=removed-* keyring.debian.org::keyrings/keyrings/* $HOME/.debian-keyring   && curl -fsS --retry 5 -o /dev/null http://healthchecks.t0m.us:8000/ping/f2a64f04-ddea-4292-a23c-aeaf3ec89b0a
 @weekly             $HOME/bin/,gh-backup                                && curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/2f4ce4b2-4e63-47e8-a865-5ff433845a4d
-@weekly             cat $HOME/.ssh/id_ed25519_ariel $HOME/.ssh/id_rsa.pub $HOME/.ssh/id_rsa_arch.pub $HOME/.ssh/id_rsa_ariel.pub $HOME/.ssh/id_rsa_bethel.pub $HOME/.ssh/id_rsa_manuel.pub $HOME/.ssh/id_rsa_theophilus.pub $HOME/.ssh/ansible_rsa.pub $HOME/.ssh/terraform_rsa.pub > $HOME/.ssh/authorized_keys.lxc && curl -fsS --retry 5 -o /dev/null http://healthchecks.t0m.us:8000/ping/fdf9ec42-2e03-46ae-ab92-28bcee10b38c
+@weekly             cat $HOME/.ssh/id_ed25519_ariel.pub $HOME/.ssh/id_rsa.pub $HOME/.ssh/id_rsa_arch.pub $HOME/.ssh/id_rsa_ariel.pub $HOME/.ssh/id_rsa_bethel.pub $HOME/.ssh/id_rsa_manuel.pub $HOME/.ssh/id_rsa_theophilus.pub $HOME/.ssh/ansible_rsa.pub $HOME/.ssh/terraform_rsa.pub > $HOME/.ssh/authorized_keys.lxc && curl -fsS --retry 5 -o /dev/null http://healthchecks.t0m.us:8000/ping/fdf9ec42-2e03-46ae-ab92-28bcee10b38c
 
 
 ##### old #####

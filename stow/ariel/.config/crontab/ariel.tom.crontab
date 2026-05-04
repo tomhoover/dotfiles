@@ -27,7 +27,7 @@ PATH=/Users/tom/bin:/Users/tom/.local/share/mise/shims:/opt/homebrew/bin:/opt/ho
 
 0  0      * * Sun   $HOME/bin/,homebrewBackup_weekly             && curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/592f1312-2d83-4f93-a1c1-a396b94011a2
 @weekly             rsync -qcltz --block-size=8192 --partial --progress --exclude=emeritus-* --exclude=removed-* keyring.debian.org::keyrings/keyrings/* $HOME/.debian-keyring   && curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/6eb38636-afaa-4f85-9d63-63a3d5139c0f
-@weekly             cat $HOME/.ssh/id_ed25519_ariel $HOME/.ssh/id_rsa.pub $HOME/.ssh/id_rsa_arch.pub $HOME/.ssh/id_rsa_ariel.pub $HOME/.ssh/id_rsa_bethel.pub $HOME/.ssh/id_rsa_manuel.pub $HOME/.ssh/id_rsa_theophilus.pub $HOME/.ssh/ansible_rsa.pub $HOME/.ssh/terraform_rsa.pub > $HOME/.ssh/authorized_keys.lxc   && curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/5b25f474-490f-4748-83da-00b6404a273a
+@weekly             cat $HOME/.ssh/id_ed25519_ariel.pub $HOME/.ssh/id_rsa.pub $HOME/.ssh/id_rsa_arch.pub $HOME/.ssh/id_rsa_ariel.pub $HOME/.ssh/id_rsa_bethel.pub $HOME/.ssh/id_rsa_manuel.pub $HOME/.ssh/id_rsa_theophilus.pub $HOME/.ssh/ansible_rsa.pub $HOME/.ssh/terraform_rsa.pub > $HOME/.ssh/authorized_keys.lxc   && curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/5b25f474-490f-4748-83da-00b6404a273a
 @weekly             $HOME/.ansible/roles/user-config/files/get-grml-files.sh
 
 
