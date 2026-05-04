@@ -197,6 +197,33 @@ disabled = true
 # disabled = true
 # }}}
 
+[nodejs]
+# format = "via [$symbol($version )]($style)"
+# version_format = "v${raw}"
+# symbol = " "
+# style = "bold green"
+# disabled = false
+disabled = true
+# not_capable_style = "bold red"
+# detect_extensions = [
+#     "js",
+#     "mjs",
+#     "cjs",
+#     "ts",
+#     "mts",
+#     "cts",
+# ]
+# detect_files = [
+#     "package.json",
+#     ".node-version",
+#     ".nvmrc",
+#     "!bunfig.toml",
+#     "!bun.lock",
+#     "!bun.lockb",
+# ]
+# detect_folders = ["node_modules"]
+#
+# [ocaml]
 [shlvl] # {{{
 # threshold = 2
 # format = "[$symbol$shlvl]($style) "
@@ -933,32 +960,6 @@ style = "bold green"
 # disabled = false
 # heuristic = false
 #
-# [nodejs]
-# format = "via [$symbol($version )]($style)"
-# version_format = "v${raw}"
-# symbol = " "
-# style = "bold green"
-# disabled = false
-# not_capable_style = "bold red"
-# detect_extensions = [
-#     "js",
-#     "mjs",
-#     "cjs",
-#     "ts",
-#     "mts",
-#     "cts",
-# ]
-# detect_files = [
-#     "package.json",
-#     ".node-version",
-#     ".nvmrc",
-#     "!bunfig.toml",
-#     "!bun.lock",
-#     "!bun.lockb",
-# ]
-# detect_folders = ["node_modules"]
-#
-# [ocaml]
 # format = 'via [$symbol($version )(\($switch_indicator$switch_name\) )]($style)'
 # version_format = "v${raw}"
 # global_switch_indicator = ""
