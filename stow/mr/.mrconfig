@@ -32,6 +32,12 @@ fixups =
     grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite    gitolite:tom/dotfiles.git
     grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/dotfiles.git && git init --bare $HOME/git/dotfiles.git )
     command -v ~/bin/,update-stow &>/dev/null ] && { echo "`tput setaf 6` ,update-stow:`tput sgr0`"; ~/bin/,update-stow; } || true
+    # crontabs
+    cd "$HOME"
+    [ .config/crontab/$hostname.crontab -nt /etc/crontab ] && echo "" && echo "be sure to '`tput setaf 1`sudo cp $HOME/.config/crontab/$hostname.crontab /etc/crontab`tput sgr0`'" || true
+    [ -f .config/crontab/$hostname-crond ] && [ ! -f /etc/cron.d/$hostname-crond ] && echo "" && echo "be sure to '`tput setaf 1`sudo cp $HOME/.config/crontab/$hostname-crond /etc/cron.d`tput sgr0`'" || true
+    [ .config/crontab/$hostname-crond -nt /etc/cron.d/$hostname-crond ]            && echo "" && echo "be sure to '`tput setaf 1`sudo cp $HOME/.config/crontab/$hostname-crond /etc/cron.d`tput sgr0`'" || true
+    [ -f .config/crontab/$hostname.$whoami.crontab ] && crontab .config/crontab/$hostname.$whoami.crontab || true
 
 [$HOME/bin]
 checkout = git clone 'https://github.com/tomhoover/bin.git' 'bin'
