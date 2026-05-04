@@ -14,10 +14,10 @@ if command -v brew &>/dev/null; then
 
   # instruct Homebrew to return to pre-4.0.0 behaviour by cloning the Homebrew/homebrew-core tap during installation
   # https://docs.brew.sh/Installation
-  export HOMEBREW_NO_INSTALL_FROM_API=1
+  [ "${MYHOST}" = "ariel" ] && export HOMEBREW_NO_INSTALL_FROM_API=1
 
   # for brew bump-formula-pr
-  export HOMEBREW_DEVELOPER=1
+  [ "${MYHOST}" = "ariel" ] && export HOMEBREW_DEVELOPER=1
 
   # # https://github.com/Homebrew/homebrew-command-not-found
   # HB_CNF_HANDLER="$(brew --repository)/Library/Taps/homebrew/homebrew-command-not-found/handler.sh"

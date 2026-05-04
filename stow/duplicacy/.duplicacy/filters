@@ -23,10 +23,14 @@
 
 -.CloudStationBackup/
 -.ansible_async/
+-.aqbanking/
+-.bash_sessions/
 -.cocoapods/
 -.config/iterm2/sockets/secrets
 -.config/op/op-daemon.sock
 -.config/tmux/plugins/
+-.cpan/
+-.cpanm/
 -.docker/
 -.duplicacy-backups/
 -.duplicacy-web/
@@ -50,21 +54,31 @@
 -.local/pipx/shared/lib/
 -.local/pipx/venvs/
 -.local/pipx2/
+-.local/share/coffee/
 -.local/share/containers/podman/machine/applehv/podman-machine-default-ignition.sock
 -.local/share/direnv/allow/
 -.local/share/mise/downloads/
 -.local/share/mise/installs/
+-.local/share/mise/plugins/
+-.local/share/mise/plugins.old/
 -.local/share/mise/shims/
 -.local/share/nvim/
+-.local/share/tmux2/
 -.local/share/uv/
+-.local/share/vim/plugged/
 -.macports/history
 -.shiv/
 -.stack.old/
 -.stack/
+-.tmux/coffee/plugins/
+-.tmux/plugins/
+-.tmux.old/plugins/
+-.tmux.tch/plugins/
 -.vim/plugged/
 -.vim/tmp/swap/
 -.virtualenvs/
 -.vscode/extensions/
+-2delete.*/
 -Applications/
 -Backup/
 -GNS3/
@@ -87,16 +101,31 @@
 -src/github.com/
 -src2/
 -tmp/
+-wireguard/
 
 # Exclude permission denied
 -.config-backup/
 -.config-backup2/
+-dl/.Spotlight-V100/
+-dl/.Trashes/
+-dl/.fseventsd/
+-doc/.Spotlight-V100/
+-doc/.fseventsd/
 -git/.Spotlight-V100/
 -git/.Trashes/
 -git/.fseventsd/
 -src/.Spotlight-V100/
 -src/.Trashes/
 -src/.fseventsd/
+
+# Skipped non-regular file
+-.orbstack/run/docker.sock
+-.orbstack/run/nfs.sock
+-.orbstack/run/sconrpc.sock
+-.orbstack/run/sconrpc2.sock
+-.orbstack/run/sconssh.sock
+-.orbstack/run/vmcontrol.sock
+-.ssh/agent/s.3jdZ0PFtX9.agent.wKkFpwxgSi
 
 #### ----------------------- Generic Transients -----------------------  ####
 
