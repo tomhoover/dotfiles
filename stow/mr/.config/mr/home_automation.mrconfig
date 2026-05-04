@@ -37,6 +37,7 @@ fixups =
     grep -q '\[remote "gitolite1"\]' .git/config && git remote remove gitolite1 || true
     grep -q '\[remote "gitolite2"\]' .git/config && git remote remove gitolite2 || true
     grep -q '\[remote "gitolite"\]'  .git/config || git remote add gitolite  gitolite:tom/mqttwarn.git
+    grep -q '\[remote "upstream"\]'  .git/config || git remote add upstream  https://github.com/mqtt-tools/mqttwarn.git
     grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/mqttwarn.git && git init --bare $HOME/git/mqttwarn.git )
 
 ##### read-only repos
