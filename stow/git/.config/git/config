@@ -332,6 +332,12 @@
     gpgSign = false
 ; }}}
 
+[remote "rsyncNet"] ; {{{
+    annex-rsync-options = --compress-level=0
+    annex-ssh-options = -i ~/.ssh/rsyncNet_ed25519 -o Compression=no
+    skipDefaultUpdate = true
+; }}}
+
 [url "ssh://git@gitea:2222/"] ; {{{
     insteadOf = "gitea:"
     pushInsteadOf = "http://gitea:3000/"
