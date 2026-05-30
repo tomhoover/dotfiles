@@ -10,10 +10,8 @@
     // - Also used for generic contexts that just respect `model`
     // Qwen3.5 Plus via Go is very cheap and strong for coding.
     "model": "opencode-go/qwen3.5-plus",
-
     // Default primary agent when none is specified (TUI, CLI, IDE, etc.)
     "default_agent": "build",
-
     "agent": {
         // Main coding agent:
         // - Primary, uses global model (Qwen3.5 Plus via Go)
@@ -22,7 +20,6 @@
             "mode": "primary"
             // No model override -> inherits "opencode-go/qwen3.5-plus"
         },
-
         // Alternate coding agent using MiniMax M2.7:
         // - Primary, same permissions as Build
         // - Use this when you explicitly want MiniMax behavior
@@ -31,7 +28,6 @@
             "model": "opencode-go/minimax-m2.7",
             "description": "Build agent using MiniMax M2.7 for comparison and specific tasks"
         },
-
         // Safer, higher-quality reasoning / planning:
         // - Primary, explicitly using GPT-5.1 via Zen
         // - Built-in Plan permissions already ask for edits & bash
@@ -40,7 +36,6 @@
             "model": "opencode/gpt-5.1",
             "description": "High-quality planning and reasoning using GPT-5.1"
         },
-
         // General-purpose subagent:
         // - Subagent used for research / multi-step tasks
         // - No model override:
@@ -50,7 +45,6 @@
             "mode": "subagent",
             "description": "General questions and multi-step help"
         },
-
         // Fast, read-only code exploration:
         // - Subagent that only reads/searches; no file writes.
         // - Uses a Go MiMo model, tuned and cheap for exploration.
@@ -59,7 +53,6 @@
             "model": "opencode-go/mimo-v2.5",
             "description": "Fast read-only code exploration"
         },
-
         // High-quality code review:
         // - Subagent using GPT-5.1 via Zen for deeper reviews.
         // - Call with @review or via Task if the model chooses.
@@ -68,12 +61,12 @@
             "model": "opencode/gpt-5.1",
             "description": "PR review and deep logic verification"
         },
-
         // Fast, free general questions and help.
         // Use explicitly via @free when you want to stay on free models.
         "free": {
-            "mode": "subagent",
-            "model": "opencode/minimax-m2.5-free",
+            "mode": "all",
+            // "model": "opencode/minimax-m2.5-free",
+            "model": "opencode/deepseek-v4-flash-free",
             "description": "Fast, free general questions and help"
         }
     }
