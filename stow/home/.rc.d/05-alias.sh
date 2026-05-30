@@ -49,11 +49,11 @@ alias lla="LC_ALL=C /bin/ls -lAF ${colorflag}"
 
 # List all files colorized in long format, reverse sorted by date (newest at bottom)
 # shellcheck disable=SC2139
-alias ltr="LC_ALL=C /bin/ls -ltrF ${colorflag}"
+alias lt="LC_ALL=C /bin/ls -ltrF ${colorflag}"
 
 # List all files colorized in long format, reverse sorted by date (newest at bottom), including dot files
 # shellcheck disable=SC2139
-alias ltra="LC_ALL=C /bin/ls -ltrAF ${colorflag}"
+alias lta="LC_ALL=C /bin/ls -ltrAF ${colorflag}"
 
 # Always use color output for `ls`
 # alias ls="LC_ALL=C command /bin/ls ${colorflag}"
