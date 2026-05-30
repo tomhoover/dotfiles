@@ -1,0 +1,7 @@
+[includeIf "onbranch:main"] ; {{{
+    path = ~/.config/git/gpg-sign-true
+; }}}
+
+[includeIf "onbranch:master"] ; {{{
+    path = ~/.config/git/gpg-sign-true
+; }}}

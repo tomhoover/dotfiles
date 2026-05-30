@@ -11,12 +11,14 @@
     #l = log --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset) - %C(bold green)(%ar)%C(reset)'
     #l = log --graph --abbrev-commit --decorate --format=format:'%C(blue)%h%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset) - %C(green)(%ar)%C(reset)'
     #l = log --max-count=30 --graph --abbrev-commit --decorate --format=format:'%C(blue)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(dim white)[%an]%C(reset) %C(green)(%ar)%C(reset)'
-    l = log --graph --abbrev-commit --decorate --format=format:'%C(blue)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(dim white)[%an]%C(reset) %C(green)(%ar)%C(reset)'
+    #l = log --graph --abbrev-commit --decorate --format=format:'%C(blue)%h%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(dim white)[%an]%C(reset) %C(green)(%ar)%C(reset)'
+    l = log --graph --abbrev-commit --decorate --format=format:'%C(blue)%h%C(reset)%C(dim white) %G?%C(reset)%C(auto)%d%C(reset) %C(white)%s%C(reset) %C(dim white)[%an]%C(reset) %C(green)(%ar)%C(reset)'
 
     #l = log --graph --oneline --decorate
     la = !git l --all
 
     ci = commit
+    cis = commit -S
     co = checkout
     # View the current working tree status using the short format
     s = status -s
@@ -246,8 +248,7 @@
 ; }}}
 
 [commit] ; {{{
-    gpgSign = true
-
+    gpgSign = false
 ; }}}
 
 [credential] ; {{{
@@ -327,6 +328,10 @@
     default = simple
 ; }}}
 
+[rebase] ; {{{
+    gpgSign = false
+; }}}
+
 [url "ssh://git@gitea:2222/"] ; {{{
     insteadOf = "gitea:"
     pushInsteadOf = "http://gitea:3000/"
@@ -365,6 +370,15 @@
 
 [include] ; {{{
     path = ~/.config/git/user
+
+[includeIf "gitdir:~/src/gh/"] ; {{{
+    path = ~/.config/git/gpg-sign-github
+; }}}
+
+[includeIf "gitdir:~/src/github.com/"] ; {{{
+    path = ~/.config/git/gpg-sign-github
+; }}}
+
 ; }}}
 
 ; superceded stuff {{{
