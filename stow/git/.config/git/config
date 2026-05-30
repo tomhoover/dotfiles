@@ -381,6 +381,10 @@
     path = ~/.config/git/gpg-sign-github
 ; }}}
 
+[includeIf "gitdir:~/bin/"] ; {{{
+    path = ~/.config/git/gpg-sign-github
+; }}}
+
 [includeIf "gitdir:~/src/gh/"] ; {{{
     path = ~/.config/git/gpg-sign-github
 ; }}}
