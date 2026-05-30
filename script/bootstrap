@@ -150,6 +150,13 @@ isfedora() { #{{{
   local os_release="${OS_RELEASE:-/etc/os-release}"
   # shellcheck disable=SC1090 # os_release path is dynamic (overridable for tests)
   islinux && (. "$os_release" && [ "$ID" = "fedora" ])
+  # if islinux && [ -f /etc/os-release ]; then
+  #   # shellcheck disable=SC1091
+  #   . /etc/os-release
+  #   # shellcheck disable=SC2078
+  #   [ "${ID}" = "fedora" ] && return 0
+  # fi
+  # return 1
 } #}}}
 
 isomarchy() { #{{{
@@ -322,7 +329,7 @@ set_private_repos_tracking() { #{{{
 
 setup_keychain() { #{{{
   # start ssh-agent & load key
-  command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_ed25519_"${MYHOST}" github_rsa id_rsa)"
+  command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_ed25519_"${MYHOST}" id_rsa_"${MYHOST}" github_rsa id_rsa)"
   # shellcheck disable=SC1090
   [ -f "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
 } #}}}
