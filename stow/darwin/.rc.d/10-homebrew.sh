@@ -31,6 +31,9 @@ if command -v brew &>/dev/null; then
     source "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER"
   fi
 
+  # allow GTK applications discover their runtime resources on macOS
+  export XDG_DATA_DIRS="/opt/homebrew/share:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+
   # The following PATH definition is required, as .zshrc prepends the MacPorts PATH
   # (PATH="/opt/local/bin:/opt/local/sbin:$PATH"), which places it at a higher
   # precedence than homebrew
