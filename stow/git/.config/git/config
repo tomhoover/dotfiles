@@ -377,6 +377,10 @@
 [include] ; {{{
     path = ~/.config/git/user
 
+[includeIf "gitdir:~/.dotfiles/"] ; {{{
+    path = ~/.config/git/gpg-sign-github
+; }}}
+
 [includeIf "gitdir:~/src/gh/"] ; {{{
     path = ~/.config/git/gpg-sign-github
 ; }}}
