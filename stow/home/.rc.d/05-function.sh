@@ -59,19 +59,19 @@ targz() {
   echo "${tmpFile}.gz created successfully."
 }
 
-# Determine size of a file or total size of a directory
-fs() {
-  if du -b /dev/null >/dev/null 2>&1; then
-    local arg=-sbh
-  else
-    local arg=-sh
-  fi
-  if (($#)); then
-    du $arg -- "$@"
-  else
-    du $arg .[^.]* ./*
-  fi
-}
+# # Determine size of a file or total size of a directory
+# fs() {
+#   if du -b /dev/null >/dev/null 2>&1; then
+#     local arg=-sbh
+#   else
+#     local arg=-sh
+#   fi
+#   if (($#)); then
+#     du $arg -- "$@"
+#   else
+#     du $arg .[^.]* ./*
+#   fi
+# }
 
 ## Use Git's colored diff when available
 #hash git &>/dev/null;
@@ -436,4 +436,16 @@ ghc() {
 
 ai() {
   opencode run --agent free "$*"
+}
+
+# find file
+ff() {
+  # fd --hidden -t f -E '[A-Z]*' "$@" ~
+  fd --hidden -t f -E 'Library' -g "$*" ~ | sort
+}
+
+# find string
+fs() {
+  # rg --vimgrep "$@" ~/.[!.]* ~/[a-z]* ~/[!A-Za-z]* 2>/dev/null | grep -v '.zsh_history' | sort
+  rg --hidden --vimgrep --glob '!.zsh_history' --glob '!Library/**' "$*" ~ 2>/dev/null | sort
 }
