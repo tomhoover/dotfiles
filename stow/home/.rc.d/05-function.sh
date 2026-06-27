@@ -446,6 +446,28 @@ ff() {
 
 # find string
 fs() {
-  # rg --vimgrep "$@" ~/.[!.]* ~/[a-z]* ~/[!A-Za-z]* 2>/dev/null | grep -v '.zsh_history' | sort
-  rg --hidden --vimgrep --glob '!.zsh_history' --glob '!Library/**' "$*" ~ 2>/dev/null | sort
+  # 34 seconds:
+  # rg --hidden --vimgrep "$*" ~/.[!.]* ~/[a-z]* ~/[!A-Za-z]* 2>/dev/null | grep -v '.zsh_history' | sort
+
+  # 20 seconds from ~, 40 seconds from ~/.dotfiles -- after adding pushd/popd, both at 20 seconds:
+  pushd ~ || exit 1
+  rg --hidden --vimgrep \
+    --glob '!.Trash/**' \
+    --glob '!.cache/**' \
+    --glob '!.npm/**' \
+    --glob '!.local/share/**' \
+    --glob '!.nvm/**' \
+    --glob '!.cargo/**' \
+    --glob '!.rustup/**' \
+    --glob '!.pyenv/**' \
+    --glob '!.zsh_history' \
+    "$*" \
+    ~/.[!.]* ~/[a-z]* ~/[!A-Za-z]* \
+    2>/dev/null | sort
+  popd || exit 1
+
+  # 33 seconds from ~, 33 seconds from ~/.dotfiles:
+  # fd --hidden -t f -E Library \
+  #   --search-path ~ \
+  #   --exec rg --vimgrep "$*" {} + 2>/dev/null | sort
 }
