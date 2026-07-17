@@ -9,6 +9,11 @@ if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
   MAGENTA=$(tput setaf 5 2>/dev/null || true)
   CYAN=$(tput setaf 6 2>/dev/null || true)
   BOLD=$(tput bold 2>/dev/null || true)
+  DIM=$(tput dim 2>/dev/null || true)
+  STANDOUT_ON=$(tput smso 2>/dev/null || true)
+  STANDOUT_OFF=$(tput rmso 2>/dev/null || tput sgr0 2>/dev/null || true)
+  UNDERLINE_ON=$(tput smul 2>/dev/null || true)
+  UNDERLINE_OFF=$(tput rmul 2>/dev/null || tput sgr0 2>/dev/null || true)
   ITALICS_ON=$(tput sitm 2>/dev/null || true)
   ITALICS_OFF=$(tput ritm 2>/dev/null || tput sgr0 2>/dev/null || true)
   RESET=$(tput sgr0 2>/dev/null || true)
@@ -20,6 +25,11 @@ else
   MAGENTA=
   CYAN=
   BOLD=
+  DIM=
+  STANDOUT_ON=
+  STANDOUT_OFF=
+  UNDERLINE_ON=
+  UNDERLINE_OFF=
   ITALICS_ON=
   ITALICS_OFF=
   RESET=
