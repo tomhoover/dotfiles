@@ -478,7 +478,7 @@ stow_dotfiles_pkgs() { #{{{
   isdebian && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R debian || true
   isomarchy && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R omarchy || true
   iszsh && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R zsh || true
-  [ "${MYHOST}" = "ariel" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator || true
+  [ "${MYHOST}" = "ariel" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R ansible beets hermes tmuxinator || true
   [ "${MYHOST}" = "theophilus" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R i3 x11 || true
   isdev && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R claude fnox ghostty kitty komodo nvim opencode skillshare || true # currently unused: alacritty podman
   #TODO the following line needs testing on newly installed machines
