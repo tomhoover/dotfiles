@@ -53,6 +53,12 @@ export RESTIC_REPOSITORY=sftp:restic.drobo:restic
 export PUID=1000
 export PGID=1000
 
+if isdarwin; then
+  export PUID=501
+  export PGID=20
+  [ "${MYHOST}" = "bethel" ] && export PUID=1000
+fi
+
 export TZ="America/Chicago"
 
 # pip should only run if there is a virtualenv currently activated
