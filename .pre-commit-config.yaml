@@ -66,6 +66,19 @@ repos:
       types: [text]
       exclude: '.pre-commit-config.yaml'
 
+    # Hermes: block accidental secret commits into a public dotfiles repo.
+    # config.yaml normally holds settings only, but custom providers can inline
+    # an api_key/bearer/token — which would leak. Fail before it reaches GitHub.
+    - id: prevent-hermes-secret
+      name: 'prevent Hermes secrets in config.yaml'
+      language: pygrep
+      # matches a secret-key name (case-insensitive, optional quotes/colon) whose
+      # value is non-empty and not a ${{...}} template or env-ref.
+      entry: '(?i)(api_key|apikey|token|access_token|refresh_token|id_token|secret|client_secret|password|passwd|auth|authorization|private_key|bearer|jwt)\s*[:=]\s*(''|")?[^\s''"$]'
+      files: 'stow/hermes/.*config\.yaml$'
+      # don't trip on templated/placeholder values or the noir "secrets" personality text
+      exclude: '(\{\{|\$\{|In this city of silicon)'
+
 - repo: https://github.com/tomhoover/pre-commit-hooks
   rev: 3.0.0
   hooks:

@@ -14,3 +14,13 @@ omarchy/
 *.swp
 *.swo
 *~
+
+# Hermes (GNU Stow package lives under stow/hermes/)
+# config.yaml is safe to commit (settings only), but these siblings carry
+# secrets/session data and must never be stowed into a public repo.
+stow/hermes/.hermes/.env
+stow/hermes/.hermes/auth.json
+stow/hermes/.hermes/state.db
+stow/hermes/.hermes/sessions/
+stow/hermes/.hermes/logs/
+stow/hermes/.hermes/shell-hooks-allowlist.json
