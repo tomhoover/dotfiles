@@ -40,8 +40,8 @@ endif
 RED             := $(shell tput setaf 1 2>/dev/null)
 GREEN           := $(shell tput setaf 2 2>/dev/null)
 YELLOW          := $(shell tput setaf 3 2>/dev/null)
-# BLUE          := $(shell tput setaf 4 2>/dev/null)
-# MAGENTA       := $(shell tput setaf 5 2>/dev/null)
+BLUE          := $(shell tput setaf 4 2>/dev/null)
+MAGENTA       := $(shell tput setaf 5 2>/dev/null)
 CYAN            := $(shell tput setaf 6 2>/dev/null)
 RESET           := $(shell tput sgr0 2>/dev/null)
 
@@ -53,25 +53,25 @@ RESET           := $(shell tput sgr0 2>/dev/null)
 
 .PHONY: help
 help:
-	@echo ""
-	@echo "  $(CYAN)bootstrap & install-dev-tools — development targets$(RESET)"
-	@echo ""
-	@echo "  $(GREEN)Setup$(RESET)"
+	@#echo ""
+	@#echo "  $(BLUE)bootstrap & install-dev-tools — development targets$(RESET)"
+	@#echo ""
+	@echo "  $(MAGENTA)Setup$(RESET)"
 	@echo "    make deps          Install bats, shellcheck, shfmt via package manager"
 	@echo "    make bats-libs     Clone bats helper libraries into test/libs/"
 	@echo ""
-	@echo "  $(GREEN)Linting$(RESET)"
+	@echo "  $(MAGENTA)Linting$(RESET)"
 	@echo "    make lint          Run shellcheck against all scripts"
 	@echo "    make lint-tests    Run shellcheck against all .bats files"
 	@echo "    make lint-all      Run shellcheck against all scripts and tests"
 	@echo ""
-	@echo "  $(GREEN)Formatting$(RESET)"
+	@echo "  $(MAGENTA)Formatting$(RESET)"
 	@echo "    make fmt           Format all scripts in place with shfmt"
 	@echo "    make fmt-check     Check formatting without modifying files (CI-safe)"
 	@echo "    make fmt-tests     Format all .bats files in place"
 	@echo "    make fmt-all       Format all scripts and .bats files"
 	@echo ""
-	@echo "  $(GREEN)Testing$(RESET)"
+	@echo "  $(MAGENTA)Testing$(RESET)"
 	@echo "    make test          Run all tests (unit + integration)"
 	@echo "    make test-fast     Run all tests (unit + integration) tagged with 'fast'"
 	@echo "    make test-unit     Run unit tests only"
@@ -81,19 +81,19 @@ help:
 	@echo "    make test-filter   Run tests matching a pattern (FILTER='backup file')"
 	@echo "    (Tests run in parallel with -j $(BATS_JOBS) when GNU parallel/rush is available)"
 	@echo ""
-	@echo "  $(GREEN)Combined$(RESET)"
+	@echo "  $(MAGENTA)Combined$(RESET)"
 	@echo "    make check         lint-all + fmt-check + test"
 	@echo "    make ci            fmt-check + lint-all + test-tap"
 	@echo "    make fix           fmt-all (format everything in place)"
 	@echo ""
-	@echo "  $(GREEN)Utilities$(RESET)"
+	@echo "  $(MAGENTA)Utilities$(RESET)"
 	@echo "    make clean         Remove temp files and bats output artifacts"
 	@echo "    make list-tests    List all test names without running them"
 	@echo "    make verify-deps   Check that all required tools are installed"
 	@echo ""
-	@echo "  $(GREEN)Scripts$(RESET)"
+	@echo "  $(MAGENTA)Scripts$(RESET)"
 	@echo "    $(SCRIPTS)"
-	@echo ""
+	@#echo ""
 
 # ---------------------------------------------------------------------------
 # Dependency installation
