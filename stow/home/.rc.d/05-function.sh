@@ -416,19 +416,6 @@ y() {
   rm -f -- "$tmp"
 }
 
-m() {
-  if [ "$#" -eq 0 ]; then
-    mise tasks ls
-    command make help
-  else
-    if grep "$@" <<<"$(mise tasks ls)" >/dev/null 2>&1; then
-      mise run "$@"
-    else
-      make "$@"
-    fi
-  fi
-}
-
 ghc() {
   REPO=$(gh repo view "$1" | awk "/^name:/{print \$2}")
   gh repo clone "${REPO}" "${HOME}/src/gh/${REPO}" && cd "${HOME}/src/gh/${REPO}" || return
@@ -470,4 +457,31 @@ fs() {
   # fd --hidden -t f -E Library \
   #   --search-path ~ \
   #   --exec rg --vimgrep "$*" {} + 2>/dev/null | sort
+}
+
+make() {
+  echo
+  if [ "$#" -eq 0 ]; then
+    if command -v mise >/dev/null 2>&1; then
+      echo "${BOLD}${GREEN}Available ${ITALICS_ON}mise${ITALICS_OFF} targets:${RESET}"
+      mise tasks ls
+      echo
+    fi
+    if [[ -f Makefile ]] && command -v make >/dev/null 2>&1; then
+      echo "${BOLD}${GREEN}Available ${ITALICS_ON}make${ITALICS_OFF} targets:${RESET}"
+      command make help
+      echo
+    fi
+  else
+    # if grep "$@" <<<"$(mise tasks ls)" >/dev/null 2>&1; then
+    #   mise run "$@"
+    # else
+    #   make "$@"
+    # fi
+    if command -v mise >/dev/null 2>&1; then
+      mise tasks run "$@"
+    elif [[ -f Makefile ]] && command -v make >/dev/null 2>&1; then
+      command make "$@"
+    fi
+  fi
 }
