@@ -245,3 +245,5 @@ alias .git='git --git-dir=$HOME/.dotfiles --work-tree=$HOME'
 alias cu='copier update --skip-tasks'
 
 alias ss='skillshare'
+
+alias gst='vcsh st; git-statuses -c ~; git-statuses -d-1 -cn ~/src'
