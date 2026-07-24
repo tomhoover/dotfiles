@@ -21,6 +21,22 @@
 +git/
 +src/
 
+-.gnupg.consolidated/S.gpg-agent
+-.gnupg.consolidated/S.gpg-agent.browser
+-.gnupg.consolidated/S.gpg-agent.extra
+-.gnupg.consolidated/S.gpg-agent.ssh
+-.gnupg.consolidated/S.keyboxd
+-.gnupg.consolidated/S.scdaemon
+-.gnupg.new/S.keyboxd
+-.gnupg.repo/S.dirmngr
+-.gnupg.repo/S.gpg-agent
+-.gnupg.repo/S.gpg-agent.browser
+-.gnupg.repo/S.gpg-agent.extra
+-.gnupg.repo/S.gpg-agent.ssh
+-.gnupg.repo/S.scdaemon
+-src/.DocumentRevisions-V100/
+-src/.TemporaryItems/
+
 -.CloudStationBackup/
 -.ansible_async/
 -.aqbanking/
