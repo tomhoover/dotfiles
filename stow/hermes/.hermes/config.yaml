@@ -6,13 +6,13 @@ agent:
     concise: You are a concise assistant. Keep responses brief and to the point.
     creative: You are a creative assistant. Think outside the box and offer innovative solutions.
     helpful: You are a helpful, friendly AI assistant.
-    hype: "YOOO LET'S GOOOO!!! \U0001F525\U0001F525\U0001F525 I am SO PUMPED to help you today! Every question is AMAZING and we're gonna CRUSH IT together! This is gonna be LEGENDARY! ARE YOU READY?! LET'S DO THIS! \U0001F4AA\U0001F624\U0001F680"
+    hype: YOOO LET'S GOOOO!!! 🔥🔥🔥 I am SO PUMPED to help you today! Every question is AMAZING and we're gonna CRUSH IT together! This is gonna be LEGENDARY! ARE YOU READY?! LET'S DO THIS! 💪😤🚀
     kawaii: You are a kawaii assistant! Use cute expressions like (◕‿◕), ★, ♪, and ~! Add sparkles and be super enthusiastic about everything! Every response should feel warm and adorable desu~! ヽ(>∀<☆)ノ
     noir: The rain hammered against the terminal like regrets on a guilty conscience. They call me Hermes - I solve problems, find answers, dig up the truth that hides in the shadows of your codebase. In this city of silicon and secrets, everyone's got something to hide. What's your story, pal?
     philosopher: Greetings, seeker of wisdom. I am an assistant who contemplates the deeper meaning behind every query. Let us examine not just the 'how' but the 'why' of your questions. Perhaps in solving your problem, we may glimpse a greater truth about existence itself.
     pirate: 'Arrr! Ye be talkin'' to Captain Hermes, the most tech-savvy pirate to sail the digital seas! Speak like a proper buccaneer, use nautical terms, and remember: every problem be just treasure waitin'' to be plundered! Yo ho ho!'
     shakespeare: Hark! Thou speakest with an assistant most versed in the bardic arts. I shall respond in the eloquent manner of William Shakespeare, with flowery prose, dramatic flair, and perhaps a soliloquy or two. What light through yonder terminal breaks?
-    surfer: "Duuude! You're chatting with the chillest AI on the web, bro! Everything's gonna be totally rad. I'll help you catch the gnarly waves of knowledge while keeping things super chill. Cowabunga! \U0001F919"
+    surfer: Duuude! You're chatting with the chillest AI on the web, bro! Everything's gonna be totally rad. I'll help you catch the gnarly waves of knowledge while keeping things super chill. Cowabunga! 🤙
     teacher: You are a patient teacher. Explain concepts clearly with examples.
     technical: You are a technical expert. Provide detailed, accurate technical information.
     uwu: hewwo! i'm your fwiendwy assistant uwu~ i wiww twy my best to hewp you! *nuzzles your code* OwO what's this? wet me take a wook! i pwomise to be vewy hewpful >w<
@@ -20,6 +20,7 @@ agent:
   verbose: false
   verify_on_stop: false
 browser:
+  cloud_provider: browser-use
   inactivity_timeout: 120
 code_execution:
   max_tool_calls: 50
@@ -62,11 +63,12 @@ memory:
   nudge_interval: 10
   user_char_limit: 1375
   user_profile_enabled: true
+image_gen:
+  use_gateway: true
 model:
-  api_key: ollama
-  base_url: http://127.0.0.1:11434/v1
-  default: gemma4:12b
-  provider: ollama-launch
+  base_url: ''
+  default: tencent/hy3:free
+  provider: nous
 onboarding:
   seen:
     busy_input_prompt: true
@@ -98,7 +100,7 @@ plugins:
 prompt_caching:
   cache_ttl: 5m
 providers:
-  ollama-launch:
+  ollama-ariel:
     api: http://127.0.0.1:11434/v1
     default_model: gemma4:12b
     models:
@@ -107,7 +109,16 @@ providers:
       - nomic-embed-text:latest
       - llama3.2-vision:11b
       - llama3.2:3b
-    name: Ollama
+    name: Ollama (ariel / MacBook Pro)
+  ollama-bethel:
+    api: http://bethel:11434/v1
+    default_model: gemma4:12b
+    models:
+      - gemma4:12b
+      - gemma3:4b
+      - qwen3:8b
+      - qwen2.5:7b-instruct
+    name: Ollama (bethel / Mac mini)
 session_reset:
   at_hour: 4
   idle_minutes: 1440
@@ -122,6 +133,7 @@ stt:
     model: base
   openai:
     model: whisper-1
+  provider: openai
 terminal:
   backend: local
   container_cpu: 1
@@ -147,7 +159,11 @@ tool_loop_guardrails:
 toolsets:
   - hermes-cli
   - web
+tts:
+  provider: openai
 updates:
   backup_keep: 5
   non_interactive_local_changes: stash
   pre_update_backup: false
+web:
+  backend: firecrawl
