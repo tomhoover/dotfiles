@@ -157,7 +157,7 @@ stt:
     model: base
   openai:
     model: whisper-1
-  provider: openai
+  provider: local
 terminal:
   backend: local
   container_cpu: 1
@@ -184,7 +184,7 @@ toolsets:
   - hermes-cli
   - web
 tts:
-  provider: openai
+  provider: edge
 updates:
   backup_keep: 5
   non_interactive_local_changes: stash
