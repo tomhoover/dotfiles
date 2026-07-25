@@ -8,17 +8,17 @@
     // Global default model:
     // - Used by primary agents that don't specify a model
     // - Also used for generic contexts that just respect `model`
-    // Qwen3.5 Plus via Go is very cheap and strong for coding.
-    "model": "opencode-go/qwen3.5-plus",
+    // Qwen3.7 Plus via Go is very cheap and strong for coding.
+    "model": "opencode-go/qwen3.7-plus",
     // Default primary agent when none is specified (TUI, CLI, IDE, etc.)
     "default_agent": "build",
     "agent": {
         // Main coding agent:
-        // - Primary, uses global model (Qwen3.5 Plus via Go)
+        // - Primary, uses global model (Qwen3.7 Plus via Go)
         // - Full tools allowed by default (built-in Build behavior)
         "build": {
             "mode": "primary"
-            // No model override -> inherits "opencode-go/qwen3.5-plus"
+            // No model override -> inherits "opencode-go/qwen3.7-plus"
         },
         // Alternate coding agent using MiniMax M2.7:
         // - Primary, same permissions as Build
