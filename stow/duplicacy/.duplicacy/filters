@@ -36,6 +36,12 @@
 -.gnupg.repo/S.scdaemon
 -src/.DocumentRevisions-V100/
 -src/.TemporaryItems/
+-.gnupg3/S.gpg-agent
+-.gnupg3/S.gpg-agent.browser
+-.gnupg3/S.gpg-agent.extra
+-.gnupg3/S.gpg-agent.ssh
+-.gnupg3/S.keyboxd
+-.gnupg3/S.scdaemon
 
 -.CloudStationBackup/
 -.ansible_async/
@@ -55,6 +61,7 @@
 -.duplicacy2/
 -.duplicacy3/
 -.gem/
+-.gnupg/S.keyboxd
 -.gnupg/S.dirmngr
 -.gnupg/S.gpg-agent
 -.gnupg/S.gpg-agent.browser
@@ -122,6 +129,18 @@
 # Exclude permission denied
 -.config-backup/
 -.config-backup2/
+-annex/archive/.Spotlight-V100/
+-annex/archive/.fseventsd/
+-annex/documents/.Spotlight-V100/
+-annex/documents/.fseventsd/
+-annex/reference/.Spotlight-V100/
+-annex/reference/.fseventsd/
+-annex/software/.Spotlight-V100/
+-annex/software/.fseventsd/
+-annex/testing/.Spotlight-V100/
+-annex/testing/.fseventsd/
+-annex/tmp/.Spotlight-V100/
+-annex/tmp/.fseventsd/
 -dl/.Spotlight-V100/
 -dl/.Trashes/
 -dl/.fseventsd/
@@ -130,6 +149,14 @@
 -git/.Spotlight-V100/
 -git/.Trashes/
 -git/.fseventsd/
+-media/audio/.Spotlight-V100/
+-media/audio/.fseventsd/
+-media/books/.Spotlight-V100/
+-media/books/.fseventsd/
+-media/photos/.Spotlight-V100/
+-media/photos/.fseventsd/
+-media/video/.Spotlight-V100/
+-media/video/.fseventsd/
 -src/.Spotlight-V100/
 -src/.Trashes/
 -src/.fseventsd/
@@ -139,8 +166,10 @@
 -.orbstack/run/nfs.sock
 -.orbstack/run/sconrpc.sock
 -.orbstack/run/sconrpc2.sock
+-.orbstack/run/sconssh-public.sock
 -.orbstack/run/sconssh.sock
 -.orbstack/run/vmcontrol.sock
+-.ssh/agent/s.3jdZ0PFtX9.agent.58tTqbPY22
 -.ssh/agent/s.3jdZ0PFtX9.agent.wKkFpwxgSi
 
 #### ----------------------- Generic Transients -----------------------  ####
