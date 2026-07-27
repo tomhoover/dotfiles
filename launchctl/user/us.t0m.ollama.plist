@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>us.t0m.ollama</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>OLLAMA_FLASH_ATTENTION</key>
+    <string>1</string>
+
+    <key>OLLAMA_KV_CACHE_TYPE</key>
+    <string>q8_0</string>
+
+    <key>OLLAMA_HOST</key>
+    <string>0.0.0.0</string>
+
+    <key>OLLAMA_KEEP_ALIVE</key>
+    <string>6h</string>
+
+    <key>OLLAMA_NUM_PARALLEL</key>
+    <string>2</string>
+
+    <key>OLLAMA_MAX_LOADED_MODELS</key>
+    <string>1</string>
+  </dict>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/ollama</string>
+    <string>serve</string>
+  </array>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>StandardErrorPath</key>
+  <string>/tmp/ollama.stderr</string>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/ollama.stdout</string>
+</dict>
+
+<!--
+<key>OLLAMA_KEEP_ALIVE</key>
+<string>24h</string>
+<key>OLLAMA_KEEP_ALIVE</key>
+<string>-1</string>
+plutil -p ~/Library/LaunchAgents/homebrew.mxcl.ollama.plist
+ps eww $(pgrep -x ollama)
+plutil -lint ~/Library/LaunchAgents/com.tomhoover.ollama.plist
+-->
+
+</plist>
