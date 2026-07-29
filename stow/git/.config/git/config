@@ -321,7 +321,8 @@
 ; }}}
 
 [pull] ; {{{
-    ff = only
+    # ff = only
+    rebase = true
 ; }}}
 
 [push] ; {{{
@@ -329,6 +330,7 @@
 ; }}}
 
 [rebase] ; {{{
+    autostash = true
     gpgSign = false
 ; }}}
 
@@ -394,6 +396,10 @@
 ; }}}
 
 [includeIf "gitdir:~/src/github.com/"] ; {{{
+    path = ~/.config/git/gpg-sign-github
+; }}}
+
+[includeIf "gitdir:~/src/homelab-services/"] ; {{{
     path = ~/.config/git/gpg-sign-github
 ; }}}
 
