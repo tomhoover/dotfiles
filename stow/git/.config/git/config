@@ -344,6 +344,14 @@
 	enabled = true
 ; }}}
 
+[url "ssh://git@forgejo:222/"] ; {{{
+    insteadOf = "forgejo:"
+    insteadOf = "https://forgejo.t0m.us/"
+    pushInsteadOf = "forgejo:"
+    pushInsteadOf = "git://forgejo.t0m.us/"
+    pushInsteadOf = "https://forgejo.t0m.us/"
+; }}}
+
 [url "ssh://git@gitea:2222/"] ; {{{
     insteadOf = "gitea:"
     pushInsteadOf = "http://gitea:3000/"
