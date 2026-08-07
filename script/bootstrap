@@ -481,7 +481,7 @@ stow_dotfiles_pkgs() { #{{{
   isdev && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R claude fnox ghostty kitty komodo nvim opencode skillshare || true # currently unused: alacritty podman
   #TODO the following line needs testing on newly installed machines
   isdev && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R git mise || true
-  [ "${MYHOST}" = "ariel" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R ansible beets hermes tmuxinator || true
+  [ "${MYHOST}" = "ariel" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R ansible beets tmuxinator || true
   [ "${MYHOST}" = "bethel" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R git mise || true
   [ "${MYHOST}" = "theophilus" ] && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R i3 x11 || true
 } #}}}
