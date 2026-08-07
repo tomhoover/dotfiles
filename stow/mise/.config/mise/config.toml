@@ -74,6 +74,7 @@ shellcheck = "latest"
 shfmt = "latest"
 usage = "latest"
 uv = "latest"
+yq = "latest"
 
 [tasks.docker]
 description = "Run a shell in the latest mise docker image"
