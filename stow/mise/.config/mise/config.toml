@@ -40,6 +40,7 @@ GIT_COMMITTER_EMAIL = "tom@hisword.net"
 # "pipx:isort" = "latest"
 # "pipx:pylint" = "latest"
 "aqua:runkids/skillshare" = "latest"
+"cargo:https://github.com/bircni/git-statuses.git" = "latest"
 "github:anomalyco/opencode" = "latest"
 "npm:markdownlint-cli2" = "latest"
 "npm:prettier" = "latest"
@@ -50,30 +51,152 @@ GIT_COMMITTER_EMAIL = "tom@hisword.net"
 # bats = "latest"
 # black = "latest"
 # claude = "latest"
+# codex = "latest"
 # cookiecutter = "latest"
+# pi = "latest"
 # pipx = "latest"
 # pre-commit = "latest"
 # terraform = "latest"
 # tflint = "latest"
 # tfsec = "latest"
-# codex = "latest"
 copier = "latest"
+difftastic = "latest"
 fd = "latest"
 fnox = "latest"
 gemini = "latest"
 hyperfine = "latest"
 node = "22"
-pi = "latest"
 prek = "latest"
 python = ["3.10", "3.11", "3.12", "3.13"]
 ruff = "latest"
+rust = "latest"
 shellcheck = "latest"
 shfmt = "latest"
 usage = "latest"
 uv = "latest"
 
 [tasks.docker]
+description = "Run a shell in the latest mise docker image"
 run = "docker run --pull=always -it --rm --entrypoint bash jdxcode/mise:latest"
 
 [tasks.pin]
+description = "Pin a tool to the latest version in the registry (uses fzf to select the tool)"
 run = "mise use --pin $(mise registry | fzf --multi | awk '{print $2}')"
+
+# dispatch tasks to other tasks
+
+[tasks.bootstrap]
+run = "scripts/dispatch bootstrap"
+description = "Bootstrap the project by installing dependencies and running setup tasks"
+#   uv sync
+
+[tasks.doctor]
+description = "Run a series of checks to ensure the project is healthy"
+run = "scripts/dispatch doctor"
+#   verify required tools are installed
+#   uv run lint
+#   uv run typecheck
+#   uv run test
+#   uv run coverage
+
+[tasks.test]
+description = "Run tests on the project"
+run = "~/.config/mise/scripts/dispatch test"
+#  uv run pytest $(ARGS)
+# run = """
+# echo " $MISE_CONFIG_ROOT = where the task is defined"
+# echo " $MISE_PROJECT_ROOT = the project that defines the task"
+# echo " $MISE_ORIGINAL_CWD = where the user invoked mise"
+# # $MISE_PROJECT_ROOT/scripts/script1
+# cd $MISE_PROJECT_ROOT || exit 1
+# scripts/script1
+# """
+# dir = "{{cwd}}"
+#
+# run = [
+#   { task = "test1" },
+#   { task = "test2" },
+#   { task = "test3" },
+# ]
+# run = [
+#   { tasks = ["test1", "test2", "test3"] }
+# ]
+# run = """
+# echo "PWD=$PWD"
+# echo "CONFIG_ROOT=$MISE_CONFIG_ROOT"
+# pwd
+# ls -la
+# #echo $MISE_CONFIG_ROOT
+# #./mise-tasks/test1
+# #./mise-tasks/test2
+# """
+  # uv run pytest $(ARGS)
+
+[tasks.build]
+description = "Build the project"
+run = "scripts/dispatch build"
+#   uv run lint
+#   uv run typecheck
+#   uv run test
+#   uv run coverage
+
+[tasks.lint]
+description = "Run linters on the project"
+run = "scripts/dispatch lint"
+#   uv run ruff check . $(ARGS)
+
+[tasks.clippy]
+description = "Run clippy on the project"
+run = "scripts/dispatch clippy"
+
+[tasks.format]
+description = "Run formatters on the project"
+run = "scripts/dispatch format"
+#   uv run ruff format . $(ARGS)
+
+[tasks.fmt]
+description = "Run formatters on the project"
+run = "scripts/dispatch fmt"
+
+[tasks.typecheck]
+description = "Run type checkers on the project"
+run = "scripts/dispatch typecheck"
+#   uv run mypy .
+#   uv run pyright .
+
+[tasks.dev]
+description = "Run the project in development mode"
+run = "scripts/dispatch dev"
+
+[tasks.run]
+description = "Run the project"
+run = "scripts/dispatch run"
+
+[tasks.start]
+description = "Start the project"
+run = "scripts/dispatch start"
+
+[tasks.docs]
+description = "Build the documentation"
+run = "scripts/dispatch docs"
+#   uv run mkdocs serve
+
+[tasks.release]
+description = "Release the project"
+run = "scripts/dispatch release"
+#   uv run semantic-release version
+#
+[tasks.clean]
+description = "Clean up build artifacts and caches"
+run = "scripts/dispatch clean"
+#   rm -rf .pytest_cache .mypy_cache .ruff_cache dist build
+#
+[tasks.serve]
+description = "Serve the project"
+run = "scripts/dispatch serve"
+#   uv run -m http.server $(PORT)
+#
+[tasks.coverage]
+description = "Run coverage analysis on the project"
+run = "scripts/dispatch coverage"
+#   uv run pytest --cov=.
