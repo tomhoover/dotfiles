@@ -110,6 +110,32 @@ fixups =
     git config remote.gitea.skipFetchAll true
     git config remote.ironkey.skipFetchAll true
 
+[$HOME/.hermes]
+checkout = git clone 'gitolite:hermes-ariel.git' '.hermes'
+skip = ! on tom@ariel || ([ "$1" = update ] && ! hours_since "$1" 12)
+fetch = fetchOrigin; fetchForgejo; fetchLocalhost
+push  = pushAllOrigin; pushAllForgejo; pushAllLocalhost
+fixups =
+    cd "$MR_REPO"
+    grep -q '\[remote "forgejo"\]'   .git/config || git remote add forgejo forgejo:tom/hermes-ariel.git
+    grep -q '\[remote "ironkey"\]'   .git/config || git remote add ironkey /Volumes/IRONKEY64/git/hermes-ariel.git
+    grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/hermes-ariel.git && git init --bare $HOME/git/hermes-ariel.git )
+    git config remote.ironkey.skipFetchAll true
+
+
+[$HOME/.hermes]
+checkout = git clone 'gitolite:hermes-bethel.git' '.hermes'
+skip = ! on tom@bethel || ([ "$1" = update ] && ! hours_since "$1" 12)
+fetch = fetchOrigin; fetchForgejo; fetchLocalhost
+push  = pushAllOrigin; pushAllForgejo; pushAllLocalhost
+fixups =
+    cd "$MR_REPO"
+    grep -q '\[remote "forgejo"\]'   .git/config || git remote add forgejo forgejo:tom/hermes-bethel.git
+    grep -q '\[remote "ironkey"\]'   .git/config || git remote add ironkey /Volumes/IRONKEY64/git/hermes-bethel.git
+    grep -q '\[remote "localhost"\]' .git/config || ( git remote add localhost $HOME/git/hermes-bethel.git && git init --bare $HOME/git/hermes-bethel.git )
+    git config remote.ironkey.skipFetchAll true
+
+
 # mr --force -d ~/.ssh checkout
 [$HOME/.ssh]
 checkout = git clone 'gitolite:ssh.git' '.ssh'

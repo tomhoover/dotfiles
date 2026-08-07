@@ -109,6 +109,9 @@ lib =
         return 0
         check gitea && git fetch --prune "$@" || true
     }
+    fetchForgejo() {
+        check forgejo && git fetch --prune "$@" || true
+    }
     fetchGitolite() {
         check gitolite && git fetch --prune "$@" || true
     }
@@ -136,6 +139,9 @@ lib =
         return 0
         check gitea && git push gitea || true
     }
+    pushForgejo() {
+        check forgejo && git push forgejo || true
+    }
     pushGitolite() {
         check gitolite && git push gitolite || true
     }
@@ -156,6 +162,9 @@ lib =
     pushAllGitea() {
         return 0
         check gitea && git push --all gitea || true
+    }
+    pushAllForgejo() {
+        check forgejo && git push --all forgejo || true
     }
     pushAllGitolite() {
         check gitolite && git push --all gitolite || true
