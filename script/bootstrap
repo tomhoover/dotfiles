@@ -518,6 +518,8 @@ install_required_pkgs() { #{{{
     echo
     "$BIN"/brew install bash bash-completion@2 zsh-completions "${REQUIRED_PKGS[@]}"
     "$BIN"/brew completions link
+  elif isomarchy; then
+    :
   elif isarch; then
     sudo sed -i 's/^#Color$/Color/' /etc/pacman.conf
     sudo sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
@@ -582,6 +584,7 @@ sudo --reset-timestamp
 clone_dotfiles_repo || true
 install_required_pkgs
 check_installed_commands
+isomarchy && exit
 ! isdarwin && setup_etckeeper
 stow_dotfiles_pkgs
 clone_private_repos

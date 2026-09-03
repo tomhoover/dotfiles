@@ -23,3 +23,5 @@ scratch](https://github.com/folke/snacks.nvim/discussions/765)
 
 <https://github.com/mrjones2014/smart-splits.nvim>
 <https://lazyvim-ambitious-devs.phillips.codes/course/chapter-9/#_smart_splits>
+
+- remove all copilot completion stuff from nvim

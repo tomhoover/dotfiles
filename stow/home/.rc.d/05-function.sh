@@ -246,7 +246,7 @@ o() {
 # small enough for one screen.
 #    tree -aC -I '.git|node_modules|bower_components' --dirsfirst "$@" | less -FRNX;
 tre() {
-  tree -aC -I '.Spotlight-V100|.duplicacy|.fseventsd|.git|node_modules|bower_components' --dirsfirst "$@" | less -FRX
+  tree -aC -I '.Spotlight-V100|.Trashes|.duplicacy|.fseventsd|.git|node_modules|bower_components' --dirsfirst "$@" | less -FRX
 }
 
 # unalias grep to allow the following function definition; grml .zshrc sets 'alias grep=grep --color=auto'

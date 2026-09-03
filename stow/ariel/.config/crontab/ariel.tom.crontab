@@ -8,6 +8,8 @@ PATH=/Users/tom/bin:/Users/tom/.local/share/mise/shims:/opt/homebrew/bin:/opt/ho
 # * * * * *           echo "$PATH" >> $HOME/tmp/crontab.log 2>&1
 # * * * * *           $HOME/bin/,backup-podman >> $HOME/tmp/crontab.log 2>&1
 5 * * * *           tailscale status >/dev/null || $HOME/bin/,pushover "tailscale down" "ariel crontab"
+5 * * * *           [ -d /Volumes/IRONKEY64 ] && /usr/bin/find /Volumes/IRONKEY64 -name '._*' -delete > /dev/null 2>&1
+5 * * * *           [ -d /Volumes/Ventoy ] && /usr/bin/find /Volumes/Ventoy -name '._*' -delete > /dev/null 2>&1
 * * * * *           [ $HOME/dl/fund-price-history.csv -nt $HOME/dl/shareprices.csv ] && head -1 $HOME/dl/fund-price-history.csv | grep '^Date,L Income' >/dev/null 2>&1 && head -260 $HOME/dl/fund-price-history.csv > $HOME/dl/shareprices.csv
 
 0-59/5 * * * *      $HOME/bin/,vault                             && curl -fsS -m 10 --retry 5 -o /dev/null https://hc-ping.com/f3822332-5576-4fd1-ba01-985edb9d785c
