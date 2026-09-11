@@ -6,13 +6,15 @@
 
   ```bash
   git clone https://github.com/tomhoover/dotfiles.git ~/.dotfiles
-  ~/.dotfiles/script/bootstrap
+  ~/.dotfiles/script/zfs-root-install   # optional, if starting from scratch (linux only)
+  ~/.dotfiles/script/bootstrap          # idempotent
   ```
 
 - Alternative (`curl | bash`) — less transparent, skips version control:
 
   ```bash
-  curl https://raw.githubusercontent.com/tomhoover/dotfiles/master/script/bootstrap | bash
+  curl https://raw.githubusercontent.com/tomhoover/dotfiles/master/script/zfs-root-install | bash   # optional, if starting from scratch (linux only)
+  curl https://raw.githubusercontent.com/tomhoover/dotfiles/master/script/bootstrap | bash          # idempotent
   ```
 
   ⚠️ **Caution**: Review scripts before running them with `curl | bash`. Prefer
@@ -34,16 +36,16 @@ make verify-deps   # confirm everything is in place
 
 ### Testing and Linting
 
-| Command              | Description                                          |
-| -------------------- | ---------------------------------------------------- |
-| `make check`         | Run all checks: lint, format verification, and tests |
-| `make test`          | Run all tests (unit + integration)                   |
-| `make test-unit`     | Run unit tests only                                  |
-| `make test-integ`    | Run integration tests only                           |
-| `make lint-all`      | Shellcheck all scripts and test files                |
-| `make fmt-check`     | Verify formatting without modifying files            |
-| `make fmt-all`       | Auto-format all scripts and test files in place      |
-| `make list-tests`    | List all test names without running them             |
+| Command           | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `make check`      | Run all checks: lint, format verification, and tests |
+| `make test`       | Run all tests (unit + integration)                   |
+| `make test-unit`  | Run unit tests only                                  |
+| `make test-integ` | Run integration tests only                           |
+| `make lint-all`   | Shellcheck all scripts and test files                |
+| `make fmt-check`  | Verify formatting without modifying files            |
+| `make fmt-all`    | Auto-format all scripts and test files in place      |
+| `make list-tests` | List all test names without running them             |
 
 Run `make` with no arguments to see the full list of targets.
 
@@ -78,12 +80,12 @@ Dotfiles live in `stow/` and are deployed to `~` via
 [GNU Stow](https://www.gnu.org/software/stow/). Packages are organized by
 tool, OS, or hostname:
 
-| Package pattern       | Example                 | Stowed when            |
-| --------------------- | ----------------------- | ---------------------- |
-| Tool-specific         | `git/`, `tmux/`         | Always                 |
-| OS-specific           | `darwin/`, `linux/`     | Matching OS detected   |
-| Host-specific         | `ariel/`, `theophilus/` | Matching hostname      |
-| Shell-specific        | `zsh/`                  | `$SHELL` is zsh        |
+| Package pattern | Example                 | Stowed when          |
+| --------------- | ----------------------- | -------------------- |
+| Tool-specific   | `git/`, `tmux/`         | Always               |
+| OS-specific     | `darwin/`, `linux/`     | Matching OS detected |
+| Host-specific   | `ariel/`, `theophilus/` | Matching hostname    |
+| Shell-specific  | `zsh/`                  | `$SHELL` is zsh      |
 
 Some files (e.g., `.editorconfig`) appear in multiple packages. These are
 **not** duplicates -- EditorConfig uses directory-level inheritance, so child

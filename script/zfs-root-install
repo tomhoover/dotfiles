@@ -1,0 +1,1226 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ============================================================================
+# zfs-root-install — Arch Linux on ZFS root with ZFSBootMenu
+# ============================================================================
+# Single-disk vdev, UEFI-only, native ZFS encryption, multiple boot
+# environments, ZFSBootMenu bootloader.
+#
+# Usage: Run from an Arch Linux live ISO (or similar) as root.
+#   bash zfs-root-install
+# ============================================================================
+
+POOL="rpool"
+HOSTID="0x00bab10c"
+KEY_DIR="/etc/zfs/keys"
+DEFAULT_PREFIX="arch0"
+
+declare -A DATASET_KEYS
+
+DISK=""
+EFI_PART=""
+ZFS_PART=""
+SWAP_PART=""
+REUSE_PARTITIONS=false
+POOL_ACTION="create"
+BE_PREFIX=""
+ENCRYPT_MODE="pool"
+SWAP_MODE="none"
+INITRAMFS_TYPE="dracut"
+CREATE_SHARED_HOME=false
+ROOTPREFIX="root=ZFS="
+TIMEZONE=""
+LOCALE=""
+HOSTNAME=""
+USERNAME=""
+ROOT_PASS=""
+USER_PASS=""
+PASSPHRASE=""
+
+log() { printf '\033[1;32m[+]\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33m[!]\033[0m %s\n' "$*"; }
+err() { printf '\033[1;31m[-]\033[0m %s\n' "$*" >&2; }
+fatal() {
+  err "$@"
+  exit 1
+}
+
+confirm() {
+  local msg="${1:-Continue?}"
+  local reply
+  read -rp "$(printf '\033[1;33m[?]\033[0m %s [y/N] ' "$msg")" reply
+  [[ "$reply" =~ ^[Yy] ]]
+}
+
+pick_one() {
+  local prompt="$1"
+  shift
+  local -a options=("$@")
+  local i
+  for i in "${!options[@]}"; do
+    printf '  %d) %s\n' "$((i + 1))" "${options[$i]}"
+  done
+  local choice
+  while true; do
+    read -rp "$(printf '\033[1;33m[?]\033[0m %s [1-%d] ' "$prompt" "${#options[@]}")" choice
+    if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= ${#options[@]})); then
+      echo "$choice"
+      return
+    fi
+  done
+}
+
+prompt_string() {
+  local prompt="$1" default="$2" result
+  read -rp "$(printf '\033[1;33m[?]\033[0m %s [%s] ' "$prompt" "$default")" result
+  echo "${result:-$default}"
+}
+
+prompt_passphrase() {
+  local prompt="$1"
+  local p1 p2
+  while true; do
+    read -rsp "$(printf '\033[1;33m[?]\033[0m %s: ' "$prompt")" p1
+    echo
+    read -rsp "$(printf '\033[1;33m[?]\033[0m Confirm passphrase: ')" p2
+    echo
+    if [[ "$p1" == "$p2" && -n "$p1" ]]; then
+      echo "$p1"
+      return
+    fi
+    warn "Passphrases do not match or are empty."
+  done
+}
+
+partition_suffix() {
+  local dev="$1"
+  local base
+  base=$(basename "$dev")
+  if [[ "$base" =~ [0-9]$ ]]; then
+    echo "p1"
+  else
+    echo "1"
+  fi
+}
+
+partition_path() {
+  local dev="$1" num="$2" suffix
+  if [[ "$dev" == *by-id/* || "$dev" == *by-path/* ]]; then
+    suffix="part"
+  elif [[ "$(basename "$dev")" =~ [0-9]$ ]]; then
+    suffix="p"
+  else
+    suffix=""
+  fi
+  echo "${dev}${suffix}${num}"
+}
+
+# ============================================================================
+# Preflight
+# ============================================================================
+preflight() {
+  log "Running preflight checks..."
+
+  [[ $EUID -eq 0 ]] || fatal "Must run as root."
+
+  if [[ ! -d /sys/firmware/efi ]]; then
+    fatal "Not booted in UEFI mode. This installer requires UEFI."
+  fi
+
+  if ! command -v zpool &>/dev/null || ! lsmod | grep -q zfs; then
+    log "ZFS not loaded on live system. Installing..."
+    install_zfs_live
+  fi
+
+  command -v sgdisk &>/dev/null || pacman -Sy --noconfirm gptfdisk
+  command -v efibootmgr &>/dev/null || pacman -Sy --noconfirm efibootmgr
+
+  log "Preflight OK."
+}
+
+install_zfs_live() {
+  log "Setting up ZFS on live system..."
+
+  systemctl stop reflector.service reflector.timer 2>/dev/null || true
+
+  if ! grep -q '^\[archzfs\]' /etc/pacman.conf; then
+    cat >>/etc/pacman.conf <<'ARCHZFS'
+
+[archzfs]
+SigLevel = Never
+Server = https://github.com/archzfs/archzfs/releases/download/experimental
+ARCHZFS
+  fi
+
+  if mountpoint -q /run/archiso/cowspace 2>/dev/null; then
+    mount -o remount,size=50% /run/archiso/cowspace 2>/dev/null || true
+  fi
+
+  pacman -Sy --noconfirm zfs-utils zfs-linux-lts \
+    || pacman -Sy --noconfirm zfs-utils zfs-dkms linux-lts-headers
+
+  modprobe zfs
+  log "ZFS module loaded."
+}
+
+# ============================================================================
+# Disk selection and partitioning
+# ============================================================================
+select_disk() {
+  log "Available disks:"
+  local -a disks=()
+  local -a labels=()
+  local dev
+  for dev in /dev/disk/by-id/*; do
+    [[ -e "$dev" ]] || continue
+    case "$dev" in
+      *-part* | *nvme-*n1p*) continue ;;
+    esac
+    local base
+    base=$(basename "$dev")
+    disks+=("$dev")
+    labels+=("$base")
+  done
+
+  if [[ ${#disks[@]} -eq 0 ]]; then
+    fatal "No disks found in /dev/disk/by-id/."
+  fi
+
+  echo
+  for i in "${!labels[@]}"; do
+    local size
+    size=$(lsblk -dno SIZE "${disks[$i]}" 2>/dev/null || echo "unknown")
+    printf '  %d) %-60s %s\n' "$((i + 1))" "${labels[$i]}" "$size"
+  done
+
+  local choice
+  while true; do
+    read -rp "$(printf '\033[1;33m[?]\033[0m Select target disk [1-%d]: ' "${#disks[@]}")" choice
+    if [[ "$choice" =~ ^[0-9]+$ ]] && ((choice >= 1 && choice <= ${#disks[@]})); then
+      DISK="${disks[$((choice - 1))]}"
+      break
+    fi
+  done
+
+  log "Selected: $DISK"
+}
+
+check_existing_partitions() {
+  local has_partitions=false
+  local part_count=0
+
+  while IFS= read -r part; do
+    [[ -n "$part" ]] || continue
+    has_partitions=true
+    ((part_count++))
+  done < <(lsblk -lnpo NAME "$DISK" 2>/dev/null | tail -n +2)
+
+  if $has_partitions; then
+    log "Disk has $part_count existing partition(s):"
+    sgdisk -p "$DISK" 2>/dev/null || true
+    echo
+
+    local choice
+    choice=$(pick_one "Disk has existing partitions. What do you want to do?" \
+      "Wipe disk and repartition (DESTROYS ALL DATA)" \
+      "Keep existing partition table and select partitions manually")
+
+    if [[ "$choice" -eq 1 ]]; then
+      REUSE_PARTITIONS=false
+    else
+      REUSE_PARTITIONS=true
+      select_existing_partitions
+    fi
+  else
+    REUSE_PARTITIONS=false
+  fi
+}
+
+select_existing_partitions() {
+  local -a parts=()
+  while IFS= read -r part; do
+    [[ -n "$part" ]] || continue
+    parts+=("$part")
+  done < <(lsblk -lnpo NAME "$DISK" 2>/dev/null | tail -n +2)
+
+  if [[ ${#parts[@]} -lt 2 ]]; then
+    fatal "Need at least 2 partitions (EFI + ZFS). Found ${#parts[@]}."
+  fi
+
+  echo
+  log "Available partitions:"
+  for i in "${!parts[@]}"; do
+    local size type
+    size=$(lsblk -dno SIZE "${parts[$i]}" 2>/dev/null || echo "?")
+    type=$(lsblk -dno TYPE "${parts[$i]}" 2>/dev/null || echo "?")
+    printf '  %d) %-40s %s %s\n' "$((i + 1))" "${parts[$i]}" "$size" "$type"
+  done
+
+  local efi_choice
+  while true; do
+    read -rp "$(printf '\033[1;33m[?]\033[0m Select EFI System Partition [1-%d]: ' "${#parts[@]}")" efi_choice
+    if [[ "$efi_choice" =~ ^[0-9]+$ ]] && ((efi_choice >= 1 && efi_choice <= ${#parts[@]})); then
+      break
+    fi
+  done
+  EFI_PART="${parts[$((efi_choice - 1))]}"
+
+  local zfs_choice
+  while true; do
+    read -rp "$(printf '\033[1;33m[?]\033[0m Select ZFS partition [1-%d]: ' "${#parts[@]}")" zfs_choice
+    if [[ "$zfs_choice" =~ ^[0-9]+$ ]] && ((zfs_choice >= 1 && zfs_choice <= ${#parts[@]})) && ((zfs_choice != efi_choice)); then
+      break
+    fi
+  done
+  ZFS_PART="${parts[$((zfs_choice - 1))]}"
+
+  local swap_choice
+  read -rp "$(printf '\033[1;33m[?]\033[0m Select swap partition (or 0 for none) [0-%d, 0]: ' "${#parts[@]}")" swap_choice
+  swap_choice="${swap_choice:-0}"
+  if [[ "$swap_choice" =~ ^[0-9]+$ ]] && ((swap_choice >= 1 && swap_choice <= ${#parts[@]})) \
+    && ((swap_choice != efi_choice && swap_choice != zfs_choice)); then
+    SWAP_PART="${parts[$((swap_choice - 1))]}"
+  else
+    SWAP_PART=""
+  fi
+
+  log "EFI: $EFI_PART, ZFS: $ZFS_PART, Swap: ${SWAP_PART:-none}"
+}
+
+wipe_and_partition() {
+  log "Wiping disk $DISK..."
+
+  dd if=/dev/zero of="$DISK" bs=512 count=34 conv=notrunc 2>/dev/null
+  local sectors
+  sectors=$(blockdev --getsz "$DISK")
+  dd if=/dev/zero of="$DISK" bs=512 count=34 seek=$((sectors - 34)) conv=notrunc 2>/dev/null
+  sgdisk --zap-all "$DISK" >/dev/null
+
+  sgdisk -o "$DISK" >/dev/null
+  sgdisk -n 1:0:+500M -t 1:ef00 -c 1:EFI "$DISK" >/dev/null
+
+  if [[ "$SWAP_MODE" == "partition" || "$SWAP_MODE" == "encrypted" ]]; then
+    sgdisk -n 3:-17G:0 -t 3:8200 -c 3:swap "$DISK" >/dev/null
+    #TODO
+    sgdisk -n 2:0:0 -t 2:bf00 -c 2:ZFS "$DISK" >/dev/null
+    SWAP_PART="$(partition_path "$DISK" 3)"
+  else
+    sgdisk -n 2:0:0 -t 2:bf00 -c 2:ZFS "$DISK" >/dev/null
+  fi
+
+  EFI_PART="$(partition_path "$DISK" 1)"
+  ZFS_PART="$(partition_path "$DISK" 2)"
+
+  partprobe "$DISK"
+  udevadm settle
+
+  mkfs.fat -I -F32 "$EFI_PART" >/dev/null 2>&1
+
+  log "Partitions created: EFI=$EFI_PART ZFS=$ZFS_PART Swap=${SWAP_PART:-none}"
+}
+
+# ============================================================================
+# hostid
+# ============================================================================
+setup_hostid() {
+  log "Setting hostid to $HOSTID..."
+  zgenhostid -f "$HOSTID"
+}
+
+# ============================================================================
+# Pool creation / reuse
+# ============================================================================
+check_existing_pool() {
+  local found=false
+  if zpool import 2>/dev/null | grep -q "$POOL"; then
+    found=true
+  fi
+
+  if $found; then
+    warn "Existing pool '$POOL' detected."
+    local choice
+    choice=$(pick_one "What do you want to do with existing pool '$POOL'?" \
+      "Destroy and recreate (DESTROYS ALL DATA)" \
+      "Use existing pool (add new boot environment)" \
+      "Abort")
+
+    if [[ "$choice" -eq 3 ]]; then
+      fatal "Aborted by user."
+    elif [[ "$choice" -eq 1 ]]; then
+      POOL_ACTION="destroy"
+      log "Will destroy and recreate pool '$POOL'."
+    else
+      POOL_ACTION="reuse"
+      log "Will reuse existing pool '$POOL'."
+    fi
+  else
+    POOL_ACTION="create"
+  fi
+}
+
+create_pool() {
+  if [[ "$POOL_ACTION" == "reuse" ]]; then
+    log "Importing existing pool..."
+    zpool import -N -R /mnt "$POOL" 2>/dev/null || zpool import -f -N -R /mnt "$POOL"
+    return
+  fi
+
+  if [[ "$POOL_ACTION" == "destroy" ]]; then
+    log "Destroying existing pool..."
+    zpool export "$POOL" 2>/dev/null || zpool export -f "$POOL" 2>/dev/null || true
+    dd if=/dev/zero of="$ZFS_PART" bs=1M count=10 conv=notrunc 2>/dev/null
+  fi
+
+  log "Creating pool '$POOL'..."
+
+  local -a encrypt_opts=()
+  if [[ "$ENCRYPT_MODE" == "pool" ]]; then
+    encrypt_opts=(-O encryption=aes-256-gcm -O keyformat=passphrase -O keylocation=prompt)
+  fi
+
+  printf '%s\n%s' "$PASSPHRASE" "$PASSPHRASE" | zpool create -f \
+    -o ashift=12 \
+    -O acltype=posixacl \
+    -O relatime=on \
+    -O xattr=sa \
+    -O dnodesize=auto \
+    -O normalization=formD \
+    -O devices=off \
+    -O compression=lz4 \
+    -O mountpoint=none \
+    "${encrypt_opts[@]}" \
+    -R /mnt \
+    "$POOL" "$ZFS_PART"
+
+  zpool set cachefile=none "$POOL"
+
+  if [[ "$ENCRYPT_MODE" == "pool" ]]; then
+    printf '%s' "$PASSPHRASE" | zfs load-key "$POOL"
+  fi
+
+  log "Pool created."
+}
+
+# ============================================================================
+# Dataset layout
+# ============================================================================
+create_datasets() {
+  log "Creating dataset layout..."
+
+  if [[ "$POOL_ACTION" == "reuse" ]]; then
+    create_datasets_reuse
+    return
+  fi
+
+  local prefix="$BE_PREFIX"
+
+  zfs create -u -o mountpoint=none -o compression=lz4 -o overlay=off "$POOL/$prefix"
+  zfs create -u -o mountpoint=/ -o canmount=noauto "$POOL/$prefix/root"
+  zfs create -u -o mountpoint=none "$POOL/$prefix/data"
+  zfs create -u -o mountpoint=/root "$POOL/$prefix/data/root"
+  zfs create -u -o mountpoint=/vm "$POOL/$prefix/vm"
+
+  if [[ "$CREATE_SHARED_HOME" == true ]]; then
+    if ! zfs list "$POOL/data/home" &>/dev/null; then
+      zfs create -u -o mountpoint=none "$POOL/data" 2>/dev/null || true
+      zfs create -u -o mountpoint=/home "$POOL/data/home"
+    else
+      log "Shared dataset $POOL/data/home already exists, reusing."
+    fi
+  else
+    zfs create -u -o mountpoint=/home "$POOL/$prefix/data/home"
+  fi
+
+  log "Datasets created for BE '$prefix'."
+}
+
+create_datasets_reuse() {
+  local prefix="$BE_PREFIX"
+
+  if zfs list "$POOL/$prefix" &>/dev/null; then
+    fatal "Boot environment '$prefix' already exists. Choose a different prefix."
+  fi
+
+  zfs create -u -o mountpoint=none -o compression=lz4 -o overlay=off "$POOL/$prefix"
+  zfs create -u -o mountpoint=/ -o canmount=noauto "$POOL/$prefix/root"
+  zfs create -u -o mountpoint=none "$POOL/$prefix/data"
+  zfs create -u -o mountpoint=/root "$POOL/$prefix/data/root"
+  zfs create -u -o mountpoint=/vm "$POOL/$prefix/vm"
+
+  if [[ "$CREATE_SHARED_HOME" == true ]]; then
+    if ! zfs list "$POOL/data/home" &>/dev/null; then
+      zfs create -u -o mountpoint=none "$POOL/data" 2>/dev/null || true
+      zfs create -u -o mountpoint=/home "$POOL/data/home"
+    fi
+  else
+    zfs create -u -o mountpoint=/home "$POOL/$prefix/data/home"
+  fi
+
+  log "Datasets created for new BE '$prefix'."
+}
+
+# ============================================================================
+# Encryption: per-dataset keyfiles
+# ============================================================================
+setup_dataset_encryption() {
+  log "Setting up per-dataset encryption..."
+
+  mkdir -p "$KEY_DIR"
+
+  local -a datasets_to_key=()
+
+  if [[ "$CREATE_SHARED_HOME" == true ]]; then
+    datasets_to_key+=("$POOL/data/home")
+  else
+    datasets_to_key+=("$POOL/$BE_PREFIX/data/home")
+  fi
+  datasets_to_key+=("$POOL/$BE_PREFIX/data/root")
+  datasets_to_key+=("$POOL/$BE_PREFIX/vm")
+
+  for ds in "${datasets_to_key[@]}"; do
+    local ds_name
+    ds_name=$(echo "$ds" | tr '/' '_')
+    local keyfile="$KEY_DIR/${ds_name}.key"
+
+    # Check if dataset already has a keyfile (from previous BE install)
+    if [[ -f "$keyfile" ]]; then
+      log "  $ds: reusing existing keyfile at $keyfile"
+      DATASET_KEYS["$ds"]="$keyfile"
+      continue
+    fi
+
+    # Check if dataset exists and has encryption properties
+    local existing_enc
+    existing_enc=$(zfs get -H -o value encryptionroot "$ds" 2>/dev/null || echo "-")
+
+    if [[ "$existing_enc" != "-" && "$existing_enc" != "$ds" ]]; then
+      # Dataset exists and inherits encryption from parent
+      log "  $ds: inheriting pool key (existing dataset)."
+      DATASET_KEYS["$ds"]="inherit"
+      continue
+    fi
+
+    # New dataset or dataset with its own encryption root but no keyfile
+    local choice
+    choice=$(pick_one "Encryption for dataset '$ds':" \
+      "Inherit pool/root passphrase (no separate keyfile)" \
+      "Generate unique keyfile")
+
+    if [[ "$choice" -eq 1 ]]; then
+      log "  $ds: inheriting pool key."
+      DATASET_KEYS["$ds"]="inherit"
+    else
+      log "  $ds: generating unique keyfile at $keyfile"
+      dd if=/dev/urandom bs=32 count=1 2>/dev/null >"$keyfile"
+      chmod 000 "$keyfile"
+      zfs change-key -o keyformat=raw -o keylocation="file://$keyfile" "$ds"
+      DATASET_KEYS["$ds"]="$keyfile"
+    fi
+  done
+}
+
+# ============================================================================
+# Export, re-import, mount
+# ============================================================================
+export_reimport_mount() {
+  log "Exporting and re-importing pool..."
+
+  sync
+  zfs umount -a 2>/dev/null || true
+  zpool export "$POOL" 2>/dev/null || zpool export -f "$POOL" 2>/dev/null || true
+
+  zpool import -N -R /mnt "$POOL"
+
+  if [[ "$ENCRYPT_MODE" == "pool" ]]; then
+    printf '%s' "$PASSPHRASE" | zfs load-key "$POOL"
+  fi
+
+  for ds in "${!DATASET_KEYS[@]}"; do
+    local keyfile="${DATASET_KEYS[$ds]}"
+    if [[ "$keyfile" != "inherit" && -f "$keyfile" ]]; then
+      zfs load-key -L "file://$keyfile" "$ds" 2>/dev/null || true
+    fi
+  done
+
+  zfs mount "$POOL/$BE_PREFIX/root"
+
+  local -a mount_order=()
+  mount_order+=("$POOL/$BE_PREFIX/vm")
+
+  if [[ "$CREATE_SHARED_HOME" == true ]]; then
+    mount_order+=("$POOL/data/home")
+  else
+    mount_order+=("$POOL/$BE_PREFIX/data/home")
+  fi
+
+  mount_order+=("$POOL/$BE_PREFIX/data/root")
+
+  for ds in "${mount_order[@]}"; do
+    zfs mount "$ds" 2>/dev/null || warn "Could not mount $ds (may be empty or already mounted)"
+  done
+
+  mkdir -p /mnt/boot/efi
+  mount "$EFI_PART" /mnt/boot/efi
+
+  log "All datasets mounted under /mnt."
+}
+
+# ============================================================================
+# Base system
+# ============================================================================
+install_base_system() {
+  log "Installing base Arch system..."
+
+  local cpu_vendor
+  cpu_vendor=$(grep -m1 'vendor_id' /proc/cpuinfo 2>/dev/null | awk '{print $3}' || echo "")
+  local ucode="intel-ucode"
+  [[ "$cpu_vendor" == "AuthenticAMD" ]] && ucode="amd-ucode"
+
+  pacstrap -K /mnt \
+    base base-devel \
+    linux-lts \
+    linux-firmware linux-firmware-marvell sof-firmware \
+    "$ucode"
+
+  log "Base system installed."
+}
+
+configure_system() {
+  log "Configuring base system..."
+
+  arch-chroot /mnt ln -sf /usr/share/zoneinfo/"$TIMEZONE" /etc/localtime
+  arch-chroot /mnt hwclock --systohc
+
+  sed -i "s/^#$LOCALE/$LOCALE/" /mnt/etc/locale.gen
+  arch-chroot /mnt locale-gen
+  echo "$LOCALE" >/mnt/etc/locale.conf
+
+  echo "$HOSTNAME" >/mnt/etc/hostname
+
+  cat >/mnt/etc/vconsole.conf <<EOF
+KEYMAP=us
+EOF
+
+  arch-chroot /mnt systemctl enable systemd-timesyncd
+
+  arch-chroot /mnt useradd -m -G wheel -s /bin/bash "$USERNAME"
+  arch-chroot /mnt bash -c "echo 'root:$ROOT_PASS' | chpasswd"
+  arch-chroot /mnt bash -c "echo '$USERNAME:$USER_PASS' | chpasswd"
+
+  sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /mnt/etc/sudoers
+
+  log "System configured."
+}
+
+# ============================================================================
+# ZFS in target
+# ============================================================================
+install_zfs_target() {
+  log "Installing ZFS in target..."
+
+  if ! grep -q '^\[archzfs\]' /mnt/etc/pacman.conf; then
+    cat >>/mnt/etc/pacman.conf <<'ARCHZFS'
+
+[archzfs]
+SigLevel = Never
+Server = https://github.com/archzfs/archzfs/releases/download/experimental
+ARCHZFS
+  fi
+
+  arch-chroot /mnt pacman-key --init
+  arch-chroot /mnt pacman-key --populate archlinux
+
+  for KEY in 3A9917BF0DED5C13F69AC68FABEC0A1208037BE9 \
+    DDF7DB817396A49B2A2723F7403BD972F75D9D76; do
+    arch-chroot /mnt pacman-key --keyserver hkps://keyserver.ubuntu.com -r "$KEY" 2>/dev/null || true
+    arch-chroot /mnt pacman-key --lsign-key "$KEY" 2>/dev/null || true
+  done
+
+  arch-chroot /mnt pacman -Sy --noconfirm zfs-utils zfs-linux-lts \
+    || arch-chroot /mnt pacman -Sy --noconfirm zfs-utils zfs-dkms linux-lts-headers
+
+  log "ZFS installed in target."
+}
+
+# ============================================================================
+# Initramfs
+# ============================================================================
+configure_initramfs() {
+  log "Configuring initramfs ($INITRAMFS_TYPE)..."
+
+  cp /etc/hostid /mnt/etc/hostid
+
+  if [[ "$INITRAMFS_TYPE" == "dracut" ]]; then
+    configure_dracut
+  else
+    configure_mkinitcpio
+  fi
+
+  log "Initramfs configured."
+}
+
+configure_dracut() {
+  mkdir -p /mnt/etc/dracut.conf.d
+
+  cat >/mnt/etc/dracut.conf.d/zfs.conf <<EOF
+hostonly="yes"
+hostonly_cmdline="no"
+fscks="no"
+early_microcode="yes"
+compress="cat"
+omit_dracutmodules+=" network btrfs brltty plymouth "
+EOF
+
+  cat >/mnt/usr/local/bin/dracut-install.sh <<'DRACUT_INSTALL'
+#!/bin/bash
+kver=$(ls -1 /usr/lib/modules | sort | tail -n1)
+pkgbase=$(cat /usr/lib/modules/$kver/pkgbase 2>/dev/null || echo linux)
+install -Dm0644 /usr/lib/modules/$kver/vmlinuz /boot/vmlinuz-$pkgbase
+dracut --force /boot/initramfs-$pkgbase.img --kver $kver
+DRACUT_INSTALL
+  chmod +x /mnt/usr/local/bin/dracut-install.sh
+
+  cat >/mnt/usr/local/bin/dracut-remove.sh <<'DRACUT_REMOVE'
+#!/bin/bash
+kver="$1"
+pkgbase=$(cat /usr/lib/modules/$kver/pkgbase 2>/dev/null || echo linux)
+rm -f "/boot/vmlinuz-$pkgbase" "/boot/initramfs-$pkgbase.img"
+DRACUT_REMOVE
+  chmod +x /mnt/usr/local/bin/dracut-remove.sh
+
+  mkdir -p /mnt/etc/pacman.d/hooks
+
+  cat >/mnt/etc/pacman.d/hooks/90-dracut-install.hook <<'HOOK'
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/modules/*/pkgbase
+
+[Action]
+Description = Regenerating initramfs (dracut)...
+When = PostTransaction
+Exec = /usr/local/bin/dracut-install.sh
+Depends = dracut
+HOOK
+
+  cat >/mnt/etc/pacman.d/hooks/60-dracut-remove.hook <<'HOOK'
+[Trigger]
+Type = Path
+Operation = Remove
+Target = usr/lib/modules/*/pkgbase
+
+[Action]
+Description = Removing old initramfs (dracut)...
+When = PreTransaction
+Exec = /usr/local/bin/dracut-remove.sh %{PATHS}
+Depends = dracut
+HOOK
+
+  # shellcheck disable=SC2016
+  arch-chroot /mnt bash -c '
+        kver=$(ls -1 /usr/lib/modules | sort | tail -n1)
+        pkgbase=$(cat /usr/lib/modules/$kver/pkgbase 2>/dev/null || echo linux)
+        install -Dm0644 /usr/lib/modules/$kver/vmlinuz /boot/vmlinuz-$pkgbase
+        dracut --force /boot/initramfs-$pkgbase.img --kver $kver
+    '
+
+  ROOTPREFIX="root=ZFS="
+}
+
+configure_mkinitcpio() {
+  cat >/mnt/etc/mkinitcpio.conf <<EOF
+MODULES=(zfs)
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block zfs filesystems)
+COMPRESSION="cat"
+EOF
+
+  arch-chroot /mnt mkinitcpio -P
+
+  ROOTPREFIX="zfs="
+}
+
+# ============================================================================
+# ZFSBootMenu
+# ============================================================================
+install_zfsbootmenu() {
+  log "Installing ZFSBootMenu from AUR..."
+
+  arch-chroot /mnt pacman -Sy --noconfirm base-devel git
+
+  # shellcheck disable=SC2016
+  arch-chroot /mnt bash -c '
+        set -e
+        BUILDDIR=$(mktemp -d)
+        cd "$BUILDDIR"
+        git clone --depth 1 https://aur.archlinux.org/zfsbootmenu.git .
+        makepkg -si --noconfirm --needed
+        cd /
+        rm -rf "$BUILDDIR"
+    '
+
+  log "ZFSBootMenu installed."
+}
+
+configure_zfsbootmenu() {
+  log "Configuring ZFSBootMenu..."
+
+  local initcpio=false
+  [[ "$INITRAMFS_TYPE" == "mkinitcpio" ]] && initcpio=true
+
+  mkdir -p /mnt/etc/zfsbootmenu
+
+  cat >/mnt/etc/zfsbootmenu/config.yaml <<EOF
+Global:
+  ManageImages: true
+  BootMountPoint: /boot/efi
+  DracutConfDir: /etc/zfsbootmenu/dracut.conf.d
+  InitCPIOConfig: /etc/zfsbootmenu/mkinitcpio.conf
+  InitCPIO: $initcpio
+Components:
+  Enabled: false
+EFI:
+  ImageDir: /boot/efi/EFI/zbm
+  Versions: false
+  Enabled: true
+Kernel:
+  CommandLine: zbm.import_policy=hostid zbm.timeout=10 ro quiet loglevel=0
+EOF
+
+  mkdir -p /mnt/etc/zfsbootmenu/dracut.conf.d
+
+  cat >/mnt/etc/zfsbootmenu/dracut.conf.d/zfsbootmenu.conf <<EOF
+hostonly="yes"
+hostonly_cmdline="no"
+compress="cat"
+omit_dracutmodules+=" network btrfs brltty plymouth "
+EOF
+
+  arch-chroot /mnt generate-zbm
+
+  install -Dm0644 /mnt/boot/efi/EFI/zbm/vmlinuz.EFI \
+    /mnt/boot/efi/EFI/BOOT/BOOTX64.EFI
+
+  cat >/mnt/etc/pacman.d/hooks/95-zfsbootmenu.hook <<'HOOK'
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/modules/*/pkgbase
+Target = usr/lib/modules/*/extramodules/zfs.ko*
+
+[Trigger]
+Type = Package
+Operation = Install
+Operation = Upgrade
+Target = zfsbootmenu
+Target = zfs-utils
+
+[Action]
+Description = Regenerating ZFSBootMenu...
+When = PostTransaction
+Exec = /usr/bin/generate-zbm
+Depends = zfsbootmenu
+HOOK
+
+  log "ZFSBootMenu configured."
+}
+
+set_zbm_properties() {
+  log "Setting ZFSBootMenu properties..."
+
+  local zswap_val="0"
+  [[ "$SWAP_MODE" == "partition" || "$SWAP_MODE" == "encrypted" ]] && zswap_val="1"
+
+  local cmdline="spl.spl_hostid=$HOSTID zswap.enabled=$zswap_val rw"
+
+  zfs set org.zfsbootmenu:commandline="$cmdline" "$POOL/$BE_PREFIX/root"
+  zfs set org.zfsbootmenu:rootprefix="$ROOTPREFIX" "$POOL/$BE_PREFIX/root"
+
+  zpool set bootfs="$POOL/$BE_PREFIX/root" "$POOL"
+
+  log "ZBM properties set: cmdline='$cmdline' rootprefix='$ROOTPREFIX'"
+}
+
+register_efi_entries() {
+  log "Registering EFI boot entries..."
+
+  local raw_disk
+  raw_disk=$(readlink -f "$DISK")
+
+  efibootmgr -c -d "$raw_disk" -p 1 -L "ZFSBootMenu" \
+    -l '\EFI\zbm\vmlinuz.EFI' 2>/dev/null || warn "Could not create EFI entry (may need to do this manually)"
+
+  efibootmgr -c -d "$raw_disk" -p 1 -L "ZFSBootMenu (Backup)" \
+    -l '\EFI\zbm\vmlinuz-backup.EFI' 2>/dev/null || true
+
+  log "EFI entries registered."
+}
+
+# ============================================================================
+# fstab, services, zfs-list.cache
+# ============================================================================
+configure_fstab() {
+  log "Configuring fstab..."
+
+  genfstab -U /mnt | grep -vE 'zfs|rpool' >/mnt/etc/fstab
+
+  cat >>/mnt/etc/fstab <<EOF
+# ZFS root dataset
+$POOL/$BE_PREFIX/root	/	zfs	defaults	0	0
+EOF
+
+  local efi_line
+  efi_line=$(grep '/boot/efi' /mnt/etc/fstab || true)
+  if [[ -n "$efi_line" ]]; then
+    sed -i '\|/boot/efi|d' /mnt/etc/fstab
+    local efi_uuid
+    efi_uuid=$(blkid -s UUID -o value "$EFI_PART")
+    echo "UUID=$efi_uuid  /boot/efi  vfat  defaults,nofail  0  0" >>/mnt/etc/fstab
+  fi
+
+  log "fstab configured."
+}
+
+enable_zfs_services() {
+  log "Enabling ZFS services..."
+
+  for unit in zfs.target zfs-import.target zfs-volumes.target \
+    zfs-import-scan.service zfs-zed.service; do
+    systemctl --root=/mnt enable "$unit" 2>/dev/null || true
+  done
+
+  mkdir -p /mnt/etc/systemd/system-preset
+  cat >/mnt/etc/systemd/system-preset/00-zfs-mount-generator.preset <<'EOF'
+disable zfs-mount.service
+disable zfs-share.service
+disable zfs-import-cache.service
+enable zfs-import-scan.service
+EOF
+
+  mkdir -p /mnt/etc/systemd/system
+  cat >/mnt/etc/systemd/system/zfs-load-dataset-keys.service <<'EOF'
+[Unit]
+Description=Load ZFS dataset encryption keys
+DefaultDependencies=no
+After=zfs-import.target
+Before=zfs-mount-generator.service local-fs.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'for keyfile in /etc/zfs/keys/*.key; do [ -f "$keyfile" ] || continue; ds=$(basename "$keyfile" .key | tr "_" "/"); zfs load-key -L "file://$keyfile" "$ds" 2>/dev/null || true; done'
+
+[Install]
+WantedBy=zfs.target
+EOF
+
+  systemctl --root=/mnt enable zfs-load-dataset-keys.service 2>/dev/null || true
+
+  rm -f /mnt/etc/machine-id
+  systemd-machine-id-setup --root=/mnt
+
+  log "ZFS services enabled."
+}
+
+install_zed_hook() {
+  log "Installing BE-aware ZED hook..."
+
+  mkdir -p /mnt/etc/zfs/zed.d
+
+  cat >/mnt/etc/zfs/zed.d/history_event-zfs-list-cacher.sh <<'ZEDLET'
+#!/bin/sh
+# BE-aware zfs-list.cache updater
+# Filters datasets by running boot environment to avoid cross-BE mount conflicts.
+
+set -e
+
+CACHE_DIR="/etc/zfs/zfs-list.cache"
+LOCK_FILE="/run/zfs-list-cacher.lock"
+
+exec 200>"$LOCK_FILE"
+flock -n 200 || exit 0
+
+running_be=""
+while read -r _ mp _ _ _ _; do
+    if [ "$mp" = "/" ]; then
+        running_be=$(zfs list -H -o name "$mp" 2>/dev/null | head -1)
+        break
+    fi
+done < /proc/mounts
+
+for pool_cache in "$CACHE_DIR"/*; do
+    [ -f "$pool_cache" ] || continue
+    pool=$(basename "$pool_cache")
+
+    tmp=$(mktemp)
+    zfs list -Ho name,mountpoint,canmount,atime,relatime,devices,exec,readonly,setuid,encryption,keylocation,keystatus "$pool" 2>/dev/null | \
+    while IFS="$(printf '\t')" read -r name mountpoint canmount atime relatime devices exec readonly setuid encryption keylocation keystatus; do
+        if [ -n "$running_be" ]; then
+            be_prefix="${running_be%/*}"
+            case "$name" in
+                "$running_be"|"$running_be/"*) ;;
+                "$pool/data"*) ;;
+                "$pool/data"/*) ;;
+                "$be_prefix"|"$be_prefix/"*) ;;
+                *) continue ;;
+            esac
+        fi
+        printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+            "$name" "$mountpoint" "$canmount" "$atime" "$relatime" \
+            "$devices" "$exec" "$readonly" "$setuid" "$encryption" "$keylocation"
+    done > "$tmp"
+
+    mv -f "$tmp" "$pool_cache"
+done
+ZEDLET
+
+  chmod 0755 /mnt/etc/zfs/zed.d/history_event-zfs-list-cacher.sh
+
+  mkdir -p /mnt/etc/zfs/zfs-list.cache
+  : >"/mnt/etc/zfs/zfs-list.cache/$POOL"
+
+  if command -v chattr &>/dev/null; then
+    chattr +i /mnt/etc/zfs/zed.d/history_event-zfs-list-cacher.sh 2>/dev/null || true
+  fi
+
+  log "ZED hook installed."
+}
+
+rewrite_zfs_list_cache() {
+  log "Rewriting zfs-list.cache for target..."
+
+  if [[ -f "/etc/zfs/zfs-list.cache/$POOL" ]]; then
+    sed -E 's|^([^\t]*)\t/mnt(/?)|\1\t/|' "/etc/zfs/zfs-list.cache/$POOL" \
+      >"/mnt/etc/zfs/zfs-list.cache/$POOL"
+  fi
+
+  log "zfs-list.cache rewritten."
+}
+
+# ============================================================================
+# Swap
+# ============================================================================
+configure_swap() {
+  case "$SWAP_MODE" in
+    none)
+      log "No swap configured."
+      ;;
+    zram)
+      log "Configuring zram swap..."
+      arch-chroot /mnt pacman -Sy --noconfirm zram-generator
+      mkdir -p /mnt/etc/systemd
+      cat >/mnt/etc/systemd/zram-generator.conf <<EOF
+[zram0]
+zram-size = min(ram / 2, 4096)
+compression-algorithm = zstd
+EOF
+      log "zram configured."
+      ;;
+    partition)
+      log "Configuring swap partition..."
+      mkswap "$SWAP_PART"
+      local swap_uuid
+      swap_uuid=$(blkid -s UUID -o value "$SWAP_PART")
+      echo "UUID=$swap_uuid  none  swap  defaults  0  0" >>/mnt/etc/fstab
+      log "Swap partition configured."
+      ;;
+    encrypted)
+      log "Configuring encrypted swap..."
+      echo "cryptswap  $SWAP_PART  /dev/urandom  swap,cipher=aes-xts-plain64,size=256" >>/mnt/etc/crypttab
+      echo "/dev/mapper/cryptswap  none  swap  defaults  0  0" >>/mnt/etc/fstab
+      log "Encrypted swap configured."
+      ;;
+  esac
+}
+
+# ============================================================================
+# TRIM
+# ============================================================================
+configure_trim() {
+  log "Detecting storage type for TRIM..."
+
+  local raw_dev
+  raw_dev=$(readlink -f "$ZFS_PART")
+  local dev_name
+  dev_name=$(basename "$raw_dev")
+  dev_name="${dev_name%%[0-9]*}"
+
+  if [[ "$dev_name" == nvme* ]]; then
+    log "NVMe detected: enabling autotrim..."
+    zpool set autotrim=on "$POOL"
+  elif [[ -f "/sys/class/block/$dev_name/queue/rotational" ]]; then
+    local rotational
+    rotational=$(cat "/sys/class/block/$dev_name/queue/rotational")
+    if [[ "$rotational" == "0" ]]; then
+      log "SSD detected: enabling weekly TRIM timer..."
+      systemctl --root=/mnt enable "zfs-trim-weekly@$POOL.timer" 2>/dev/null || true
+    else
+      log "HDD detected: no TRIM."
+    fi
+  else
+    warn "Could not detect storage type. No TRIM configured."
+  fi
+}
+
+# ============================================================================
+# Snapshot
+# ============================================================================
+create_initial_snapshot() {
+  log "Creating initial snapshot..."
+  zfs snapshot -r "$POOL/$BE_PREFIX@fresh-install"
+  log "Snapshot created: $POOL/$BE_PREFIX@fresh-install"
+}
+
+# ============================================================================
+# Teardown
+# ============================================================================
+teardown() {
+  log "Tearing down..."
+
+  sync
+
+  umount /mnt/boot/efi 2>/dev/null || true
+
+  zfs umount -a 2>/dev/null || true
+  zfs umount "$POOL/$BE_PREFIX/root" 2>/dev/null || true
+  zfs umount -af 2>/dev/null || true
+  zfs umount -f "$POOL/$BE_PREFIX/root" 2>/dev/null || true
+
+  zpool export "$POOL" 2>/dev/null || zpool export -f "$POOL" 2>/dev/null || true
+
+  log "Teardown complete. Pool exported."
+}
+
+# ============================================================================
+# Main
+# ============================================================================
+main() {
+  echo
+  echo "============================================"
+  echo "  Arch Linux ZFS Root Installer"
+  echo "============================================"
+  echo
+
+  preflight
+
+  select_disk
+  check_existing_partitions
+
+  BE_PREFIX=$(prompt_string "Boot environment prefix" "$DEFAULT_PREFIX")
+
+  local swap_choice
+  swap_choice=$(pick_one "Swap mode:" \
+    "None (default)" \
+    "zram" \
+    "Swap partition" \
+    "Encrypted swap partition")
+  case "$swap_choice" in
+    1) SWAP_MODE="none" ;;
+    2) SWAP_MODE="zram" ;;
+    3) SWAP_MODE="partition" ;;
+    4) SWAP_MODE="encrypted" ;;
+    *) SWAP_MODE="none" ;;
+  esac
+
+  local init_choice
+  init_choice=$(pick_one "Initramfs generator:" \
+    "dracut (recommended)" \
+    "mkinitcpio")
+  [[ "$init_choice" -eq 1 ]] && INITRAMFS_TYPE="dracut" || INITRAMFS_TYPE="mkinitcpio"
+
+  ENCRYPT_MODE="pool"
+  log "Encryption: pool-level with passphrase (ZBM will prompt at boot)."
+  PASSPHRASE=$(prompt_passphrase "Enter pool encryption passphrase")
+
+  CREATE_SHARED_HOME=false
+  if confirm "Create a shared /home dataset (shared across all boot environments)?"; then
+    CREATE_SHARED_HOME=true
+  fi
+
+  TIMEZONE=$(prompt_string "Timezone" "America/New_York")
+  LOCALE=$(prompt_string "Locale" "en_US.UTF-8")
+  HOSTNAME=$(prompt_string "Hostname" "archzfs")
+  USERNAME=$(prompt_string "Username" "user")
+
+  read -rsp "$(printf '\033[1;33m[?]\033[0m Root password: ')" ROOT_PASS
+  echo
+  read -rsp "$(printf '\033[1;33m[?]\033[0m User password: ')" USER_PASS
+  echo
+
+  if ! $REUSE_PARTITIONS; then
+    echo
+    warn "WARNING: This will DESTROY ALL DATA on $DISK"
+    if ! confirm "Are you absolutely sure you want to proceed?"; then
+      fatal "Aborted."
+    fi
+    wipe_and_partition
+  fi
+
+  setup_hostid
+
+  mkdir -p /etc/zfs/zfs-list.cache
+  : >"/etc/zfs/zfs-list.cache/$POOL"
+  systemctl enable --now zfs-zed.service 2>/dev/null || true
+
+  check_existing_pool
+
+  export ZFS_ENCRYPT_PASSPHRASE="$PASSPHRASE"
+  printf '%s' "$PASSPHRASE" >/etc/zfs/rpool.key
+  chmod 000 /etc/zfs/rpool.key
+
+  create_pool
+
+  create_datasets
+
+  setup_dataset_encryption
+
+  export_reimport_mount
+
+  install_base_system
+  configure_system
+
+  install_zfs_target
+
+  mkdir -p /mnt/etc/zfs/keys
+  cp "$KEY_DIR"/*.key /mnt/etc/zfs/keys/ 2>/dev/null || true
+
+  mkdir -p /mnt/etc/zfs
+  cp /etc/zfs/rpool.key /mnt/etc/zfs/rpool.key 2>/dev/null || true
+
+  configure_initramfs
+
+  install_zfsbootmenu
+  configure_zfsbootmenu
+  set_zbm_properties
+  register_efi_entries
+
+  configure_fstab
+  enable_zfs_services
+  install_zed_hook
+  rewrite_zfs_list_cache
+
+  configure_swap
+  configure_trim
+
+  create_initial_snapshot
+
+  echo
+  log "============================================"
+  log "  Installation complete!"
+  log "============================================"
+  log ""
+  log "Pool: $POOL"
+  log "Boot environment: $BE_PREFIX"
+  log "Initramfs: $INITRAMFS_TYPE"
+  log "Swap: $SWAP_MODE"
+  log "Shared /home: $CREATE_SHARED_HOME"
+  log ""
+  log "Reboot and select ZFSBootMenu from your EFI boot menu."
+  log "ZBM will prompt for the pool passphrase."
+
+  teardown
+}
+
+main "$@"
