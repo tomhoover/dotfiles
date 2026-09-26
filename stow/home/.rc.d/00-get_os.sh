@@ -18,6 +18,10 @@ isarch() {
   return 1
 }
 
+isomarchy() {
+  isarch && grep -q '\[omarchy\]' /etc/pacman.conf
+}
+
 isdebian() {
   if islinux && [ -f /etc/os-release ]; then
     # shellcheck disable=SC1091
@@ -25,6 +29,18 @@ isdebian() {
     # shellcheck disable=SC2078
     [ "${ID}" = "debian" ] && return 0
   fi
+  return 1
+}
+
+# bookworm
+isdebian_12() {
+  isdebian && [ "${VERSION_ID}" = "12" ] && return 0
+  return 1
+}
+
+# trixie
+isdebian_13() {
+  isdebian && [ "${VERSION_ID}" = "13" ] && return 0
   return 1
 }
 
@@ -38,8 +54,31 @@ isfedora() {
   return 1
 }
 
-isomarchy() {
-  isarch && grep -q '\[omarchy\]' /etc/pacman.conf
+isfedora_44() {
+  isfedora && [ "${VERSION_ID}" = "44" ] && return 0
+  return 1
+}
+
+isubuntu() {
+  if islinux && [ -f /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    . /etc/os-release
+    # shellcheck disable=SC2078
+    [ "${ID}" = "ubuntu" ] && return 0
+  fi
+  return 1
+}
+
+# questing
+isubuntu_2510() {
+  isubuntu && [ "${VERSION_ID}" = "25.10" ] && return 0
+  return 1
+}
+
+# resolute (LTS)
+isubuntu_2604() {
+  isubuntu && [ "${VERSION_ID}" = "26.04" ] && return 0
+  return 1
 }
 
 isfreebsd() {
