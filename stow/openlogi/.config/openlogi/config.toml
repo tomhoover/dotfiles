@@ -53,7 +53,15 @@ bluetooth = false
 [devices."serial:2621apxba0n8".bindings]
 DpiToggle = "MiddleClick"
 
+[devices."serial:2621apxba0n8".per_app_bindings."com.apple.Safari"]
+ThumbwheelScrollUp = "NextTab"
+ThumbwheelScrollDown = "PrevTab"
+
 [devices."serial:2621apxba0n8".per_app_bindings."com.brave.Browser"]
+ThumbwheelScrollUp = "NextTab"
+ThumbwheelScrollDown = "PrevTab"
+
+[devices."serial:2621apxba0n8".per_app_bindings."org.mozilla.firefox"]
 ThumbwheelScrollUp = "NextTab"
 ThumbwheelScrollDown = "PrevTab"
 
