@@ -35,7 +35,7 @@ lib =
         mydesktop || mylaptop
     }
     mydesktop() {
-        on tom@bethel
+        on tom@bethel || on tom@carmel
     }
     mylaptop() {
         on tom@ariel || on tom@manuel || on tom@theophilus

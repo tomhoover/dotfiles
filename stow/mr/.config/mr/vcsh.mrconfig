@@ -87,8 +87,8 @@ fixups =
     chmod -R go= $HOME/.config
     chmod 600 $HOME/.ssh/*_rsa
     chmod 600 $HOME/.my.cnf
-    [[ $hostname == ariel || $hostname == bethel ]] && ln -nsf "$HOME/.config/karabiner-`hostname -s`" "$HOME/.config/karabiner" || true
-    [[ $hostname == ariel || $hostname == bethel ]] && launchctl kickstart -k gui/$(id -u)/org.pqrs.service.agent.karabiner_console_user_server|| true
+    isdarwin && ln -nsf "$HOME/.config/karabiner-`hostname -s`" "$HOME/.config/karabiner" || true
+    isdarwin && launchctl kickstart -k "gui/$(id -u)/org.pqrs.service.agent.Karabiner-Console-User-Server" || true
     cd "$MR_REPO"
     [ $(vcsh private config get core.bare) = false ] || vcsh private config set core.bare false
     grep -q '\[remote "gitolite"\]'  config && vcsh private remote rename gitolite origin || true
