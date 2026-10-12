@@ -72,6 +72,7 @@ AUR_PKGS=( #{{{
 DARWIN_PKGS=( #{{{
   brave-browser
   tailscale-app
+  haimgel/tools/display_switch
 ) #}}}
 
 DEBIAN_PKGS=( #{{{
@@ -196,35 +197,6 @@ get_default_branch() { #{{{
 
 ###
 
-create_ssh_key() { #{{{
-  if [ ! "$(id -u)" -eq 0 ] && [ ! -f ~/.ssh/id_ed25519_"${MYHOST}".pub ]; then
-    echo
-    success "Creating ssh key for ${MYHOST}..."
-    echo && ssh-keygen -t ed25519 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_ed25519_"${MYHOST}"
-    export NEW_SSH_KEY=1
-  fi
-} #}}}
-
-clone_apt_vcsh() { #{{{
-  if isdebian; then
-    github_vclone apt
-    if [ -f "$HOME/.config/apt/installed" ]; then
-      local apt_pkgs=()
-      local line
-      while IFS= read -r line || [ -n "$line" ]; do
-        [ -n "$line" ] && apt_pkgs+=("$line")
-      done <"$HOME/.config/apt/installed"
-      if [ "${#apt_pkgs[@]}" -gt 0 ]; then
-        sudo apt-get update
-        sudo apt-get --yes install "${apt_pkgs[@]}"
-        sudo apt-mark manual "${apt_pkgs[@]}" # this line is probably not needed, but added for good measure
-      fi
-    else
-      warn "$HOME/.config/apt/installed not found; skipping apt package restore"
-    fi
-  fi
-} #}}}
-
 backup_file() { #{{{
   local target="${1:-}"
   [ -z "$target" ] && return 1
@@ -287,6 +259,32 @@ localhost_vclone() { #{{{
   vclone "$1" "${HOME}/git/${1}-vcsh.git"
 } #}}}
 
+clone_apt_vcsh() { #{{{
+  if isdebian; then
+    github_vclone apt
+    if [ -f "$HOME/.config/apt/installed" ]; then
+      local apt_pkgs=()
+      local line
+      while IFS= read -r line || [ -n "$line" ]; do
+        [ -n "$line" ] && apt_pkgs+=("$line")
+      done <"$HOME/.config/apt/installed"
+      if [ "${#apt_pkgs[@]}" -gt 0 ]; then
+        sudo apt-get update
+        sudo apt-get --yes install "${apt_pkgs[@]}"
+        sudo apt-mark manual "${apt_pkgs[@]}" # this line is probably not needed, but added for good measure
+      fi
+    else
+      warn "$HOME/.config/apt/installed not found; skipping apt package restore"
+    fi
+  fi
+} #}}}
+
+start_brew_services() { #{{{
+  if [ -f ~/Library/Preferences/display-switch.ini ]; then
+    brew services restart haimgel/tools/display_switch
+  fi
+} #}}}
+
 install_caps2esc() { #{{{
   if [ -f /etc/interception/udevmon.yaml ]; then
     sudo mv /etc/interception/udevmon.yaml /etc/interception/udevmon.yaml-disabled
@@ -327,13 +325,6 @@ set_private_repos_tracking() { #{{{
   done
 } #}}}
 
-setup_keychain() { #{{{
-  # start ssh-agent & load key
-  command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_ed25519_"${MYHOST}" id_rsa_"${MYHOST}" github_rsa id_rsa)"
-  # shellcheck disable=SC1090
-  [ -f "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
-} #}}}
-
 setup_tailscale() { #{{{
   local tailscale_key="${TAILSCALE_KEY:-}"
   if [ -f "${HOME}/.SECRETS" ]; then
@@ -356,6 +347,22 @@ setup_tailscale() { #{{{
     error "Unknown OS..."
     echo
     exit 10
+  fi
+} #}}}
+
+setup_keychain() { #{{{
+  # start ssh-agent & load key
+  command -v keychain >/dev/null 2>&1 && eval "$(keychain --quiet --ignore-missing --eval id_ed25519_"${MYHOST}" id_rsa_"${MYHOST}" github_rsa id_rsa)"
+  # shellcheck disable=SC1090
+  [ -f "$HOME"/.keychain/"$(uname -n)"-sh ] && source "$HOME"/.keychain/"$(uname -n)"-sh
+} #}}}
+
+create_ssh_key() { #{{{
+  if [ ! "$(id -u)" -eq 0 ] && [ ! -f ~/.ssh/id_ed25519_"${MYHOST}".pub ]; then
+    echo
+    success "Creating ssh key for ${MYHOST}..."
+    echo && ssh-keygen -t ed25519 -C "$(whoami)@${MYHOST}" -f "${HOME}"/.ssh/id_ed25519_"${MYHOST}"
+    export NEW_SSH_KEY=1
   fi
 } #}}}
 
@@ -597,6 +604,7 @@ setup_tailscale
 set_private_repos_tracking
 isarch && install_caps2esc || true
 # isarch && ~/.dotfiles/script/arch
+isdarwin && start_brew_services || true
 isdebian && clone_apt_vcsh || true
 
 echo
