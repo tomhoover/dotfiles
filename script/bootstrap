@@ -71,8 +71,9 @@ AUR_PKGS=( #{{{
 
 DARWIN_PKGS=( #{{{
   brave-browser
-  tailscale-app
   haimgel/tools/display_switch
+  openlogi
+  tailscale-app
 ) #}}}
 
 DEBIAN_PKGS=( #{{{
@@ -478,7 +479,7 @@ stow_dotfiles_pkgs() { #{{{
     fi
   done
 
-  "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr starship tmux vcsh vim yazi
+  "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R "${MYHOST}" direnv duplicacy home liquidprompt mr openlogi starship tmux vcsh vim yazi
   isdarwin && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R darwin || true
   islinux && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R linux || true
   isarch && "$BIN"/stow -d ~/.dotfiles/stow -t ~ -R arch || true
