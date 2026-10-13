@@ -561,7 +561,7 @@ if isdarwin; then
   [ -f /opt/homebrew/bin/brew ] && BIN="/opt/homebrew/bin"
 fi
 
-[[ "${BASH_SOURCE[0]}" != "${0}" ]] && return 0 # being sourced — stop here
+[[ "${BASH_SOURCE[0]-$0}" != "$0" ]] && return 0 # being sourced — stop here
 
 if ! [ $# -eq 0 ]; then
   case "${1:-}" in #{{{
