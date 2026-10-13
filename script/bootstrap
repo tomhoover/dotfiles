@@ -555,6 +555,17 @@ clone_dotfiles_repo() { #{{{
   fi
 } #}}}
 
+install_homebrew_if_missing() { #{{{
+  if isdarwin; then
+    if ! command -v brew >/dev/null 2>&1; then
+      info "Installing Homebrew..."
+      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+  fi
+} #}}}
+
+install_homebrew_if_missing
+
 BIN="/usr/bin"
 if isdarwin; then
   [ -f /usr/local/bin/brew ] && BIN="/usr/local/bin"
